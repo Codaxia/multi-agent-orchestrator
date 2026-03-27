@@ -1,0 +1,1001 @@
+{
+  "tasks": [
+    {
+      "id": "T01",
+      "title": "Setup projet Node.js + Vite",
+      "description": "Initialisation complète du projet avec package.json, installation des dépendances Express, Vite et React. Configuration du proxy Vite pour rediriger les appels /api vers le serveur Express sur le port 3001. Vérification du démarrage simultané frontend + backend via concurrently.",
+      "column": "Done",
+      "assignedAgent": "developer",
+      "priority": "Must",
+      "completedAt": "2026-03-22",
+      "acceptanceCriteria": [
+        {
+          "id": "T01-ac1",
+          "text": "npm run dev démarre Vite + Express sans erreur",
+          "done": true
+        },
+        {
+          "id": "T01-ac2",
+          "text": "package.json contient tous les scripts (dev, build, start, server, client)",
+          "done": true
+        },
+        {
+          "id": "T01-ac3",
+          "text": "Proxy /api → localhost:3001 configuré dans vite.config.js",
+          "done": true
+        }
+      ],
+      "subTasks": [
+        {
+          "id": "T01-st1",
+          "text": "Créer package.json avec scripts dev/build/start",
+          "status": "done"
+        },
+        {
+          "id": "T01-st2",
+          "text": "Installer Express, Vite, React, concurrently, @hello-pangea/dnd",
+          "status": "done"
+        },
+        {
+          "id": "T01-st3",
+          "text": "Configurer proxy Vite dans vite.config.js",
+          "status": "done"
+        }
+      ],
+      "activity": [
+        {
+          "agent": "PM Discovery",
+          "action": "Tâche créée et priorisée Must — bloquante pour tout le reste",
+          "timestamp": "2026-03-22T14:00:00Z"
+        },
+        {
+          "agent": "Architect",
+          "action": "Stack validé : Node.js + Express + Vite + React",
+          "timestamp": "2026-03-22T14:20:00Z"
+        },
+        {
+          "agent": "Developer",
+          "action": "npm init + install dépendances + proxy Vite configuré",
+          "timestamp": "2026-03-22T14:45:00Z"
+        },
+        {
+          "agent": "CTO Reviewer",
+          "action": "Structure validée — npm run dev opérationnel",
+          "timestamp": "2026-03-22T17:30:00Z"
+        }
+      ],
+      "updatedAt": "2026-03-23T01:11:32.912Z"
+    },
+    {
+      "id": "T02",
+      "title": "Structure dossiers src/components",
+      "description": "Création de l'arborescence complète : src/components pour les composants React, src/hooks pour les hooks custom, data/ pour les fichiers JSON de données. Organisation permettant une scalabilité immédiate du projet sans refactoring.",
+      "column": "Done",
+      "assignedAgent": "developer",
+      "priority": "Must",
+      "completedAt": "2026-03-22",
+      "acceptanceCriteria": [
+        {
+          "id": "T02-ac1",
+          "text": "Dossiers src/components, src/hooks et data/ créés",
+          "done": true
+        },
+        {
+          "id": "T02-ac2",
+          "text": "Structure cohérente avec les conventions React modernes",
+          "done": true
+        }
+      ],
+      "subTasks": [
+        {
+          "id": "T02-st1",
+          "text": "Créer src/components/",
+          "status": "done"
+        },
+        {
+          "id": "T02-st2",
+          "text": "Créer src/hooks/",
+          "status": "done"
+        },
+        {
+          "id": "T02-st3",
+          "text": "Créer data/",
+          "status": "done"
+        }
+      ],
+      "activity": [
+        {
+          "agent": "Architect",
+          "action": "Séparation hooks/components/data validée dans l'ADR #1",
+          "timestamp": "2026-03-22T14:05:00Z"
+        },
+        {
+          "agent": "Developer",
+          "action": "Arborescence créée — 3 dossiers",
+          "timestamp": "2026-03-22T14:50:00Z"
+        },
+        {
+          "agent": "CTO Reviewer",
+          "action": "Structure approuvée",
+          "timestamp": "2026-03-22T17:31:00Z"
+        }
+      ]
+    },
+    {
+      "id": "T03",
+      "title": "Fichier data/pipeline-status.json",
+      "description": "Création et population du fichier JSON des 9 agents avec leurs statuts initiaux (idle/active/done/blocked), leurs noms, rôles et derniers messages. Ce fichier est la source de vérité pour l'état temps réel de la pipeline.",
+      "column": "Done",
+      "assignedAgent": "developer",
+      "priority": "Must",
+      "completedAt": "2026-03-22",
+      "acceptanceCriteria": [
+        {
+          "id": "T03-ac1",
+          "text": "9 agents présents avec id, name, role, status, lastMessage, updatedAt",
+          "done": true
+        },
+        {
+          "id": "T03-ac2",
+          "text": "Statuts variés pour illustrer idle/active/done",
+          "done": true
+        },
+        {
+          "id": "T03-ac3",
+          "text": "JSON valide et parseable sans erreur",
+          "done": true
+        }
+      ],
+      "subTasks": [
+        {
+          "id": "T03-st1",
+          "text": "Définir les 9 agents de la pipeline Codaxia",
+          "status": "done"
+        },
+        {
+          "id": "T03-st2",
+          "text": "Assigner des statuts et messages réalistes de démo",
+          "status": "done"
+        }
+      ],
+      "activity": [
+        {
+          "agent": "PM Discovery",
+          "action": "Liste des 9 agents de pipeline définie dans les user stories",
+          "timestamp": "2026-03-22T14:08:00Z"
+        },
+        {
+          "agent": "Developer",
+          "action": "Fichier JSON créé avec 9 agents et données de démo",
+          "timestamp": "2026-03-22T15:00:00Z"
+        },
+        {
+          "agent": "QA",
+          "action": "JSON validé — tous les champs requis présents",
+          "timestamp": "2026-03-22T16:40:00Z"
+        }
+      ]
+    },
+    {
+      "id": "T04",
+      "title": "Fichier data/tasks.json",
+      "description": "Création et population du fichier JSON des tâches Kanban avec 18 tâches représentatives du workflow Agile. Chaque tâche contient id, titre, description, colonne, agent assigné, priorité MoSCoW, critères d'acceptation, sous-tâches et log d'activité.",
+      "column": "Done",
+      "assignedAgent": "developer",
+      "priority": "Must",
+      "completedAt": "2026-03-22",
+      "acceptanceCriteria": [
+        {
+          "id": "T04-ac1",
+          "text": "18 tâches présentes avec tous les champs requis",
+          "done": true
+        },
+        {
+          "id": "T04-ac2",
+          "text": "Tâches réparties sur au moins 3 colonnes différentes",
+          "done": true
+        },
+        {
+          "id": "T04-ac3",
+          "text": "Priorités MoSCoW variées (Must, Should, Could)",
+          "done": true
+        }
+      ],
+      "subTasks": [
+        {
+          "id": "T04-st1",
+          "text": "Écrire les 18 tâches représentatives du projet",
+          "status": "done"
+        },
+        {
+          "id": "T04-st2",
+          "text": "Valider la structure JSON",
+          "status": "done"
+        }
+      ],
+      "activity": [
+        {
+          "agent": "PM Discovery",
+          "action": "18 tâches listées et priorisées MoSCoW",
+          "timestamp": "2026-03-22T14:10:00Z"
+        },
+        {
+          "agent": "Developer",
+          "action": "Fichier tasks.json créé avec données de démo enrichies",
+          "timestamp": "2026-03-22T15:10:00Z"
+        },
+        {
+          "agent": "QA",
+          "action": "Données vérifiées — toutes les colonnes représentées",
+          "timestamp": "2026-03-22T16:42:00Z"
+        }
+      ]
+    },
+    {
+      "id": "T05",
+      "title": "server.js Express + routes GET/POST /api/agents",
+      "description": "Serveur Express avec routes GET /api/agents (retourne tous les agents) et POST /api/agents/:id (met à jour statut ou lastMessage). Whitelist des champs autorisés, validation des statuts, gestion des erreurs JSON.",
+      "column": "Done",
+      "assignedAgent": "developer",
+      "priority": "Must",
+      "completedAt": "2026-03-22",
+      "updatedAt": "2026-03-22T22:34:17.638Z",
+      "acceptanceCriteria": [
+        {
+          "id": "T05-ac1",
+          "text": "GET /api/agents retourne le JSON des agents avec HTTP 200",
+          "done": true
+        },
+        {
+          "id": "T05-ac2",
+          "text": "POST /api/agents/:id valide le statut avant de persister",
+          "done": true
+        },
+        {
+          "id": "T05-ac3",
+          "text": "Whitelist : seuls status et lastMessage sont modifiables",
+          "done": true
+        },
+        {
+          "id": "T05-ac4",
+          "text": "Réponses d'erreur toujours en JSON (pas HTML Express)",
+          "done": true
+        }
+      ],
+      "subTasks": [
+        {
+          "id": "T05-st1",
+          "text": "Créer server.js avec Express + CORS + body-parser",
+          "status": "done"
+        },
+        {
+          "id": "T05-st2",
+          "text": "Implémenter GET /api/agents",
+          "status": "done"
+        },
+        {
+          "id": "T05-st3",
+          "text": "Implémenter POST /api/agents/:id avec validation whitelist",
+          "status": "done"
+        }
+      ],
+      "activity": [
+        {
+          "agent": "Architect",
+          "action": "Architecture REST définie — GET read-only, POST pour write",
+          "timestamp": "2026-03-22T14:20:00Z"
+        },
+        {
+          "agent": "Developer",
+          "action": "Routes agents implémentées avec whitelist",
+          "timestamp": "2026-03-22T15:30:00Z"
+        },
+        {
+          "agent": "Security Reviewer",
+          "action": "Whitelist vérifiée — injection de champs impossible",
+          "timestamp": "2026-03-22T16:00:00Z"
+        },
+        {
+          "agent": "CTO Reviewer",
+          "action": "Routes validées — error handler global ajouté",
+          "timestamp": "2026-03-22T17:34:00Z"
+        }
+      ]
+    },
+    {
+      "id": "T06",
+      "title": "Route GET/POST /api/tasks",
+      "description": "Routes REST pour les tâches : GET /api/tasks retourne toutes les tâches, POST /api/tasks/:id permet de mettre à jour colonne, priorité, titre, description ou agent assigné. Validation des 5 colonnes et des 4 priorités MoSCoW.",
+      "column": "Done",
+      "assignedAgent": "developer",
+      "priority": "Must",
+      "completedAt": "2026-03-22",
+      "acceptanceCriteria": [
+        {
+          "id": "T06-ac1",
+          "text": "GET /api/tasks retourne toutes les tâches",
+          "done": true
+        },
+        {
+          "id": "T06-ac2",
+          "text": "POST /api/tasks/:id valide colonne et priorité avant persistance",
+          "done": true
+        },
+        {
+          "id": "T06-ac3",
+          "text": "Whitelist : column, priority, title, description, assignedAgent uniquement",
+          "done": true
+        }
+      ],
+      "subTasks": [
+        {
+          "id": "T06-st1",
+          "text": "Implémenter GET /api/tasks",
+          "status": "done"
+        },
+        {
+          "id": "T06-st2",
+          "text": "Implémenter POST /api/tasks/:id avec whitelist et validation",
+          "status": "done"
+        }
+      ],
+      "activity": [
+        {
+          "agent": "Developer",
+          "action": "Routes tasks implémentées",
+          "timestamp": "2026-03-22T15:45:00Z"
+        },
+        {
+          "agent": "Security Reviewer",
+          "action": "Validation des inputs vérifiée — colonnes et priorités whitelistées",
+          "timestamp": "2026-03-22T16:05:00Z"
+        },
+        {
+          "agent": "CTO Reviewer",
+          "action": "Routes approuvées",
+          "timestamp": "2026-03-22T17:35:00Z"
+        }
+      ]
+    },
+    {
+      "id": "T07",
+      "title": "Middleware CORS + body-parser",
+      "description": "Configuration des middlewares globaux Express : CORS pour les requêtes cross-origin depuis Vite (port 5173), body-parser pour le parsing JSON des corps de requête, et global error handler JSON en dernier middleware.",
+      "column": "Done",
+      "assignedAgent": "developer",
+      "priority": "Must",
+      "completedAt": "2026-03-22",
+      "acceptanceCriteria": [
+        {
+          "id": "T07-ac1",
+          "text": "app.use(cors()) activé avant toutes les routes",
+          "done": true
+        },
+        {
+          "id": "T07-ac2",
+          "text": "app.use(express.json()) activé pour parser les corps JSON",
+          "done": true
+        },
+        {
+          "id": "T07-ac3",
+          "text": "Global error handler retourne du JSON (pas HTML Express)",
+          "done": true
+        }
+      ],
+      "subTasks": [
+        {
+          "id": "T07-st1",
+          "text": "Ajouter cors() et express.json() en middleware global",
+          "status": "done"
+        },
+        {
+          "id": "T07-st2",
+          "text": "Implémenter le global error handler JSON en dernier middleware",
+          "status": "done"
+        }
+      ],
+      "activity": [
+        {
+          "agent": "Developer",
+          "action": "Middlewares CORS et body-parser configurés",
+          "timestamp": "2026-03-22T15:20:00Z"
+        },
+        {
+          "agent": "CTO Reviewer",
+          "action": "Global error handler JSON ajouté lors de la code review",
+          "timestamp": "2026-03-22T17:36:00Z"
+        }
+      ]
+    },
+    {
+      "id": "T08",
+      "title": "Scaffold React : main.jsx + App.jsx + index.css",
+      "description": "Point d'entrée React avec main.jsx, composant racine App.jsx avec routing SPA via useState, et index.css global avec reset box-sizing, variables de couleur et layout flexbox de base.",
+      "column": "Done",
+      "assignedAgent": "developer",
+      "priority": "Must",
+      "completedAt": "2026-03-22",
+      "acceptanceCriteria": [
+        {
+          "id": "T08-ac1",
+          "text": "main.jsx monte React dans #root sans erreur console",
+          "done": true
+        },
+        {
+          "id": "T08-ac2",
+          "text": "App.jsx gère le routing entre les vues avec useState",
+          "done": true
+        },
+        {
+          "id": "T08-ac3",
+          "text": "index.css contient reset box-sizing et layout flexbox global",
+          "done": true
+        }
+      ],
+      "subTasks": [
+        {
+          "id": "T08-st1",
+          "text": "Créer main.jsx avec ReactDOM.createRoot",
+          "status": "done"
+        },
+        {
+          "id": "T08-st2",
+          "text": "Créer App.jsx avec état currentView",
+          "status": "done"
+        },
+        {
+          "id": "T08-st3",
+          "text": "Créer index.css avec reset et layout de base",
+          "status": "done"
+        }
+      ],
+      "activity": [
+        {
+          "agent": "Developer",
+          "action": "Scaffold React créé — main.jsx + App.jsx + index.css",
+          "timestamp": "2026-03-22T15:00:00Z"
+        },
+        {
+          "agent": "CTO Reviewer",
+          "action": "Architecture SPA avec état local validée",
+          "timestamp": "2026-03-22T17:37:00Z"
+        }
+      ]
+    },
+    {
+      "id": "T09",
+      "title": "Hook usePolling (polling toutes les 2.5s)",
+      "description": "Hook custom React pour le polling périodique. Utilise setTimeout récursif (pas setInterval) pour éviter les appels parallèles. Cleanup au démontage via mountedRef pour prévenir les memory leaks et setState sur composant démonté.",
+      "column": "Done",
+      "assignedAgent": "developer",
+      "priority": "Must",
+      "completedAt": "2026-03-22",
+      "acceptanceCriteria": [
+        {
+          "id": "T09-ac1",
+          "text": "usePolling accepte url et interval en paramètres",
+          "done": true
+        },
+        {
+          "id": "T09-ac2",
+          "text": "Retourne { data, error, loading } correctement",
+          "done": true
+        },
+        {
+          "id": "T09-ac3",
+          "text": "Cleanup au démontage — aucun setState après unmount",
+          "done": true
+        },
+        {
+          "id": "T09-ac4",
+          "text": "setTimeout récursif (pas setInterval) pour éviter la dérive",
+          "done": true
+        }
+      ],
+      "subTasks": [
+        {
+          "id": "T09-st1",
+          "text": "Implémenter usePolling avec mountedRef et timerRef",
+          "status": "done"
+        },
+        {
+          "id": "T09-st2",
+          "text": "Tester le cleanup au démontage du composant",
+          "status": "done"
+        }
+      ],
+      "activity": [
+        {
+          "agent": "Architect",
+          "action": "Pattern setTimeout récursif recommandé pour éviter la dérive temporelle",
+          "timestamp": "2026-03-22T14:25:00Z"
+        },
+        {
+          "agent": "Developer",
+          "action": "usePolling implémenté avec mountedRef — memory leak impossible",
+          "timestamp": "2026-03-22T15:15:00Z"
+        },
+        {
+          "agent": "CTO Reviewer",
+          "action": "Hook validé — pattern correct, 0 memory leak possible",
+          "timestamp": "2026-03-22T17:38:00Z"
+        }
+      ]
+    },
+    {
+      "id": "T10",
+      "title": "Composant Sidebar (nav entre les vues)",
+      "description": "Sidebar gauche sombre (#1a1a2e) avec navigation entre les vues. Liens avec icônes emoji, état actif visuellement distingué en violet (#6c63ff), logo Codaxia en haut, version en bas.",
+      "column": "Done",
+      "assignedAgent": "developer",
+      "priority": "Must",
+      "completedAt": "2026-03-22",
+      "acceptanceCriteria": [
+        {
+          "id": "T10-ac1",
+          "text": "Clic sur un lien change immédiatement la vue active",
+          "done": true
+        },
+        {
+          "id": "T10-ac2",
+          "text": "Lien actif visuellement distingué (fond sombre + couleur violette)",
+          "done": true
+        },
+        {
+          "id": "T10-ac3",
+          "text": "aria-current='page' sur le lien actif pour l'accessibilité",
+          "done": true
+        }
+      ],
+      "subTasks": [
+        {
+          "id": "T10-st1",
+          "text": "Créer Sidebar.jsx avec props currentView et onViewChange",
+          "status": "done"
+        },
+        {
+          "id": "T10-st2",
+          "text": "Styler avec CSS dark theme #1a1a2e",
+          "status": "done"
+        }
+      ],
+      "activity": [
+        {
+          "agent": "Developer",
+          "action": "Composant Sidebar créé avec navigation et styles",
+          "timestamp": "2026-03-22T15:50:00Z"
+        },
+        {
+          "agent": "CTO Reviewer",
+          "action": "aria-current ajouté pour l'accessibilité WCAG 2.1",
+          "timestamp": "2026-03-22T17:39:00Z"
+        }
+      ]
+    },
+    {
+      "id": "T11",
+      "title": "Composant Header",
+      "description": "Header fixe avec titre 'Codaxia Dashboard' et indicateur de statut live avec dot animé en vert pulsant signalant que le polling est actif en temps réel.",
+      "column": "Done",
+      "assignedAgent": "developer",
+      "priority": "Should",
+      "completedAt": "2026-03-22",
+      "acceptanceCriteria": [
+        {
+          "id": "T11-ac1",
+          "text": "Header visible avec titre Codaxia Dashboard",
+          "done": true
+        },
+        {
+          "id": "T11-ac2",
+          "text": "Indicateur Live avec animation CSS pulse verte",
+          "done": true
+        },
+        {
+          "id": "T11-ac3",
+          "text": "Hauteur fixe 56px — ne compresse pas le contenu principal",
+          "done": true
+        }
+      ],
+      "subTasks": [
+        {
+          "id": "T11-st1",
+          "text": "Créer Header.jsx avec titre et status indicator animé",
+          "status": "done"
+        }
+      ],
+      "activity": [
+        {
+          "agent": "Developer",
+          "action": "Composant Header créé avec dot pulsant",
+          "timestamp": "2026-03-22T16:00:00Z"
+        },
+        {
+          "agent": "CTO Reviewer",
+          "action": "Design validé — cohérent avec le reste du dashboard",
+          "timestamp": "2026-03-22T17:40:00Z"
+        }
+      ]
+    },
+    {
+      "id": "T12",
+      "title": "Composant AgentCard (statut, animation pulse)",
+      "description": "Carte individuelle d'un agent avec nom, icône emoji, badge statut coloré (active/idle/done/blocked), dernier message et animation CSS cardPulse sur la bordure verte quand l'agent est actif.",
+      "column": "Done",
+      "assignedAgent": "developer",
+      "priority": "Must",
+      "completedAt": "2026-03-22",
+      "acceptanceCriteria": [
+        {
+          "id": "T12-ac1",
+          "text": "Badge statut avec couleur correcte pour chaque état",
+          "done": true
+        },
+        {
+          "id": "T12-ac2",
+          "text": "Animation cardPulse visible sur status='active'",
+          "done": true
+        },
+        {
+          "id": "T12-ac3",
+          "text": "lastMessage affiché dans la section 'Last action'",
+          "done": true
+        }
+      ],
+      "subTasks": [
+        {
+          "id": "T12-st1",
+          "text": "Créer AgentCard.jsx avec badge et animation pulse",
+          "status": "done"
+        },
+        {
+          "id": "T12-st2",
+          "text": "Styler les 4 états (active/idle/done/blocked) en CSS",
+          "status": "done"
+        }
+      ],
+      "activity": [
+        {
+          "agent": "Developer",
+          "action": "AgentCard créé avec 4 états et animation pulse",
+          "timestamp": "2026-03-22T16:10:00Z"
+        },
+        {
+          "agent": "QA",
+          "action": "Animation testée sur les 4 statuts — comportement correct",
+          "timestamp": "2026-03-22T16:50:00Z"
+        }
+      ]
+    },
+    {
+      "id": "T13",
+      "title": "Composant AgentBoard (grille 3×3 des 9 agents)",
+      "description": "Vue pipeline affichant les 9 agents en grille responsive auto-fill (minmax 290px). Polling /api/agents toutes les 2.5s via usePolling. Gestion états loading (spinner) et error (message rouge role='alert').",
+      "column": "Done",
+      "assignedAgent": "developer",
+      "priority": "Must",
+      "completedAt": "2026-03-22",
+      "acceptanceCriteria": [
+        {
+          "id": "T13-ac1",
+          "text": "Grille affiche les 9 agents via polling automatique",
+          "done": true
+        },
+        {
+          "id": "T13-ac2",
+          "text": "State loading affiche un spinner centré",
+          "done": true
+        },
+        {
+          "id": "T13-ac3",
+          "text": "State error affiche un message rouge avec role='alert'",
+          "done": true
+        }
+      ],
+      "subTasks": [
+        {
+          "id": "T13-st1",
+          "text": "Créer AgentBoard.jsx avec usePolling /api/agents",
+          "status": "done"
+        },
+        {
+          "id": "T13-st2",
+          "text": "Grille CSS responsive auto-fill minmax(290px, 1fr)",
+          "status": "done"
+        }
+      ],
+      "activity": [
+        {
+          "agent": "Developer",
+          "action": "AgentBoard créé — grille responsive + polling 2.5s",
+          "timestamp": "2026-03-22T16:20:00Z"
+        },
+        {
+          "agent": "QA",
+          "action": "Polling vérifié — mise à jour toutes les 2.5s confirmée",
+          "timestamp": "2026-03-22T16:55:00Z"
+        }
+      ]
+    },
+    {
+      "id": "T14",
+      "title": "Composant TaskCard (drag & drop)",
+      "description": "Carte tâche intégrée à @hello-pangea/dnd avec titre, description, badge MoSCoW coloré et agent assigné. Props innerRef, draggableProps, dragHandleProps transmis depuis le Draggable parent.",
+      "column": "Done",
+      "assignedAgent": "developer",
+      "priority": "Must",
+      "completedAt": "2026-03-22",
+      "acceptanceCriteria": [
+        {
+          "id": "T14-ac1",
+          "text": "Carte draggable via @hello-pangea/dnd sans erreur",
+          "done": true
+        },
+        {
+          "id": "T14-ac2",
+          "text": "Badge MoSCoW avec couleur correcte par priorité (4 couleurs)",
+          "done": true
+        },
+        {
+          "id": "T14-ac3",
+          "text": "Curseur grab au survol, grabbing pendant le drag",
+          "done": true
+        }
+      ],
+      "subTasks": [
+        {
+          "id": "T14-st1",
+          "text": "Créer TaskCard.jsx avec props DnD",
+          "status": "done"
+        },
+        {
+          "id": "T14-st2",
+          "text": "Styler les 4 priorités MoSCoW avec couleurs distinctes",
+          "status": "done"
+        }
+      ],
+      "activity": [
+        {
+          "agent": "Developer",
+          "action": "TaskCard créé avec intégration DnD complète",
+          "timestamp": "2026-03-22T16:25:00Z"
+        },
+        {
+          "agent": "QA",
+          "action": "Drag & drop testé sur Chrome, Firefox — OK",
+          "timestamp": "2026-03-22T17:00:00Z"
+        }
+      ]
+    },
+    {
+      "id": "T15",
+      "title": "Composant TaskKanban (5 colonnes, drag & drop)",
+      "description": "Board Kanban 5 colonnes avec DragDropContext gérant le glisser-déposer. Optimistic update instantané côté client + POST /api/tasks/:id pour persister. Message d'erreur 4s si le serveur rejette le déplacement.",
+      "column": "Done",
+      "assignedAgent": "developer",
+      "priority": "Must",
+      "completedAt": "2026-03-22",
+      "acceptanceCriteria": [
+        {
+          "id": "T15-ac1",
+          "text": "5 colonnes affichées avec header coloré distinctif par colonne",
+          "done": true
+        },
+        {
+          "id": "T15-ac2",
+          "text": "Drag & drop entre toutes les colonnes fonctionnel",
+          "done": true
+        },
+        {
+          "id": "T15-ac3",
+          "text": "Optimistic update instantané — aucune attente serveur visible",
+          "done": true
+        },
+        {
+          "id": "T15-ac4",
+          "text": "Erreur affichée 4s si le serveur rejette le déplacement",
+          "done": true
+        }
+      ],
+      "subTasks": [
+        {
+          "id": "T15-st1",
+          "text": "Implémenter DragDropContext et handleDragEnd",
+          "status": "done"
+        },
+        {
+          "id": "T15-st2",
+          "text": "Optimistic update avec setTasks avant appel serveur",
+          "status": "done"
+        },
+        {
+          "id": "T15-st3",
+          "text": "Persistance via POST /api/tasks/:id",
+          "status": "done"
+        }
+      ],
+      "activity": [
+        {
+          "agent": "Developer",
+          "action": "TaskKanban créé — 5 colonnes + DnD + optimistic update",
+          "timestamp": "2026-03-22T16:30:00Z"
+        },
+        {
+          "agent": "CTO Reviewer",
+          "action": "dragError state ajouté lors de la review",
+          "timestamp": "2026-03-22T17:42:00Z"
+        },
+        {
+          "agent": "QA",
+          "action": "Drag entre toutes les combinaisons de colonnes testées — OK",
+          "timestamp": "2026-03-22T17:05:00Z"
+        }
+      ]
+    },
+    {
+      "id": "T16",
+      "title": "Données de démo dans les JSON",
+      "description": "Population des fichiers JSON avec 9 agents aux statuts variés et 18 tâches représentatives du projet réel illustrant un workflow Agile.",
+      "column": "Done",
+      "assignedAgent": "developer",
+      "priority": "Should",
+      "completedAt": "2026-03-22",
+      "acceptanceCriteria": [
+        {
+          "id": "T16-ac1",
+          "text": "9 agents avec au moins 3 statuts différents représentés",
+          "done": true
+        },
+        {
+          "id": "T16-ac2",
+          "text": "18 tâches avec priorités MoSCoW variées",
+          "done": true
+        },
+        {
+          "id": "T16-ac3",
+          "text": "Données réalistes et cohérentes avec le projet Codaxia",
+          "done": true
+        }
+      ],
+      "subTasks": [
+        {
+          "id": "T16-st1",
+          "text": "Écrire données agents réalistes (statuts, messages)",
+          "status": "done"
+        },
+        {
+          "id": "T16-st2",
+          "text": "Écrire 18 tâches représentatives du projet",
+          "status": "done"
+        }
+      ],
+      "activity": [
+        {
+          "agent": "PM Discovery",
+          "action": "Scénario de démo validé — données cohérentes avec les user stories",
+          "timestamp": "2026-03-22T14:15:00Z"
+        },
+        {
+          "agent": "Developer",
+          "action": "Données de démo écrites dans les JSON",
+          "timestamp": "2026-03-22T16:35:00Z"
+        }
+      ]
+    },
+    {
+      "id": "T17",
+      "title": "Build Vite + vérification 0 erreur",
+      "description": "Exécution de npm run build pour valider qu'aucune erreur de compilation ne subsiste. Build produit 102 modules transformés en 1.21s pour un bundle de 254kb JS (80kb gzip).",
+      "column": "Done",
+      "assignedAgent": "developer",
+      "priority": "Must",
+      "completedAt": "2026-03-22",
+      "acceptanceCriteria": [
+        {
+          "id": "T17-ac1",
+          "text": "npm run build termine sans erreur ni warning critique",
+          "done": true
+        },
+        {
+          "id": "T17-ac2",
+          "text": "Tous les modules importés sont résolus correctement",
+          "done": true
+        },
+        {
+          "id": "T17-ac3",
+          "text": "Bundle JS généré dans dist/ avec taille raisonnable",
+          "done": true
+        }
+      ],
+      "subTasks": [
+        {
+          "id": "T17-st1",
+          "text": "Corriger les imports manquants ou incorrects",
+          "status": "done"
+        },
+        {
+          "id": "T17-st2",
+          "text": "Valider le build final npm run build",
+          "status": "done"
+        }
+      ],
+      "activity": [
+        {
+          "agent": "Developer",
+          "action": "Build exécuté — 102 modules, 1.21s, 254kb JS, 0 erreur",
+          "timestamp": "2026-03-22T17:10:00Z"
+        },
+        {
+          "agent": "QA",
+          "action": "Build validé — bundle dist/ généré et fonctionnel",
+          "timestamp": "2026-03-22T17:15:00Z"
+        }
+      ]
+    },
+    {
+      "id": "T18",
+      "title": "CTO Review + corrections sécurité",
+      "description": "Review complète du code par le CTO. Deux corrections appliquées : ajout du dragError state et du global error handler JSON dans server.js.",
+      "column": "Done",
+      "assignedAgent": "cto-reviewer",
+      "priority": "Must",
+      "completedAt": "2026-03-22",
+      "acceptanceCriteria": [
+        {
+          "id": "T18-ac1",
+          "text": "0 issue critique de sécurité identifiée non résolue",
+          "done": true
+        },
+        {
+          "id": "T18-ac2",
+          "text": "dragError state implémenté dans TaskKanban.jsx",
+          "done": true
+        },
+        {
+          "id": "T18-ac3",
+          "text": "Global error handler JSON présent en dernier middleware",
+          "done": true
+        }
+      ],
+      "subTasks": [
+        {
+          "id": "T18-st1",
+          "text": "Audit sécurité complet (injection, XSS, CORS, whitelist)",
+          "status": "done"
+        },
+        {
+          "id": "T18-st2",
+          "text": "Appliquer les 2 corrections identifiées",
+          "status": "done"
+        },
+        {
+          "id": "T18-st3",
+          "text": "Re-valider le code après corrections",
+          "status": "done"
+        }
+      ],
+      "activity": [
+        {
+          "agent": "CTO Reviewer",
+          "action": "Code review démarrée — audit sécurité et architecture",
+          "timestamp": "2026-03-22T17:25:00Z"
+        },
+        {
+          "agent": "CTO Reviewer",
+          "action": "2 issues identifiées : dragError state manquant + error handler HTML",
+          "timestamp": "2026-03-22T17:30:00Z"
+        },
+        {
+          "agent": "Developer",
+          "action": "Corrections appliquées — dragError + error handler JSON",
+          "timestamp": "2026-03-22T17:40:00Z"
+        },
+        {
+          "agent": "CTO Reviewer",
+          "action": "APPROVED — 0 issue critique restante, codebase propre",
+          "timestamp": "2026-03-22T17:50:00Z"
+        }
+      ]
+    }
+  ]
+}

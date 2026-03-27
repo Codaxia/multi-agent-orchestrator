@@ -1,0 +1,134 @@
+[
+  {
+    "id": 1,
+    "agent": "PM Discovery",
+    "action": "Brief client analysé — Dashboard multi-agents Codaxia démarré",
+    "timestamp": "2026-03-22T14:00:00Z"
+  },
+  {
+    "id": 2,
+    "agent": "PM Discovery",
+    "action": "9 features identifiées — 7 Must, 2 Should — 0 gold-plating",
+    "timestamp": "2026-03-22T14:05:00Z"
+  },
+  {
+    "id": 3,
+    "agent": "PM Discovery",
+    "action": "18 user stories rédigées avec critères d'acceptation testables",
+    "timestamp": "2026-03-22T14:10:00Z"
+  },
+  {
+    "id": 4,
+    "agent": "PM Discovery",
+    "action": "Scope validé — 0 question ouverte — Prêt pour Architect",
+    "timestamp": "2026-03-22T14:15:00Z"
+  },
+  {
+    "id": 5,
+    "agent": "Architect",
+    "action": "Stack validé : Node.js + Express + Vite + React — 5 ADRs documentés",
+    "timestamp": "2026-03-22T14:20:00Z"
+  },
+  {
+    "id": 6,
+    "agent": "Architect",
+    "action": "Architecture REST définie — 2 ressources : /api/agents et /api/tasks",
+    "timestamp": "2026-03-22T14:25:00Z"
+  },
+  {
+    "id": 7,
+    "agent": "Architect",
+    "action": "Pattern usePolling (setTimeout récursif) recommandé pour le temps réel",
+    "timestamp": "2026-03-22T14:30:00Z"
+  },
+  {
+    "id": 8,
+    "agent": "Architect",
+    "action": "Découpage composants validé — 18 tickets créés, prêt pour Developer",
+    "timestamp": "2026-03-22T14:35:00Z"
+  },
+  {
+    "id": 9,
+    "agent": "Developer",
+    "action": "Setup Node.js + Vite + React — toutes les dépendances installées",
+    "timestamp": "2026-03-22T14:45:00Z"
+  },
+  {
+    "id": 10,
+    "agent": "Developer",
+    "action": "server.js Express créé — routes /api/agents et /api/tasks avec whitelist",
+    "timestamp": "2026-03-22T15:30:00Z"
+  },
+  {
+    "id": 11,
+    "agent": "Security Reviewer",
+    "action": "Audit sécurité routes API — whitelist vérifiée, injection impossible",
+    "timestamp": "2026-03-22T16:00:00Z"
+  },
+  {
+    "id": 12,
+    "agent": "Developer",
+    "action": "Composants React créés : Sidebar, Header, AgentBoard, AgentCard",
+    "timestamp": "2026-03-22T16:10:00Z"
+  },
+  {
+    "id": 13,
+    "agent": "Developer",
+    "action": "Kanban 5 colonnes créé avec drag & drop @hello-pangea/dnd",
+    "timestamp": "2026-03-22T16:30:00Z"
+  },
+  {
+    "id": 14,
+    "agent": "Developer",
+    "action": "usePolling hook custom implémenté (mountedRef + cleanup anti-memory-leak)",
+    "timestamp": "2026-03-22T16:40:00Z"
+  },
+  {
+    "id": 15,
+    "agent": "QA",
+    "action": "Tests manuels complets : polling, drag & drop, états error/loading vérifiés",
+    "timestamp": "2026-03-22T17:00:00Z"
+  },
+  {
+    "id": 16,
+    "agent": "Developer",
+    "action": "Build Vite validé — 102 modules, 1.21s, 254kb JS, 0 erreur console",
+    "timestamp": "2026-03-22T17:10:00Z"
+  },
+  {
+    "id": 17,
+    "agent": "CTO Reviewer",
+    "action": "Code review démarrée — audit architecture, sécurité et accessibilité",
+    "timestamp": "2026-03-22T17:25:00Z"
+  },
+  {
+    "id": 18,
+    "agent": "CTO Reviewer",
+    "action": "2 issues identifiées : dragError state manquant + error handler HTML → JSON",
+    "timestamp": "2026-03-22T17:30:00Z"
+  },
+  {
+    "id": 19,
+    "agent": "Developer",
+    "action": "Corrections CTO appliquées — dragError state + global error handler JSON",
+    "timestamp": "2026-03-22T17:40:00Z"
+  },
+  {
+    "id": 20,
+    "agent": "CTO Reviewer",
+    "action": "APPROVED — Codebase validé, 0 issue critique, prêt pour déploiement",
+    "timestamp": "2026-03-22T17:50:00Z"
+  },
+  {
+    "id": 21,
+    "agent": "QA",
+    "action": "PASSED — Dashboard opérationnel, 0 bug bloquant, UX validée",
+    "timestamp": "2026-03-22T18:00:00Z"
+  },
+  {
+    "id": 22,
+    "agent": "Security Reviewer",
+    "action": "Rapport final : WARNING (approuvé pour usage local) — input size validation recommandée",
+    "timestamp": "2026-03-22T17:58:00Z"
+  }
+]
