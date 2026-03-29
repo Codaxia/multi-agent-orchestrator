@@ -1,18 +1,9 @@
-export default function Header({ squadIcon, squadName, projectName }) {
+export default function Header({ title }) {
   return (
     <header className="header">
+      <div className="header-branding">CODAXIA AGENCE IA</div>
       <h1 className="header-title">
-        {projectName ? (
-          <>
-            <span className="header-squad">{squadIcon} {squadName}</span>
-            <span className="header-sep"> / </span>
-            <span className="header-project">{projectName}</span>
-          </>
-        ) : squadName ? (
-          <span className="header-squad">{squadIcon} {squadName}</span>
-        ) : (
-          <span>Codaxia Agence IA</span>
-        )}
+        <span>{title}</span>
       </h1>
       <div className="status-indicator" role="status" aria-label="System live">
         <span className="status-dot" aria-hidden="true" />

@@ -1,33 +1,41 @@
+const AGENT_ICONS = ['🎯', '📋', '🏗️', '💻', '🔍', '✅', '🔒', '🚀', '📊', '🧠'];
+
 export default function SquadOverview({ squad }) {
   return (
     <div className="squad-overview">
       <div className="squad-overview-header">
-        <span className="squad-overview-icon">{squad.icon}</span>
-        <div>
+        <div className="squad-overview-icon">{squad.icon}</div>
+        <div className="squad-overview-header-text">
           <h2 className="squad-overview-title">{squad.label}</h2>
-          <p className="squad-overview-desc">{squad.description}</p>
+          <p className="squad-overview-description">{squad.description}</p>
         </div>
       </div>
 
-      <div className="squad-overview-section">
-        <h3 className="squad-overview-section-title">
-          Agents de la squad
-          {squad.agents.length > 0 && (
-            <span className="squad-overview-count">{squad.agents.length}</span>
-          )}
-        </h3>
-        {squad.agents.length > 0 ? (
-          <div className="squad-agent-chips">
-            {squad.agents.map((agent) => (
-              <span key={agent} className="squad-agent-chip">{agent}</span>
+      {squad.agents.length > 0 ? (
+        <section className="squad-overview-section">
+          <h3 className="squad-overview-section-title">
+            Agents de la squad
+            <span className="squad-overview-count">{squad.agents.length} agents</span>
+          </h3>
+          <div className="squad-agents-grid">
+            {squad.agents.map((agent, index) => (
+              <div key={agent.name} className="squad-agent-card">
+                <span className="squad-agent-icon">{AGENT_ICONS[index] ?? '🤖'}</span>
+                <div>
+                  <div className="squad-agent-name">{agent.name}</div>
+                  <div className="squad-agent-role">{agent.role}</div>
+                </div>
+              </div>
             ))}
           </div>
-        ) : (
+        </section>
+      ) : (
+        <section className="squad-overview-section">
           <p className="squad-overview-empty">Aucun agent configuré pour cette squad.</p>
-        )}
-      </div>
+        </section>
+      )}
 
-      <button className="squad-overview-add-btn">＋ Nouveau projet</button>
+      <button className="squad-new-project-btn">＋ Nouveau projet</button>
     </div>
   );
 }
