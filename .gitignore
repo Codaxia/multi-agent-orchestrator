@@ -3,3 +3,5 @@ dist/
 server.log
 *.log
 .env
+.claude/worktrees/
+.claude/settings.local.json
