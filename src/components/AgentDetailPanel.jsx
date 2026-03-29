@@ -10,6 +10,20 @@ const STATUS_LABELS = {
   blocked: 'Blocked',
 };
 
+function CloseIcon() {
+  return (
+    <svg viewBox="0 0 20 20" aria-hidden="true" className="panel-close-icon">
+      <path
+        d="M5 5L15 15M15 5L5 15"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.9"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
 // Configure marked for safe rendering
 marked.setOptions({ breaks: true });
 
@@ -72,7 +86,7 @@ export default function AgentDetailPanel({ agent, onClose }) {
           onClick={onClose}
           aria-label="Close details"
         >
-          x
+          <CloseIcon />
         </button>
       </div>
 

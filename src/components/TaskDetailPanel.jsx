@@ -17,6 +17,20 @@ const NEXT_COLUMN = {
   'Done': null,
 };
 
+function CloseIcon() {
+  return (
+    <svg viewBox="0 0 20 20" aria-hidden="true" className="panel-close-icon">
+      <path
+        d="M5 5L15 15M15 5L5 15"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.9"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
 export default function TaskDetailPanel({ task, onClose, onUpdate }) {
   const agentColor = AGENT_COLORS[task.assignedAgent] ?? '#6c63ff';
   const agentLabel = AGENT_DISPLAY_NAMES[task.assignedAgent] ?? task.assignedAgent;
@@ -62,7 +76,9 @@ export default function TaskDetailPanel({ task, onClose, onUpdate }) {
           <span className={`moscow-badge ${moscowClass}`}>{task.priority}</span>
           <h2 className="panel-title">{task.title}</h2>
         </div>
-        <button className="panel-close-btn" onClick={onClose} aria-label="Close details">x</button>
+        <button className="panel-close-btn" onClick={onClose} aria-label="Close details">
+          <CloseIcon />
+        </button>
       </div>
 
       {/* Breadcrumb */}
