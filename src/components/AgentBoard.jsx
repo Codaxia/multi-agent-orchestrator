@@ -29,42 +29,48 @@ export default function AgentBoard({ apiBase = '' }) {
   const agents = data?.agents ?? [];
   const activeCount = agents.filter((a) => a.status === 'active').length;
   const doneCount = agents.filter((a) => a.status === 'done').length;
+  const blockedCount = agents.filter((a) => a.status === 'blocked').length;
   const selectedAgent = agents.find((a) => a.id === selectedAgentId) ?? null;
 
   return (
-    // Clicking outside the panel closes it
-    <div
-      className="agent-board-wrapper"
-      onClick={() => setSelectedAgentId(null)}
-    >
-      <div className="agent-board-main">
-        <section aria-label="Agent Pipeline Monitor">
-          <h2 className="agent-board-title">Agent Pipeline Monitor</h2>
-          <p className="agent-board-subtitle">
-            {doneCount}/{agents.length} agents done
-            {activeCount > 0 && ` · ${activeCount} active`}
-            {' '}· Polling every 2.5s · Cliquer pour les détails
-          </p>
-
-          <div className="agent-grid">
-            {agents.map((agent) => (
-              <AgentCard
-                key={agent.id}
-                agent={agent}
-                isSelected={agent.id === selectedAgentId}
-                onAgentClick={() => setSelectedAgentId(agent.id)}
-              />
-            ))}
+    <div className="agent-board-wrapper">
+      <section className="workspace-panel" aria-label="Agent Pipeline Monitor">
+        <div className="workspace-panel-head">
+          <div>
+            <p className="workspace-panel-eyebrow">Live orchestration view</p>
+            <h2 className="agent-board-title">Agent Pipeline Monitor</h2>
+            <p className="agent-board-subtitle">
+              Surveille la pipeline en temps reel et ouvre un drawer sans casser la grille.
+            </p>
           </div>
-        </section>
-      </div>
+          <div className="workspace-stats">
+            <span className="workspace-stat-pill is-done">{doneCount}/{agents.length} done</span>
+            <span className="workspace-stat-pill is-active">{activeCount} active</span>
+            <span className="workspace-stat-pill is-blocked">{blockedCount} blocked</span>
+            <span className="workspace-stat-pill">Polling 2.5s</span>
+          </div>
+        </div>
 
-      {/* Slide-in agent detail panel */}
+        <div className="agent-grid">
+          {agents.map((agent) => (
+            <AgentCard
+              key={agent.id}
+              agent={agent}
+              isSelected={agent.id === selectedAgentId}
+              onAgentClick={() => setSelectedAgentId(agent.id)}
+            />
+          ))}
+        </div>
+      </section>
+
       {selectedAgent && (
-        <AgentDetailPanel
-          agent={selectedAgent}
-          onClose={() => setSelectedAgentId(null)}
-        />
+        <div className="detail-overlay" onClick={() => setSelectedAgentId(null)} role="presentation">
+          <div className="detail-overlay-backdrop" />
+          <AgentDetailPanel
+            agent={selectedAgent}
+            onClose={() => setSelectedAgentId(null)}
+          />
+        </div>
       )}
     </div>
   );

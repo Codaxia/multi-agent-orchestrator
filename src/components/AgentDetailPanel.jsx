@@ -58,9 +58,9 @@ export default function AgentDetailPanel({ agent, onClose }) {
       aria-label={`Agent detail: ${agent.name}`}
       onClick={(e) => e.stopPropagation()}
     >
-      {/* Colored header */}
       <div className="agent-detail-header" style={{ background: agentColor }}>
         <div className="agent-detail-header-main">
+          <span className="detail-kicker">Agent profile</span>
           <h2 className="agent-detail-name">{agent.name}</h2>
           {agent.role && <p className="agent-detail-role">{agent.role}</p>}
           <span className="agent-detail-status-badge">
@@ -70,9 +70,9 @@ export default function AgentDetailPanel({ agent, onClose }) {
         <button
           className="panel-close-btn agent-detail-close-btn"
           onClick={onClose}
-          aria-label="Fermer le panneau"
+          aria-label="Close details"
         >
-          ×
+          x
         </button>
       </div>
 
@@ -81,7 +81,7 @@ export default function AgentDetailPanel({ agent, onClose }) {
         {mdLoading && (
           <div className="agent-detail-loading">
             <div className="state-spinner" role="status" aria-label="Loading definition" />
-            <span>Chargement de la définition…</span>
+            <span>Chargement de la definition...</span>
           </div>
         )}
         {mdError && (

@@ -54,16 +54,15 @@ export default function TaskDetailPanel({ task, onClose, onUpdate }) {
       aria-label={`Task detail: ${task.title}`}
       onClick={(e) => e.stopPropagation()}
     >
-      {/* Colored accent bar */}
       <div className="panel-accent-bar" style={{ background: agentColor }} />
 
-      {/* Header */}
       <div className="panel-header">
         <div className="panel-header-main">
+          <span className="detail-kicker">Task detail</span>
           <span className={`moscow-badge ${moscowClass}`}>{task.priority}</span>
           <h2 className="panel-title">{task.title}</h2>
         </div>
-        <button className="panel-close-btn" onClick={onClose} aria-label="Fermer le panneau">×</button>
+        <button className="panel-close-btn" onClick={onClose} aria-label="Close details">x</button>
       </div>
 
       {/* Breadcrumb */}

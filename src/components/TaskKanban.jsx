@@ -96,78 +96,83 @@ export default function TaskKanban({ apiBase = '' }) {
   }
 
   return (
-    // Clicking the wrapper (outside the panel) closes the panel
-    <div
-      className="kanban-wrapper"
-      onClick={() => setSelectedTaskId(null)}
-    >
-      {/* Main kanban area */}
-      <div className="kanban-main">
-        <section aria-label="Task Kanban Board">
-          <h2 className="kanban-title">Task Kanban</h2>
-          <p className="kanban-subtitle">
-            {tasks.length} tasks · {COLUMNS.length} colonnes · Drag to move · Polling 2.5s
-            {selectedTask && <span style={{ color: '#6c63ff' }}> · 1 tâche ouverte</span>}
-          </p>
-          {dragError && (
-            <div role="alert" style={{ background: '#fee2e2', color: '#b91c1c', padding: '8px 14px', borderRadius: '6px', marginBottom: '14px', fontSize: '13px' }}>
-              ⚠️ {dragError}
-            </div>
-          )}
+    <div className="kanban-wrapper">
+      <section className="workspace-panel" aria-label="Task Kanban Board">
+        <div className="workspace-panel-head">
+          <div>
+            <p className="workspace-panel-eyebrow">Flow management</p>
+            <h2 className="kanban-title">Task Kanban</h2>
+            <p className="kanban-subtitle">
+              {tasks.length} tasks, {COLUMNS.length} colonnes, drag and drop fluide.
+            </p>
+          </div>
+          <div className="workspace-stats">
+            <span className="workspace-stat-pill">{tasks.length} tasks</span>
+            <span className="workspace-stat-pill">Polling 2.5s</span>
+            {selectedTask && <span className="workspace-stat-pill is-active">1 open drawer</span>}
+          </div>
+        </div>
 
-          <DragDropContext onDragEnd={handleDragEnd}>
-            <div className="kanban-board">
-              {COLUMNS.map((column) => {
-                const columnTasks = tasks.filter((t) => t.column === column);
-                const headerClass = COLUMN_HEADER_CLASSES[column];
+        {dragError && (
+          <div className="workspace-alert" role="alert">
+            {dragError}
+          </div>
+        )}
 
-                return (
-                  <div key={column} className="kanban-column">
-                    <div className={`kanban-column-header ${headerClass}`}>
-                      <span className="kanban-column-title">{column}</span>
-                      <span className="kanban-column-count">{columnTasks.length}</span>
-                    </div>
+        <DragDropContext onDragEnd={handleDragEnd}>
+          <div className="kanban-board">
+            {COLUMNS.map((column) => {
+              const columnTasks = tasks.filter((t) => t.column === column);
+              const headerClass = COLUMN_HEADER_CLASSES[column];
 
-                    <Droppable droppableId={column}>
-                      {(provided, snapshot) => (
-                        <div
-                          className={`kanban-cards-container${snapshot.isDraggingOver ? ' is-dragging-over' : ''}`}
-                          ref={provided.innerRef}
-                          {...provided.droppableProps}
-                        >
-                          {columnTasks.map((task, index) => (
-                            <Draggable key={task.id} draggableId={task.id} index={index}>
-                              {(provided) => (
-                                <TaskCard
-                                  task={task}
-                                  innerRef={provided.innerRef}
-                                  draggableProps={provided.draggableProps}
-                                  dragHandleProps={provided.dragHandleProps}
-                                  isSelected={task.id === selectedTaskId}
-                                  onTaskClick={() => setSelectedTaskId(task.id)}
-                                />
-                              )}
-                            </Draggable>
-                          ))}
-                          {provided.placeholder}
-                        </div>
-                      )}
-                    </Droppable>
+              return (
+                <div key={column} className="kanban-column">
+                  <div className={`kanban-column-header ${headerClass}`}>
+                    <span className="kanban-column-title">{column}</span>
+                    <span className="kanban-column-count">{columnTasks.length}</span>
                   </div>
-                );
-              })}
-            </div>
-          </DragDropContext>
-        </section>
-      </div>
 
-      {/* Slide-in detail panel */}
+                  <Droppable droppableId={column}>
+                    {(provided, snapshot) => (
+                      <div
+                        className={`kanban-cards-container${snapshot.isDraggingOver ? ' is-dragging-over' : ''}`}
+                        ref={provided.innerRef}
+                        {...provided.droppableProps}
+                      >
+                        {columnTasks.map((task, index) => (
+                          <Draggable key={task.id} draggableId={task.id} index={index}>
+                            {(provided) => (
+                              <TaskCard
+                                task={task}
+                                innerRef={provided.innerRef}
+                                draggableProps={provided.draggableProps}
+                                dragHandleProps={provided.dragHandleProps}
+                                isSelected={task.id === selectedTaskId}
+                                onTaskClick={() => setSelectedTaskId(task.id)}
+                              />
+                            )}
+                          </Draggable>
+                        ))}
+                        {provided.placeholder}
+                      </div>
+                    )}
+                  </Droppable>
+                </div>
+              );
+            })}
+          </div>
+        </DragDropContext>
+      </section>
+
       {selectedTask && (
-        <TaskDetailPanel
-          task={selectedTask}
-          onClose={() => setSelectedTaskId(null)}
-          onUpdate={handleTaskUpdate}
-        />
+        <div className="detail-overlay" onClick={() => setSelectedTaskId(null)} role="presentation">
+          <div className="detail-overlay-backdrop" />
+          <TaskDetailPanel
+            task={selectedTask}
+            onClose={() => setSelectedTaskId(null)}
+            onUpdate={handleTaskUpdate}
+          />
+        </div>
       )}
     </div>
   );
