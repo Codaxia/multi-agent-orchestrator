@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
 
 const app = express();
@@ -11,7 +12,8 @@ const SEEDS_DIR = path.join(DATA_DIR, 'seeds');
 const RUNTIME_DIR = path.join(DATA_DIR, 'runtime');
 
 // Whitelist mapping: agent id → .md filename (no path traversal possible)
-const AGENTS_DEFINITIONS_DIR = process.env.CLAUDE_AGENTS_DIR || '.claude/agents';
+const AGENTS_DEFINITIONS_DIR = process.env.CLAUDE_AGENTS_DIR
+  || path.join(os.homedir(), '.claude', 'agents');
 const AGENT_FILE_MAP = {
   'orchestrator': '01-orchestrator.md',
   'pm-discovery': '02-pm-discovery.md',

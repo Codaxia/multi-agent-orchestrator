@@ -10,7 +10,7 @@
 
 ```
 Nom : codaxia-dashboard
-Dossier : [workspace-local]
+Dossier : [workspace local]
 Description : Dashboard Jira-like pour monitorer en temps réel le pipeline d'agents IA de Codaxia.
 
 Stack : Node.js (Express) + React, stockage fichiers JSON, polling toutes les 2-3 secondes, langue anglais.

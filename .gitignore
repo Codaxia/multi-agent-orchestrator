@@ -5,4 +5,6 @@ server.log
 .env
 .claude/worktrees/
 .claude/settings.local.json
+.claude/launch.json
+.claude/settings.json
 data/runtime/
