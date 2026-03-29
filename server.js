@@ -7,13 +7,8 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 const DATA_DIR = path.join(__dirname, 'data');
-const AGENTS_FILE = path.join(DATA_DIR, 'pipeline-status.json');
-const TASKS_FILE = path.join(DATA_DIR, 'tasks.json');
-const ACTIVITY_FILE = path.join(DATA_DIR, 'activity-log.json');
-
-const ATUVU_AGENTS_FILE = path.join(DATA_DIR, 'pipeline-status-atuvu.json');
-const ATUVU_TASKS_FILE = path.join(DATA_DIR, 'tasks-atuvu.json');
-const ATUVU_ACTIVITY_FILE = path.join(DATA_DIR, 'activity-log-atuvu.json');
+const SEEDS_DIR = path.join(DATA_DIR, 'seeds');
+const RUNTIME_DIR = path.join(DATA_DIR, 'runtime');
 
 // Whitelist mapping: agent id → .md filename (no path traversal possible)
 const AGENTS_DEFINITIONS_DIR = process.env.CLAUDE_AGENTS_DIR || '.claude/agents';
@@ -48,17 +43,68 @@ function writeJSON(filePath, data) {
 }
 
 function ensureDataDir() {
-  if (!fs.existsSync(DATA_DIR)) {
-    fs.mkdirSync(DATA_DIR, { recursive: true });
+  ensureDir(DATA_DIR);
+  ensureDir(SEEDS_DIR);
+  ensureDir(RUNTIME_DIR);
+}
+
+function ensureDir(dirPath) {
+  if (!fs.existsSync(dirPath)) {
+    fs.mkdirSync(dirPath, { recursive: true });
   }
 }
+
+function getProjectFiles(projectId = '') {
+  const suffix = projectId ? `-${projectId}` : '';
+
+  return {
+    agents: {
+      legacy: path.join(DATA_DIR, `pipeline-status${suffix}.json`),
+      seed: path.join(SEEDS_DIR, `pipeline-status${suffix}.json`),
+      runtime: path.join(RUNTIME_DIR, `pipeline-status${suffix}.json`),
+    },
+    tasks: {
+      legacy: path.join(DATA_DIR, `tasks${suffix}.json`),
+      seed: path.join(SEEDS_DIR, `tasks${suffix}.json`),
+      runtime: path.join(RUNTIME_DIR, `tasks${suffix}.json`),
+    },
+    activity: {
+      legacy: path.join(DATA_DIR, `activity-log${suffix}.json`),
+      seed: path.join(SEEDS_DIR, `activity-log${suffix}.json`),
+      runtime: path.join(RUNTIME_DIR, `activity-log${suffix}.json`),
+    },
+  };
+}
+
+function ensureRuntimeFile(fileSet) {
+  if (fs.existsSync(fileSet.runtime)) {
+    return;
+  }
+
+  const bootstrapSource = fs.existsSync(fileSet.legacy) ? fileSet.legacy : fileSet.seed;
+
+  if (!fs.existsSync(bootstrapSource)) {
+    throw new Error(`Missing bootstrap data for ${path.basename(fileSet.runtime)}`);
+  }
+
+  fs.copyFileSync(bootstrapSource, fileSet.runtime);
+}
+
+function ensureProjectFiles(projectFiles) {
+  ensureRuntimeFile(projectFiles.agents);
+  ensureRuntimeFile(projectFiles.tasks);
+  ensureRuntimeFile(projectFiles.activity);
+}
+
+const DEFAULT_PROJECT_FILES = getProjectFiles();
+const ATUVU_PROJECT_FILES = getProjectFiles('atuvu');
 
 // ── Routes: Agents ───────────────────────────────────────────────────────────
 
 // GET /api/agents — returns all agents with their statuses
 app.get('/api/agents', (req, res) => {
   try {
-    const data = readJSON(AGENTS_FILE);
+    const data = readJSON(DEFAULT_PROJECT_FILES.agents.runtime);
     res.json(data);
   } catch (err) {
     res.status(500).json({ error: 'Failed to read agents data', details: err.message });
@@ -87,7 +133,7 @@ app.post('/api/agents/:id', (req, res) => {
   }
 
   try {
-    const data = readJSON(AGENTS_FILE);
+    const data = readJSON(DEFAULT_PROJECT_FILES.agents.runtime);
     const idx = data.agents.findIndex((a) => a.id === id);
 
     if (idx === -1) {
@@ -101,7 +147,7 @@ app.post('/api/agents/:id', (req, res) => {
       updatedAt: new Date().toISOString(),
     };
 
-    writeJSON(AGENTS_FILE, data);
+    writeJSON(DEFAULT_PROJECT_FILES.agents.runtime, data);
     res.json(data.agents[idx]);
   } catch (err) {
     res.status(500).json({ error: 'Failed to update agent', details: err.message });
@@ -133,7 +179,7 @@ app.get('/api/agents/:id/definition', (req, res) => {
 // GET /api/tasks — returns all tasks
 app.get('/api/tasks', (req, res) => {
   try {
-    const data = readJSON(TASKS_FILE);
+    const data = readJSON(DEFAULT_PROJECT_FILES.tasks.runtime);
     res.json(data);
   } catch (err) {
     res.status(500).json({ error: 'Failed to read tasks data', details: err.message });
@@ -143,7 +189,7 @@ app.get('/api/tasks', (req, res) => {
 // GET /api/tasks/:id — returns a single task by id
 app.get('/api/tasks/:id', (req, res) => {
   try {
-    const data = readJSON(TASKS_FILE);
+    const data = readJSON(DEFAULT_PROJECT_FILES.tasks.runtime);
     const task = data.tasks.find((t) => t.id === req.params.id);
     if (!task) {
       return res.status(404).json({ error: `Task '${req.params.id}' not found` });
@@ -182,7 +228,7 @@ app.post('/api/tasks/:id', (req, res) => {
   }
 
   try {
-    const data = readJSON(TASKS_FILE);
+    const data = readJSON(DEFAULT_PROJECT_FILES.tasks.runtime);
     const idx = data.tasks.findIndex((t) => t.id === id);
 
     if (idx === -1) {
@@ -196,7 +242,7 @@ app.post('/api/tasks/:id', (req, res) => {
       updatedAt: new Date().toISOString(),
     };
 
-    writeJSON(TASKS_FILE, data);
+    writeJSON(DEFAULT_PROJECT_FILES.tasks.runtime, data);
     res.json(data.tasks[idx]);
   } catch (err) {
     res.status(500).json({ error: 'Failed to update task', details: err.message });
@@ -231,7 +277,7 @@ app.patch('/api/tasks/:id', (req, res) => {
   }
 
   try {
-    const data = readJSON(TASKS_FILE);
+    const data = readJSON(DEFAULT_PROJECT_FILES.tasks.runtime);
     const idx = data.tasks.findIndex((t) => t.id === id);
 
     if (idx === -1) {
@@ -245,7 +291,7 @@ app.patch('/api/tasks/:id', (req, res) => {
       updatedAt: new Date().toISOString(),
     };
 
-    writeJSON(TASKS_FILE, data);
+    writeJSON(DEFAULT_PROJECT_FILES.tasks.runtime, data);
     res.json(data.tasks[idx]);
   } catch (err) {
     res.status(500).json({ error: 'Failed to update task', details: err.message });
@@ -257,7 +303,7 @@ app.patch('/api/tasks/:id', (req, res) => {
 // GET /api/activity — returns the global pipeline activity log
 app.get('/api/activity', (req, res) => {
   try {
-    const data = readJSON(ACTIVITY_FILE);
+    const data = readJSON(DEFAULT_PROJECT_FILES.activity.runtime);
     res.json(data);
   } catch (err) {
     res.status(500).json({ error: 'Failed to read activity data', details: err.message });
@@ -269,7 +315,7 @@ app.get('/api/activity', (req, res) => {
 // GET /api/atuvu/agents
 app.get('/api/atuvu/agents', (req, res) => {
   try {
-    const data = readJSON(ATUVU_AGENTS_FILE);
+    const data = readJSON(ATUVU_PROJECT_FILES.agents.runtime);
     res.json(data);
   } catch (err) {
     res.status(500).json({ error: 'Failed to read atuvu agents data', details: err.message });
@@ -298,7 +344,7 @@ app.post('/api/atuvu/agents/:id', (req, res) => {
   }
 
   try {
-    const data = readJSON(ATUVU_AGENTS_FILE);
+    const data = readJSON(ATUVU_PROJECT_FILES.agents.runtime);
     const idx = data.agents.findIndex((a) => a.id === id);
 
     if (idx === -1) {
@@ -312,7 +358,7 @@ app.post('/api/atuvu/agents/:id', (req, res) => {
       updatedAt: new Date().toISOString(),
     };
 
-    writeJSON(ATUVU_AGENTS_FILE, data);
+    writeJSON(ATUVU_PROJECT_FILES.agents.runtime, data);
     res.json(data.agents[idx]);
   } catch (err) {
     res.status(500).json({ error: 'Failed to update atuvu agent', details: err.message });
@@ -322,7 +368,7 @@ app.post('/api/atuvu/agents/:id', (req, res) => {
 // GET /api/atuvu/tasks
 app.get('/api/atuvu/tasks', (req, res) => {
   try {
-    const data = readJSON(ATUVU_TASKS_FILE);
+    const data = readJSON(ATUVU_PROJECT_FILES.tasks.runtime);
     res.json(data);
   } catch (err) {
     res.status(500).json({ error: 'Failed to read atuvu tasks data', details: err.message });
@@ -357,7 +403,7 @@ app.post('/api/atuvu/tasks/:id', (req, res) => {
   }
 
   try {
-    const data = readJSON(ATUVU_TASKS_FILE);
+    const data = readJSON(ATUVU_PROJECT_FILES.tasks.runtime);
     const idx = data.tasks.findIndex((t) => t.id === id);
 
     if (idx === -1) {
@@ -371,7 +417,7 @@ app.post('/api/atuvu/tasks/:id', (req, res) => {
       updatedAt: new Date().toISOString(),
     };
 
-    writeJSON(ATUVU_TASKS_FILE, data);
+    writeJSON(ATUVU_PROJECT_FILES.tasks.runtime, data);
     res.json(data.tasks[idx]);
   } catch (err) {
     res.status(500).json({ error: 'Failed to update atuvu task', details: err.message });
@@ -406,7 +452,7 @@ app.patch('/api/atuvu/tasks/:id', (req, res) => {
   }
 
   try {
-    const data = readJSON(ATUVU_TASKS_FILE);
+    const data = readJSON(ATUVU_PROJECT_FILES.tasks.runtime);
     const idx = data.tasks.findIndex((t) => t.id === id);
 
     if (idx === -1) {
@@ -420,7 +466,7 @@ app.patch('/api/atuvu/tasks/:id', (req, res) => {
       updatedAt: new Date().toISOString(),
     };
 
-    writeJSON(ATUVU_TASKS_FILE, data);
+    writeJSON(ATUVU_PROJECT_FILES.tasks.runtime, data);
     res.json(data.tasks[idx]);
   } catch (err) {
     res.status(500).json({ error: 'Failed to update atuvu task', details: err.message });
@@ -430,7 +476,7 @@ app.patch('/api/atuvu/tasks/:id', (req, res) => {
 // GET /api/atuvu/activity
 app.get('/api/atuvu/activity', (req, res) => {
   try {
-    const data = readJSON(ATUVU_ACTIVITY_FILE);
+    const data = readJSON(ATUVU_PROJECT_FILES.activity.runtime);
     res.json(data);
   } catch (err) {
     res.status(500).json({ error: 'Failed to read atuvu activity data', details: err.message });
@@ -454,6 +500,8 @@ app.use((err, req, res, next) => {
 // ── Start ─────────────────────────────────────────────────────────────────────
 
 ensureDataDir();
+ensureProjectFiles(DEFAULT_PROJECT_FILES);
+ensureProjectFiles(ATUVU_PROJECT_FILES);
 app.listen(PORT, () => {
   console.log(`Codaxia Dashboard API listening on http://localhost:${PORT}`);
 });
