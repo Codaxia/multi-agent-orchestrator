@@ -1,10 +1,17 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Sidebar from './components/Sidebar.jsx';
 import Header from './components/Header.jsx';
 import AgentBoard from './components/AgentBoard.jsx';
 import TaskKanban from './components/TaskKanban.jsx';
 import ActivityLog from './components/ActivityLog.jsx';
 import SquadOverview from './components/SquadOverview.jsx';
+
+const DASHBOARD_SELECTION_KEY = 'codaxia-dashboard-selection';
+const DEFAULT_SELECTION = {
+  squadId: 'full-build',
+  projectId: 'codaxia',
+  view: 'agents',
+};
 
 const SQUADS = [
   {
@@ -40,24 +47,63 @@ const SQUADS = [
   },
 ];
 
+function readStoredSelection() {
+  if (typeof window === 'undefined') {
+    return DEFAULT_SELECTION;
+  }
+
+  try {
+    const raw = window.localStorage.getItem(DASHBOARD_SELECTION_KEY);
+    if (!raw) {
+      return DEFAULT_SELECTION;
+    }
+
+    const parsed = JSON.parse(raw);
+    return {
+      squadId: parsed.squadId || DEFAULT_SELECTION.squadId,
+      projectId: parsed.projectId ?? DEFAULT_SELECTION.projectId,
+      view: parsed.view || DEFAULT_SELECTION.view,
+    };
+  } catch {
+    return DEFAULT_SELECTION;
+  }
+}
+
 export default function App() {
-  const [selectedSquadId, setSelectedSquadId] = useState('full-build');
-  const [selectedProject, setSelectedProject] = useState(null);
-  const [currentView, setCurrentView] = useState('agents');
+  const initialSelection = readStoredSelection();
+  const [selectedSquadId, setSelectedSquadId] = useState(initialSelection.squadId);
+  const [selectedProjectId, setSelectedProjectId] = useState(initialSelection.projectId);
+  const [currentView, setCurrentView] = useState(initialSelection.view);
 
   const selectedSquad = SQUADS.find((s) => s.id === selectedSquadId) ?? null;
+  const selectedProject = selectedSquad?.projects.find((project) => project.id === selectedProjectId) ?? null;
   const headerTitle = selectedProject
     ? `${selectedSquad?.label} / ${selectedProject.label}`
     : selectedSquad?.label ?? 'Dashboard';
 
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    window.localStorage.setItem(
+      DASHBOARD_SELECTION_KEY,
+      JSON.stringify({
+        squadId: selectedSquadId,
+        projectId: selectedProjectId,
+        view: currentView,
+      }),
+    );
+  }, [selectedSquadId, selectedProjectId, currentView]);
+
   function handleSquadClick(squadId) {
     setSelectedSquadId(squadId);
-    setSelectedProject(null);
+    setSelectedProjectId(null);
   }
 
   function handleProjectClick(project, squadId) {
     setSelectedSquadId(squadId);
-    setSelectedProject(project);
+    setSelectedProjectId(project.id);
     setCurrentView('agents');
   }
 
