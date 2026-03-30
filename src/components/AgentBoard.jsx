@@ -3,8 +3,8 @@ import AgentCard from './AgentCard.jsx';
 import AgentDetailPanel from './AgentDetailPanel.jsx';
 import { usePolling } from '../hooks/usePolling.js';
 
-export default function AgentBoard({ apiBase = '' }) {
-  const { data, error, loading } = usePolling(`/api${apiBase}/agents`, 2500);
+export default function AgentBoard({ project }) {
+  const { data, error, loading } = usePolling(`/api/projects/${project.id}/agents`, 2500);
   const [selectedAgentId, setSelectedAgentId] = useState(null);
 
   if (loading) {
@@ -27,27 +27,27 @@ export default function AgentBoard({ apiBase = '' }) {
   }
 
   const agents = data?.agents ?? [];
-  const activeCount = agents.filter((a) => a.status === 'active').length;
-  const doneCount = agents.filter((a) => a.status === 'done').length;
-  const blockedCount = agents.filter((a) => a.status === 'blocked').length;
-  const selectedAgent = agents.find((a) => a.id === selectedAgentId) ?? null;
+  const activeCount = agents.filter((agent) => agent.status === 'active').length;
+  const doneCount = agents.filter((agent) => agent.status === 'done').length;
+  const blockedCount = agents.filter((agent) => agent.status === 'blocked').length;
+  const selectedAgent = agents.find((agent) => agent.id === selectedAgentId) ?? null;
 
   return (
     <div className="agent-board-wrapper">
       <section className="workspace-panel" aria-label="Agent Pipeline Monitor">
         <div className="workspace-panel-head">
           <div>
-            <p className="workspace-panel-eyebrow">Live orchestration view</p>
+            <p className="workspace-panel-eyebrow">Live pipeline view</p>
             <h2 className="agent-board-title">Agent Pipeline Monitor</h2>
             <p className="agent-board-subtitle">
-              Surveille la pipeline en temps reel et ouvre un drawer sans casser la grille.
+              Pilotage depuis le chat, suivi visuel des handoffs et des statuts de pipeline.
             </p>
           </div>
           <div className="workspace-stats">
             <span className="workspace-stat-pill is-done">{doneCount}/{agents.length} done</span>
             <span className="workspace-stat-pill is-active">{activeCount} active</span>
             <span className="workspace-stat-pill is-blocked">{blockedCount} blocked</span>
-            <span className="workspace-stat-pill">Polling 2.5s</span>
+            <span className="workspace-stat-pill">Synced from chat</span>
           </div>
         </div>
 
@@ -67,6 +67,7 @@ export default function AgentBoard({ apiBase = '' }) {
         <div className="detail-overlay" onClick={() => setSelectedAgentId(null)} role="presentation">
           <div className="detail-overlay-backdrop" />
           <AgentDetailPanel
+            projectId={project.id}
             agent={selectedAgent}
             onClose={() => setSelectedAgentId(null)}
           />

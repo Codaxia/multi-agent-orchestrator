@@ -107,7 +107,7 @@ function CloseIcon() {
 // Configure marked for safe rendering
 marked.setOptions({ breaks: true });
 
-export default function AgentDetailPanel({ agent, onClose }) {
+export default function AgentDetailPanel({ projectId, agent, onClose }) {
   const [markdownContent, setMarkdownContent] = useState(null);
   const [mdLoading, setMdLoading] = useState(true);
   const [mdError, setMdError] = useState(null);
@@ -130,7 +130,7 @@ export default function AgentDetailPanel({ agent, onClose }) {
     setMdError(null);
     setMarkdownContent(null);
 
-    fetch(`/api/agents/${encodeURIComponent(agent.id)}/definition`)
+    fetch(`/api/projects/${encodeURIComponent(projectId)}/agents/${encodeURIComponent(agent.id)}/definition`)
       .then((res) => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const contentType = res.headers.get('content-type') || '';
@@ -148,7 +148,7 @@ export default function AgentDetailPanel({ agent, onClose }) {
         setMdError(err.message);
         setMdLoading(false);
       });
-  }, [agent.id]);
+  }, [agent.id, projectId]);
 
   return (
     <aside

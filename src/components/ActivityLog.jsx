@@ -5,8 +5,8 @@ import { formatRelativeTime } from '../utils/time.js';
 
 const ALL_AGENTS = Object.keys(ACTIVITY_AGENT_COLORS);
 
-export default function ActivityLog({ apiBase = '' }) {
-  const { data, error, loading } = usePolling(`/api${apiBase}/activity`, 5000);
+export default function ActivityLog({ projectId }) {
+  const { data, error, loading } = usePolling(`/api/projects/${projectId}/activity`, 5000);
   const [activeFilter, setActiveFilter] = useState(null);
 
   const entries = Array.isArray(data) ? data : [];

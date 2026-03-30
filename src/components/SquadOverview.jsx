@@ -1,6 +1,6 @@
 const AGENT_ICONS = ['🎯', '📋', '🏗️', '💻', '🔍', '✅', '🔒', '🚀', '📊', '🧠'];
 
-export default function SquadOverview({ squad }) {
+export default function SquadOverview({ squad, onCreateProjectClick }) {
   return (
     <div className="squad-overview">
       <div className="squad-overview-header">
@@ -35,7 +35,7 @@ export default function SquadOverview({ squad }) {
         </section>
       )}
 
-      <button className="squad-new-project-btn">＋ Nouveau projet</button>
+      <button className="squad-new-project-btn" onClick={onCreateProjectClick}>＋ Nouveau projet</button>
     </div>
   );
 }

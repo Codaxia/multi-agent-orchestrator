@@ -14,20 +14,25 @@ const COLUMN_HEADER_CLASSES = {
   Done: 'col-done',
 };
 
-export default function TaskKanban({ apiBase = '' }) {
-  const { data, error, loading } = usePolling(`/api${apiBase}/tasks`, 2500);
+export default function TaskKanban({ projectId }) {
+  const { data, error, loading } = usePolling(`/api/projects/${projectId}/tasks`, 2500);
   const [tasks, setTasks] = useState([]);
   const [dragError, setDragError] = useState(null);
   const [selectedTaskId, setSelectedTaskId] = useState(null);
 
-  // Sync polled data into local state
+  function showTaskError(message) {
+    setDragError(message);
+    window.clearTimeout(showTaskError.timeoutId);
+    showTaskError.timeoutId = window.setTimeout(() => setDragError(null), 4000);
+  }
+
   useEffect(() => {
     if (data?.tasks) {
       setTasks(data.tasks);
     }
   }, [data]);
 
-  const selectedTask = tasks.find((t) => t.id === selectedTaskId) ?? null;
+  const selectedTask = tasks.find((task) => task.id === selectedTaskId) ?? null;
 
   const handleDragEnd = async (result) => {
     const { destination, source, draggableId } = result;
@@ -38,41 +43,45 @@ export default function TaskKanban({ apiBase = '' }) {
     const newColumn = destination.droppableId;
 
     setTasks((prev) =>
-      prev.map((t) => (t.id === draggableId ? { ...t, column: newColumn } : t))
+      prev.map((task) => (task.id === draggableId ? { ...task, column: newColumn } : task)),
     );
 
     try {
-      const resp = await fetch(`/api${apiBase}/tasks/${encodeURIComponent(draggableId)}`, {
+      const response = await fetch(`/api/projects/${projectId}/tasks/${encodeURIComponent(draggableId)}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ column: newColumn }),
       });
-      if (!resp.ok) {
-        const body = await resp.json().catch(() => ({}));
-        setDragError(body.error ?? `Move failed (HTTP ${resp.status})`);
-        setTimeout(() => setDragError(null), 4000);
+
+      if (!response.ok) {
+        const body = await response.json().catch(() => ({}));
+        showTaskError(body.error ?? `Move failed (HTTP ${response.status})`);
       } else {
         setDragError(null);
       }
     } catch {
-      setDragError('Move failed — server unreachable. Reverting on next poll.');
-      setTimeout(() => setDragError(null), 4000);
+      showTaskError('Move failed — server unreachable. Reverting on next poll.');
     }
   };
 
-  // PATCH a task (used by TaskDetailPanel for criteria toggles + column moves)
   const handleTaskUpdate = async (taskId, updates) => {
-    // Optimistic update
-    setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, ...updates } : t)));
+    setTasks((prev) => prev.map((task) => (task.id === taskId ? { ...task, ...updates } : task)));
 
     try {
-      await fetch(`/api${apiBase}/tasks/${encodeURIComponent(taskId)}`, {
+      const response = await fetch(`/api/projects/${projectId}/tasks/${encodeURIComponent(taskId)}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updates),
       });
+
+      if (!response.ok) {
+        const body = await response.json().catch(() => ({}));
+        showTaskError(body.error ?? `Task update failed (HTTP ${response.status})`);
+      } else {
+        setDragError(null);
+      }
     } catch {
-      // silently fail — state already updated optimistically, next poll will reconcile
+      showTaskError('Task update failed — server unreachable. Reverting on next poll.');
     }
   };
 
@@ -103,7 +112,7 @@ export default function TaskKanban({ apiBase = '' }) {
             <p className="workspace-panel-eyebrow">Flow management</p>
             <h2 className="kanban-title">Task Kanban</h2>
             <p className="kanban-subtitle">
-              {tasks.length} tasks, {COLUMNS.length} colonnes, drag and drop fluide.
+              {tasks.length} tasks, {COLUMNS.length} columns, drag and drop enabled.
             </p>
           </div>
           <div className="workspace-stats">
@@ -114,7 +123,7 @@ export default function TaskKanban({ apiBase = '' }) {
         </div>
 
         {dragError && (
-          <div className="workspace-alert" role="alert">
+          <div className="workspace-alert workspace-alert-error" role="alert">
             {dragError}
           </div>
         )}
@@ -122,7 +131,7 @@ export default function TaskKanban({ apiBase = '' }) {
         <DragDropContext onDragEnd={handleDragEnd}>
           <div className="kanban-board">
             {COLUMNS.map((column) => {
-              const columnTasks = tasks.filter((t) => t.column === column);
+              const columnTasks = tasks.filter((task) => task.column === column);
               const headerClass = COLUMN_HEADER_CLASSES[column];
 
               return (
@@ -141,12 +150,12 @@ export default function TaskKanban({ apiBase = '' }) {
                       >
                         {columnTasks.map((task, index) => (
                           <Draggable key={task.id} draggableId={task.id} index={index}>
-                            {(provided) => (
+                            {(draggableProvided) => (
                               <TaskCard
                                 task={task}
-                                innerRef={provided.innerRef}
-                                draggableProps={provided.draggableProps}
-                                dragHandleProps={provided.dragHandleProps}
+                                innerRef={draggableProvided.innerRef}
+                                draggableProps={draggableProvided.draggableProps}
+                                dragHandleProps={draggableProvided.dragHandleProps}
                                 isSelected={task.id === selectedTaskId}
                                 onTaskClick={() => setSelectedTaskId(task.id)}
                               />

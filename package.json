@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Jira-like dashboard for monitoring Codaxia AI agent pipeline in real-time",
   "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
     "start": "concurrently \"npm run server\" \"npm run client\"",
     "server": "node server.js",
     "client": "vite",
@@ -17,12 +18,12 @@
     "concurrently": "^8.2.2",
     "cors": "^2.8.5",
     "express": "^4.18.2",
-    "marked": "^17.0.5"
+    "marked": "^17.0.5",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.2.1",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
     "vite": "^5.1.0"
   }
 }

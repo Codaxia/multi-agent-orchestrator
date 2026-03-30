@@ -1875,6 +1875,7 @@ html, body, #root {
   border: 1px solid rgba(15, 23, 40, 0.06);
   box-shadow: 0 10px 20px rgba(15, 23, 40, 0.07);
   margin-bottom: 12px;
+  background: white;
 }
 
 .task-card:hover {
@@ -2145,4 +2146,189 @@ html, body, #root {
   .activity-log-title {
     font-size: 22px;
   }
+}
+
+.status-indicator[aria-label*="Failed"] .status-dot,
+.status-indicator[aria-label*="Needs Attention"] .status-dot,
+.status-indicator[aria-label*="Stopped"] .status-dot {
+  background: #ef4444;
+}
+
+.modal-field span {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: #6b7280;
+}
+
+.modal-field input,
+.modal-field select,
+.modal-field textarea {
+  width: 100%;
+  border: 1px solid #d7dce3;
+  background: white;
+  padding: 11px 12px;
+  color: #172b4d;
+  font: inherit;
+  resize: vertical;
+}
+
+.modal-field input:focus,
+.modal-field select:focus,
+.modal-field textarea:focus {
+  outline: none;
+  border-color: #6c63ff;
+  box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.12);
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.button {
+  border: 1px solid transparent;
+  padding: 10px 14px;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s, opacity 0.15s;
+}
+
+.button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.button-primary {
+  background: #172b4d;
+  color: white;
+}
+
+.button-primary:hover:not(:disabled) {
+  background: #0f1f3d;
+}
+
+.button-ghost {
+  background: white;
+  color: #334155;
+  border-color: #d7dce3;
+}
+
+.button-ghost:hover:not(:disabled) {
+  background: #f8fafc;
+}
+
+.workspace-alert {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border: 1px solid #dbe4ff;
+  background: #f8fbff;
+  color: #334155;
+  font-size: 12px;
+}
+
+.workspace-alert-error {
+  border-color: #fecaca;
+  background: #fff5f5;
+  color: #b91c1c;
+}
+
+.workspace-alert-warning {
+  border-color: #fed7aa;
+  background: #fff7ed;
+  color: #c2410c;
+}
+
+.squad-project-main {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 60;
+}
+
+.modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(9, 16, 29, 0.16);
+  backdrop-filter: blur(1px);
+}
+
+.modal-card {
+  position: relative;
+  width: min(560px, 100%);
+  background: white;
+  border: 1px solid #d7dce3;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.16);
+  padding: 22px;
+  display: grid;
+  gap: 18px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.modal-eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.7px;
+  text-transform: uppercase;
+  color: #6b7280;
+  margin-bottom: 6px;
+}
+
+.modal-header h2 {
+  font-size: 20px;
+  color: #172b4d;
+}
+
+.modal-close-btn {
+  width: 36px;
+  height: 36px;
+  border: 1px solid #d7dce3;
+  background: white;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.modal-close-btn svg {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+  stroke-width: 2;
+  fill: none;
+}
+
+.modal-form {
+  display: grid;
+  gap: 14px;
+}
+
+.modal-field {
+  display: grid;
+  gap: 6px;
+}
+
+.modal-error {
+  color: #b91c1c;
+  font-size: 12px;
 }

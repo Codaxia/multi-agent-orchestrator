@@ -1,40 +1,30 @@
 const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
-const os = require('os');
 const path = require('path');
+
+const {
+  AGENT_FILE_MAP,
+  AGENTS_DEFINITIONS_DIR,
+  DEFAULT_ALLOWED_ORIGINS,
+  VALID_COLUMNS,
+  VALID_PRIORITIES,
+  VALID_STATUSES,
+  createProject,
+  createTask,
+  ensureDataDirs,
+  ensureWorkspaceCatalog,
+  getWorkspace,
+  readProjectData,
+  resolveProject,
+  updateAgent,
+  withProjectLock,
+  writeProjectData,
+} = require('./lib/dashboard-data');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-const DATA_DIR = path.join(__dirname, 'data');
-const SEEDS_DIR = path.join(DATA_DIR, 'seeds');
-const RUNTIME_DIR = path.join(DATA_DIR, 'runtime');
-
-// Whitelist mapping: agent id → .md filename (no path traversal possible)
-const AGENTS_DEFINITIONS_DIR = process.env.CLAUDE_AGENTS_DIR
-  || path.join(os.homedir(), '.claude', 'agents');
-const AGENT_FILE_MAP = {
-  'orchestrator': '01-orchestrator.md',
-  'pm-discovery': '02-pm-discovery.md',
-  'architect': '03-architect.md',
-  'developer': '04-developer.md',
-  'cto-reviewer': '05-cto-reviewer.md',
-  'qa': '06-qa.md',
-  'security': '07-security.md',
-  'deploy': '08-deploy.md',
-  'estimation': '09-estimation.md',
-};
-
-const VALID_STATUSES = ['idle', 'active', 'done', 'blocked'];
-const VALID_COLUMNS = ['Backlog', 'In Progress', 'In Review', 'QA', 'Done'];
-const VALID_PRIORITIES = ['Must', 'Should', 'Could', "Won't"];
-const DEFAULT_ALLOWED_ORIGINS = [
-  'http://localhost:5173',
-  'http://127.0.0.1:5173',
-  'http://localhost:3001',
-  'http://127.0.0.1:3001',
-];
 const CORS_ALLOWED_ORIGINS = new Set(
   (process.env.CORS_ORIGINS ? process.env.CORS_ORIGINS.split(',') : DEFAULT_ALLOWED_ORIGINS)
     .map((origin) => origin.trim())
@@ -53,95 +43,98 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// ── Utility helpers ──────────────────────────────────────────────────────────
-
-function readJSON(filePath) {
-  const raw = fs.readFileSync(filePath, 'utf8');
-  return JSON.parse(raw);
-}
-
-function writeJSON(filePath, data) {
-  fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf8');
-}
-
 function sendInternalError(res, message) {
   res.status(500).json({ error: message });
 }
 
-function ensureDataDir() {
-  ensureDir(DATA_DIR);
-  ensureDir(SEEDS_DIR);
-  ensureDir(RUNTIME_DIR);
+function readWorkspace() {
+  return getWorkspace();
 }
 
-function ensureDir(dirPath) {
-  if (!fs.existsSync(dirPath)) {
-    fs.mkdirSync(dirPath, { recursive: true });
-  }
-}
-
-function getProjectFiles(projectId = '') {
-  const suffix = projectId ? `-${projectId}` : '';
-
+function getWorkspacePayload() {
   return {
-    agents: {
-      legacy: path.join(DATA_DIR, `pipeline-status${suffix}.json`),
-      seed: path.join(SEEDS_DIR, `pipeline-status${suffix}.json`),
-      runtime: path.join(RUNTIME_DIR, `pipeline-status${suffix}.json`),
-    },
-    tasks: {
-      legacy: path.join(DATA_DIR, `tasks${suffix}.json`),
-      seed: path.join(SEEDS_DIR, `tasks${suffix}.json`),
-      runtime: path.join(RUNTIME_DIR, `tasks${suffix}.json`),
-    },
-    activity: {
-      legacy: path.join(DATA_DIR, `activity-log${suffix}.json`),
-      seed: path.join(SEEDS_DIR, `activity-log${suffix}.json`),
-      runtime: path.join(RUNTIME_DIR, `activity-log${suffix}.json`),
-    },
+    squads: readWorkspace().squads,
   };
 }
 
-function ensureRuntimeFile(fileSet) {
-  if (fs.existsSync(fileSet.runtime)) {
+function getProjectContext(projectId) {
+  const workspace = readWorkspace();
+  return resolveProject(projectId, workspace);
+}
+
+function requireProject(req, res) {
+  const context = getProjectContext(req.params.projectId);
+  if (!context) {
+    res.status(404).json({ error: `Unknown project '${req.params.projectId}'` });
+    return null;
+  }
+
+  return context;
+}
+
+function buildActivityEntry(agent, action) {
+  return {
+    id: `evt-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    agent,
+    action,
+    timestamp: new Date().toISOString(),
+  };
+}
+
+// Workspace routes
+app.get('/api/workspace', (req, res) => {
+  try {
+    res.json(getWorkspacePayload());
+  } catch {
+    sendInternalError(res, 'Failed to load workspace');
+  }
+});
+
+app.post('/api/projects', async (req, res) => {
+  const { name, squadId, description } = req.body || {};
+
+  if (!name || typeof name !== 'string' || !name.trim()) {
+    return res.status(400).json({ error: 'Project name is required' });
+  }
+
+  try {
+    const result = await withProjectLock('__workspace__', async () => createProject({
+      name,
+      squadId,
+      description,
+    }));
+
+    res.status(201).json({
+      project: result.project,
+      squad: result.squad,
+      workspace: getWorkspacePayload(),
+    });
+  } catch {
+    sendInternalError(res, 'Failed to create project');
+  }
+});
+
+// Project routes
+app.get('/api/projects/:projectId/agents', (req, res) => {
+  const context = requireProject(req, res);
+  if (!context) {
     return;
   }
 
-  const bootstrapSource = fs.existsSync(fileSet.legacy) ? fileSet.legacy : fileSet.seed;
-
-  if (!fs.existsSync(bootstrapSource)) {
-    throw new Error(`Missing bootstrap data for ${path.basename(fileSet.runtime)}`);
-  }
-
-  fs.copyFileSync(bootstrapSource, fileSet.runtime);
-}
-
-function ensureProjectFiles(projectFiles) {
-  ensureRuntimeFile(projectFiles.agents);
-  ensureRuntimeFile(projectFiles.tasks);
-  ensureRuntimeFile(projectFiles.activity);
-}
-
-const DEFAULT_PROJECT_FILES = getProjectFiles();
-const SAMPLE_PROJECT_FILES = getProjectFiles('sample');
-
-// ── Routes: Agents ───────────────────────────────────────────────────────────
-
-// GET /api/agents — returns all agents with their statuses
-app.get('/api/agents', (req, res) => {
   try {
-    const data = readJSON(DEFAULT_PROJECT_FILES.agents.runtime);
-    res.json(data);
-  } catch (err) {
+    res.json(readProjectData(context.project.id, 'agents'));
+  } catch {
     sendInternalError(res, 'Failed to read agents data');
   }
 });
 
-// POST /api/agents/:id — update a single agent's status or lastMessage
-app.post('/api/agents/:id', (req, res) => {
-  const { id } = req.params;
-  const updates = req.body;
+app.post('/api/projects/:projectId/agents/:id', async (req, res) => {
+  const context = requireProject(req, res);
+  if (!context) {
+    return;
+  }
 
+  const updates = req.body;
   if (!updates || typeof updates !== 'object' || Array.isArray(updates)) {
     return res.status(400).json({ error: 'Request body must be a JSON object' });
   }
@@ -153,365 +146,247 @@ app.post('/api/agents/:id', (req, res) => {
   }
 
   const allowedKeys = ['status', 'lastMessage'];
-  const hasInvalidKey = Object.keys(updates).some((k) => !allowedKeys.includes(k));
-  if (hasInvalidKey) {
+  if (Object.keys(updates).some((key) => !allowedKeys.includes(key))) {
     return res.status(400).json({ error: `Only these fields can be updated: ${allowedKeys.join(', ')}` });
   }
 
   try {
-    const data = readJSON(DEFAULT_PROJECT_FILES.agents.runtime);
-    const idx = data.agents.findIndex((a) => a.id === id);
-
-    if (idx === -1) {
-      return res.status(404).json({ error: `Agent '${id}' not found` });
+    const updated = await withProjectLock(context.project.id, async () => updateAgent(context.project.id, req.params.id, updates));
+    if (!updated) {
+      return res.status(404).json({ error: `Agent '${req.params.id}' not found` });
     }
 
-    data.agents[idx] = {
-      ...data.agents[idx],
-      ...updates,
-      id,
-      updatedAt: new Date().toISOString(),
-    };
-
-    writeJSON(DEFAULT_PROJECT_FILES.agents.runtime, data);
-    res.json(data.agents[idx]);
-  } catch (err) {
+    res.json(updated);
+  } catch {
     sendInternalError(res, 'Failed to update agent');
   }
 });
 
-// GET /api/agents/:id/definition — returns the markdown definition of an agent
-app.get('/api/agents/:id/definition', (req, res) => {
-  const { id } = req.params;
-  const filename = AGENT_FILE_MAP[id];
-
-  if (!filename) {
-    return res.status(404).json({ error: `No definition file for agent '${id}'` });
+app.get('/api/projects/:projectId/agents/:id/definition', (req, res) => {
+  const context = requireProject(req, res);
+  if (!context) {
+    return;
   }
 
-  // Safe: path is constructed from hardcoded base + whitelisted filename only
+  const filename = AGENT_FILE_MAP[req.params.id];
+  if (!filename) {
+    return res.status(404).json({ error: `No definition file for agent '${req.params.id}'` });
+  }
+
   const filePath = path.join(AGENTS_DEFINITIONS_DIR, filename);
 
   try {
     const content = fs.readFileSync(filePath, 'utf8');
-    res.json({ id, filename, content });
-  } catch (err) {
+    res.json({ id: req.params.id, filename, content });
+  } catch {
     sendInternalError(res, 'Failed to read agent definition');
   }
 });
 
-// ── Routes: Tasks ────────────────────────────────────────────────────────────
+app.get('/api/projects/:projectId/tasks', (req, res) => {
+  const context = requireProject(req, res);
+  if (!context) {
+    return;
+  }
 
-// GET /api/tasks — returns all tasks
-app.get('/api/tasks', (req, res) => {
   try {
-    const data = readJSON(DEFAULT_PROJECT_FILES.tasks.runtime);
-    res.json(data);
-  } catch (err) {
+    res.json(readProjectData(context.project.id, 'tasks'));
+  } catch {
     sendInternalError(res, 'Failed to read tasks data');
   }
 });
 
-// GET /api/tasks/:id — returns a single task by id
-app.get('/api/tasks/:id', (req, res) => {
+app.get('/api/projects/:projectId/tasks/:id', (req, res) => {
+  const context = requireProject(req, res);
+  if (!context) {
+    return;
+  }
+
   try {
-    const data = readJSON(DEFAULT_PROJECT_FILES.tasks.runtime);
-    const task = data.tasks.find((t) => t.id === req.params.id);
+    const data = readProjectData(context.project.id, 'tasks');
+    const task = data.tasks.find((item) => item.id === req.params.id);
     if (!task) {
       return res.status(404).json({ error: `Task '${req.params.id}' not found` });
     }
+
     res.json(task);
-  } catch (err) {
+  } catch {
     sendInternalError(res, 'Failed to read task');
   }
 });
 
-// POST /api/tasks/:id — update a task's column and/or other allowed fields (drag & drop)
-app.post('/api/tasks/:id', (req, res) => {
-  const { id } = req.params;
-  const updates = req.body;
-
+function validateTaskUpdates(updates, allowNested = false) {
   if (!updates || typeof updates !== 'object' || Array.isArray(updates)) {
-    return res.status(400).json({ error: 'Request body must be a JSON object' });
+    return 'Request body must be a JSON object';
   }
 
   if (updates.column !== undefined && !VALID_COLUMNS.includes(updates.column)) {
-    return res.status(400).json({
-      error: `Invalid column. Allowed values: ${VALID_COLUMNS.join(', ')}`,
-    });
+    return `Invalid column. Allowed values: ${VALID_COLUMNS.join(', ')}`;
   }
 
   if (updates.priority !== undefined && !VALID_PRIORITIES.includes(updates.priority)) {
-    return res.status(400).json({
-      error: `Invalid priority. Allowed values: ${VALID_PRIORITIES.join(', ')}`,
-    });
+    return `Invalid priority. Allowed values: ${VALID_PRIORITIES.join(', ')}`;
   }
 
-  const allowedKeys = ['column', 'priority', 'title', 'description', 'assignedAgent'];
-  const hasInvalidKey = Object.keys(updates).some((k) => !allowedKeys.includes(k));
-  if (hasInvalidKey) {
-    return res.status(400).json({ error: `Only these fields can be updated: ${allowedKeys.join(', ')}` });
+  const allowedKeys = allowNested
+    ? ['column', 'priority', 'title', 'description', 'assignedAgent', 'acceptanceCriteria', 'subTasks']
+    : ['column', 'priority', 'title', 'description', 'assignedAgent'];
+
+  if (Object.keys(updates).some((key) => !allowedKeys.includes(key))) {
+    return `Only these fields can be updated: ${allowedKeys.join(', ')}`;
+  }
+
+  return null;
+}
+
+function validateNewTask(task) {
+  if (!task || typeof task !== 'object' || Array.isArray(task)) {
+    return 'Request body must be a JSON object';
+  }
+
+  if (!task.title || typeof task.title !== 'string' || !task.title.trim()) {
+    return 'Task title is required';
+  }
+
+  if (task.column !== undefined && !VALID_COLUMNS.includes(task.column)) {
+    return `Invalid column. Allowed values: ${VALID_COLUMNS.join(', ')}`;
+  }
+
+  if (task.priority !== undefined && !VALID_PRIORITIES.includes(task.priority)) {
+    return `Invalid priority. Allowed values: ${VALID_PRIORITIES.join(', ')}`;
+  }
+
+  const allowedKeys = ['title', 'description', 'column', 'assignedAgent', 'priority', 'acceptanceCriteria', 'subTasks', 'activity'];
+  if (Object.keys(task).some((key) => !allowedKeys.includes(key))) {
+    return `Only these fields can be provided: ${allowedKeys.join(', ')}`;
+  }
+
+  return null;
+}
+
+function updateTask(projectId, taskId, updates) {
+  const data = readProjectData(projectId, 'tasks');
+  const index = data.tasks.findIndex((task) => task.id === taskId);
+  if (index === -1) {
+    return null;
+  }
+
+  data.tasks[index] = {
+    ...data.tasks[index],
+    ...updates,
+    id: taskId,
+    updatedAt: new Date().toISOString(),
+  };
+
+  writeProjectData(projectId, 'tasks', data);
+  return data.tasks[index];
+}
+
+app.post('/api/projects/:projectId/tasks', async (req, res) => {
+  const context = requireProject(req, res);
+  if (!context) {
+    return;
+  }
+
+  const validationError = validateNewTask(req.body);
+  if (validationError) {
+    return res.status(400).json({ error: validationError });
   }
 
   try {
-    const data = readJSON(DEFAULT_PROJECT_FILES.tasks.runtime);
-    const idx = data.tasks.findIndex((t) => t.id === id);
+    const created = await withProjectLock(context.project.id, async () => createTask(context.project.id, req.body));
+    res.status(201).json(created);
+  } catch {
+    sendInternalError(res, 'Failed to create task');
+  }
+});
 
-    if (idx === -1) {
-      return res.status(404).json({ error: `Task '${id}' not found` });
+app.post('/api/projects/:projectId/tasks/:id', async (req, res) => {
+  const context = requireProject(req, res);
+  if (!context) {
+    return;
+  }
+
+  const validationError = validateTaskUpdates(req.body, false);
+  if (validationError) {
+    return res.status(400).json({ error: validationError });
+  }
+
+  try {
+    const updated = await withProjectLock(context.project.id, async () => updateTask(context.project.id, req.params.id, req.body));
+    if (!updated) {
+      return res.status(404).json({ error: `Task '${req.params.id}' not found` });
     }
 
-    data.tasks[idx] = {
-      ...data.tasks[idx],
-      ...updates,
-      id,
-      updatedAt: new Date().toISOString(),
-    };
-
-    writeJSON(DEFAULT_PROJECT_FILES.tasks.runtime, data);
-    res.json(data.tasks[idx]);
-  } catch (err) {
+    res.json(updated);
+  } catch {
     sendInternalError(res, 'Failed to update task');
   }
 });
 
-// PATCH /api/tasks/:id — update any allowed field including acceptanceCriteria, subTasks
-app.patch('/api/tasks/:id', (req, res) => {
-  const { id } = req.params;
-  const updates = req.body;
-
-  if (!updates || typeof updates !== 'object' || Array.isArray(updates)) {
-    return res.status(400).json({ error: 'Request body must be a JSON object' });
+app.patch('/api/projects/:projectId/tasks/:id', async (req, res) => {
+  const context = requireProject(req, res);
+  if (!context) {
+    return;
   }
 
-  if (updates.column !== undefined && !VALID_COLUMNS.includes(updates.column)) {
-    return res.status(400).json({
-      error: `Invalid column. Allowed values: ${VALID_COLUMNS.join(', ')}`,
-    });
-  }
-
-  if (updates.priority !== undefined && !VALID_PRIORITIES.includes(updates.priority)) {
-    return res.status(400).json({
-      error: `Invalid priority. Allowed values: ${VALID_PRIORITIES.join(', ')}`,
-    });
-  }
-
-  const allowedKeys = ['column', 'priority', 'title', 'description', 'assignedAgent', 'acceptanceCriteria', 'subTasks'];
-  const hasInvalidKey = Object.keys(updates).some((k) => !allowedKeys.includes(k));
-  if (hasInvalidKey) {
-    return res.status(400).json({ error: `Only these fields can be updated: ${allowedKeys.join(', ')}` });
+  const validationError = validateTaskUpdates(req.body, true);
+  if (validationError) {
+    return res.status(400).json({ error: validationError });
   }
 
   try {
-    const data = readJSON(DEFAULT_PROJECT_FILES.tasks.runtime);
-    const idx = data.tasks.findIndex((t) => t.id === id);
-
-    if (idx === -1) {
-      return res.status(404).json({ error: `Task '${id}' not found` });
+    const updated = await withProjectLock(context.project.id, async () => updateTask(context.project.id, req.params.id, req.body));
+    if (!updated) {
+      return res.status(404).json({ error: `Task '${req.params.id}' not found` });
     }
 
-    data.tasks[idx] = {
-      ...data.tasks[idx],
-      ...updates,
-      id,
-      updatedAt: new Date().toISOString(),
-    };
-
-    writeJSON(DEFAULT_PROJECT_FILES.tasks.runtime, data);
-    res.json(data.tasks[idx]);
-  } catch (err) {
+    res.json(updated);
+  } catch {
     sendInternalError(res, 'Failed to update task');
   }
 });
 
-// ── Routes: Activity ─────────────────────────────────────────────────────────
+app.get('/api/projects/:projectId/activity', (req, res) => {
+  const context = requireProject(req, res);
+  if (!context) {
+    return;
+  }
 
-// GET /api/activity — returns the global pipeline activity log
-app.get('/api/activity', (req, res) => {
   try {
-    const data = readJSON(DEFAULT_PROJECT_FILES.activity.runtime);
-    res.json(data);
-  } catch (err) {
+    res.json(readProjectData(context.project.id, 'activity'));
+  } catch {
     sendInternalError(res, 'Failed to read activity data');
   }
 });
 
-// ── Routes: sample project ───────────────────────────────────────────────────
+app.post('/api/projects/:projectId/activity', async (req, res) => {
+  const context = requireProject(req, res);
+  if (!context) {
+    return;
+  }
 
-// GET /api/sample/agents
-app.get('/api/sample/agents', (req, res) => {
+  const { agent, action } = req.body || {};
+  if (!agent || !action || typeof agent !== 'string' || typeof action !== 'string') {
+    return res.status(400).json({ error: 'agent and action are required' });
+  }
+
   try {
-    const data = readJSON(SAMPLE_PROJECT_FILES.agents.runtime);
-    res.json(data);
-  } catch (err) {
-    sendInternalError(res, 'Failed to read sample agents data');
-  }
-});
-
-// POST /api/sample/agents/:id
-app.post('/api/sample/agents/:id', (req, res) => {
-  const { id } = req.params;
-  const updates = req.body;
-
-  if (!updates || typeof updates !== 'object' || Array.isArray(updates)) {
-    return res.status(400).json({ error: 'Request body must be a JSON object' });
-  }
-
-  if (updates.status !== undefined && !VALID_STATUSES.includes(updates.status)) {
-    return res.status(400).json({
-      error: `Invalid status. Allowed values: ${VALID_STATUSES.join(', ')}`,
+    const nextEntries = await withProjectLock(context.project.id, async () => {
+      const entries = readProjectData(context.project.id, 'activity');
+      entries.unshift(buildActivityEntry(agent.trim(), action.trim()));
+      writeProjectData(context.project.id, 'activity', entries);
+      return entries;
     });
-  }
 
-  const allowedKeys = ['status', 'lastMessage'];
-  const hasInvalidKey = Object.keys(updates).some((k) => !allowedKeys.includes(k));
-  if (hasInvalidKey) {
-    return res.status(400).json({ error: `Only these fields can be updated: ${allowedKeys.join(', ')}` });
-  }
-
-  try {
-    const data = readJSON(SAMPLE_PROJECT_FILES.agents.runtime);
-    const idx = data.agents.findIndex((a) => a.id === id);
-
-    if (idx === -1) {
-      return res.status(404).json({ error: `Agent '${id}' not found` });
-    }
-
-    data.agents[idx] = {
-      ...data.agents[idx],
-      ...updates,
-      id,
-      updatedAt: new Date().toISOString(),
-    };
-
-    writeJSON(SAMPLE_PROJECT_FILES.agents.runtime, data);
-    res.json(data.agents[idx]);
-  } catch (err) {
-    sendInternalError(res, 'Failed to update sample agent');
+    res.status(201).json(nextEntries[0]);
+  } catch {
+    sendInternalError(res, 'Failed to append activity entry');
   }
 });
 
-// GET /api/sample/tasks
-app.get('/api/sample/tasks', (req, res) => {
-  try {
-    const data = readJSON(SAMPLE_PROJECT_FILES.tasks.runtime);
-    res.json(data);
-  } catch (err) {
-    sendInternalError(res, 'Failed to read sample tasks data');
-  }
-});
-
-// POST /api/sample/tasks/:id
-app.post('/api/sample/tasks/:id', (req, res) => {
-  const { id } = req.params;
-  const updates = req.body;
-
-  if (!updates || typeof updates !== 'object' || Array.isArray(updates)) {
-    return res.status(400).json({ error: 'Request body must be a JSON object' });
-  }
-
-  if (updates.column !== undefined && !VALID_COLUMNS.includes(updates.column)) {
-    return res.status(400).json({
-      error: `Invalid column. Allowed values: ${VALID_COLUMNS.join(', ')}`,
-    });
-  }
-
-  if (updates.priority !== undefined && !VALID_PRIORITIES.includes(updates.priority)) {
-    return res.status(400).json({
-      error: `Invalid priority. Allowed values: ${VALID_PRIORITIES.join(', ')}`,
-    });
-  }
-
-  const allowedKeys = ['column', 'priority', 'title', 'description', 'assignedAgent'];
-  const hasInvalidKey = Object.keys(updates).some((k) => !allowedKeys.includes(k));
-  if (hasInvalidKey) {
-    return res.status(400).json({ error: `Only these fields can be updated: ${allowedKeys.join(', ')}` });
-  }
-
-  try {
-    const data = readJSON(SAMPLE_PROJECT_FILES.tasks.runtime);
-    const idx = data.tasks.findIndex((t) => t.id === id);
-
-    if (idx === -1) {
-      return res.status(404).json({ error: `Task '${id}' not found` });
-    }
-
-    data.tasks[idx] = {
-      ...data.tasks[idx],
-      ...updates,
-      id,
-      updatedAt: new Date().toISOString(),
-    };
-
-    writeJSON(SAMPLE_PROJECT_FILES.tasks.runtime, data);
-    res.json(data.tasks[idx]);
-  } catch (err) {
-    sendInternalError(res, 'Failed to update sample task');
-  }
-});
-
-// PATCH /api/sample/tasks/:id
-app.patch('/api/sample/tasks/:id', (req, res) => {
-  const { id } = req.params;
-  const updates = req.body;
-
-  if (!updates || typeof updates !== 'object' || Array.isArray(updates)) {
-    return res.status(400).json({ error: 'Request body must be a JSON object' });
-  }
-
-  if (updates.column !== undefined && !VALID_COLUMNS.includes(updates.column)) {
-    return res.status(400).json({
-      error: `Invalid column. Allowed values: ${VALID_COLUMNS.join(', ')}`,
-    });
-  }
-
-  if (updates.priority !== undefined && !VALID_PRIORITIES.includes(updates.priority)) {
-    return res.status(400).json({
-      error: `Invalid priority. Allowed values: ${VALID_PRIORITIES.join(', ')}`,
-    });
-  }
-
-  const allowedKeys = ['column', 'priority', 'title', 'description', 'assignedAgent', 'acceptanceCriteria', 'subTasks'];
-  const hasInvalidKey = Object.keys(updates).some((k) => !allowedKeys.includes(k));
-  if (hasInvalidKey) {
-    return res.status(400).json({ error: `Only these fields can be updated: ${allowedKeys.join(', ')}` });
-  }
-
-  try {
-    const data = readJSON(SAMPLE_PROJECT_FILES.tasks.runtime);
-    const idx = data.tasks.findIndex((t) => t.id === id);
-
-    if (idx === -1) {
-      return res.status(404).json({ error: `Task '${id}' not found` });
-    }
-
-    data.tasks[idx] = {
-      ...data.tasks[idx],
-      ...updates,
-      id,
-      updatedAt: new Date().toISOString(),
-    };
-
-    writeJSON(SAMPLE_PROJECT_FILES.tasks.runtime, data);
-    res.json(data.tasks[idx]);
-  } catch (err) {
-    sendInternalError(res, 'Failed to update sample task');
-  }
-});
-
-// GET /api/sample/activity
-app.get('/api/sample/activity', (req, res) => {
-  try {
-    const data = readJSON(SAMPLE_PROJECT_FILES.activity.runtime);
-    res.json(data);
-  } catch (err) {
-    sendInternalError(res, 'Failed to read sample activity data');
-  }
-});
-
-// ── Static files (Vite build output) ─────────────────────────────────────────
 app.use('/api', (req, res) => {
-  res.status(404).json({ error: `Unknown API endpoint: ${req.originalUrl}` });
+  res.status(404).json({ error: 'Unknown API endpoint' });
 });
 
 app.use(express.static(path.join(__dirname, 'dist')));
@@ -519,7 +394,6 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
-// ── Global error handler (must be last middleware) ────────────────────────────
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
   const status = err.status || err.statusCode || 500;
@@ -527,11 +401,9 @@ app.use((err, req, res, next) => {
   res.status(status).json({ error: message });
 });
 
-// ── Start ─────────────────────────────────────────────────────────────────────
+ensureDataDirs();
+ensureWorkspaceCatalog();
 
-ensureDataDir();
-ensureProjectFiles(DEFAULT_PROJECT_FILES);
-ensureProjectFiles(SAMPLE_PROJECT_FILES);
 app.listen(PORT, () => {
   console.log(`Codaxia Dashboard API listening on http://localhost:${PORT}`);
 });

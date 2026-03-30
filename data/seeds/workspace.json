@@ -1,0 +1,54 @@
+{
+  "squads": [
+    {
+      "id": "full-build",
+      "label": "Full Build",
+      "icon": "🏗️",
+      "description": "Pipeline complet de creation de projet from scratch, de la discovery au deploiement.",
+      "agents": [
+        { "name": "Orchestrateur", "role": "Coordination du pipeline" },
+        { "name": "PM Discovery", "role": "Cadrage, user stories et scope" },
+        { "name": "Architecte", "role": "Architecture et decoupage technique" },
+        { "name": "Developer", "role": "Implementation full-stack" },
+        { "name": "CTO Reviewer", "role": "Revue de code et mentoring" },
+        { "name": "QA", "role": "Validation fonctionnelle et tests" },
+        { "name": "Securite", "role": "Audit et bonnes pratiques OWASP" },
+        { "name": "Deploiement", "role": "Mise en prod et release" },
+        { "name": "Estimation", "role": "Complexite et chiffrage" },
+        { "name": "Project Brain", "role": "Memoire et coordination projet" }
+      ],
+      "projects": [
+        {
+          "id": "codaxia",
+          "label": "Codaxia Agent IA",
+          "description": "Workspace principal de demonstration et de pilotage."
+        }
+      ]
+    },
+    {
+      "id": "support-ops",
+      "label": "Support Ops",
+      "icon": "🔧",
+      "description": "Squad generique pour les projets locaux de maintenance, support et experimentation.",
+      "agents": [
+        { "name": "Orchestrateur", "role": "Coordination du pipeline" },
+        { "name": "PM Discovery", "role": "Cadrage, user stories et scope" },
+        { "name": "Architecte", "role": "Architecture et decoupage technique" },
+        { "name": "Developer", "role": "Implementation full-stack" },
+        { "name": "CTO Reviewer", "role": "Revue de code et mentoring" },
+        { "name": "QA", "role": "Validation fonctionnelle et tests" },
+        { "name": "Securite", "role": "Audit et bonnes pratiques OWASP" },
+        { "name": "Deploiement", "role": "Mise en prod et release" },
+        { "name": "Estimation", "role": "Complexite et chiffrage" },
+        { "name": "Project Brain", "role": "Memoire et coordination projet" }
+      ],
+      "projects": [
+        {
+          "id": "sample",
+          "label": "Sample Client",
+          "description": "Projet de demonstration minimal et public-safe."
+        }
+      ]
+    }
+  ]
+}

@@ -19,8 +19,9 @@ This folder separates public demo data from local runtime state.
 
 When the API starts, it creates missing runtime files from the matching seed files:
 
+- `workspace.json`
 - `pipeline-status*.json`
 - `tasks*.json`
 - `activity-log*.json`
 
-That gives the repo a working public demo while keeping actual project data private.
+That gives the repo a working public demo while keeping actual project data and chat-driven delivery history private.

@@ -6,11 +6,20 @@ const NAV_LINKS = [
   { id: 'activity', label: 'Activity Log', icon: '📊' },
 ];
 
-export default function Sidebar({ squads, selectedSquadId, selectedProject, currentView, onSquadClick, onProjectClick, onViewChange }) {
+export default function Sidebar({
+  squads,
+  selectedSquadId,
+  selectedProject,
+  currentView,
+  onSquadClick,
+  onProjectClick,
+  onViewChange,
+  onCreateProjectClick,
+}) {
   const [collapsedSquads, setCollapsedSquads] = useState({});
 
-  function toggleSquad(e, squadId) {
-    e.stopPropagation();
+  function toggleSquad(event, squadId) {
+    event.stopPropagation();
     setCollapsedSquads((prev) => ({ ...prev, [squadId]: !prev[squadId] }));
   }
 
@@ -20,7 +29,7 @@ export default function Sidebar({ squads, selectedSquadId, selectedProject, curr
         <div className="sidebar-logo-icon">C</div>
         <div className="sidebar-logo-info">
           <span className="sidebar-logo-text">Codaxia Agence IA</span>
-          <span className="sidebar-logo-sub">Agent Orchestration</span>
+          <span className="sidebar-logo-sub">Chat-driven project tracking</span>
         </div>
       </div>
 
@@ -40,14 +49,12 @@ export default function Sidebar({ squads, selectedSquadId, selectedProject, curr
                 >
                   <span className="squad-icon">{squad.icon}</span>
                   <span className="squad-label">{squad.label}</span>
-                  <span className="squad-badge">
-                    {squad.agents.length > 0 ? squad.agents.length : '—'}
-                  </span>
+                  <span className="squad-badge">{squad.agents?.length ?? 0}</span>
                   <span
                     className="squad-chevron"
-                    onClick={(e) => toggleSquad(e, squad.id)}
+                    onClick={(event) => toggleSquad(event, squad.id)}
                     role="button"
-                    aria-label={isCollapsed ? 'Développer' : 'Réduire'}
+                    aria-label={isCollapsed ? 'Developper' : 'Reduire'}
                   >
                     {isCollapsed ? '▶' : '▼'}
                   </span>
@@ -61,11 +68,13 @@ export default function Sidebar({ squads, selectedSquadId, selectedProject, curr
                         <button
                           key={project.id}
                           className={`squad-project-btn${isProjectActive ? ' active' : ''}`}
-                          onClick={() => onProjectClick(project, squad.id)}
+                          onClick={() => onProjectClick(project.id, squad.id)}
                         >
                           {isProjectActive && <span className="squad-project-dot" />}
                           <span className="squad-project-icon">📁</span>
-                          {project.label}
+                          <span className="squad-project-main">
+                            <span>{project.label}</span>
+                          </span>
                         </button>
                       );
                     })}
@@ -75,9 +84,9 @@ export default function Sidebar({ squads, selectedSquadId, selectedProject, curr
             );
           })}
 
-          <button className="squad-add-btn">
+          <button className="squad-add-btn" onClick={onCreateProjectClick}>
             <span>＋</span>
-            Nouvelle Squad
+            Nouveau projet
           </button>
         </nav>
       </div>
@@ -100,9 +109,9 @@ export default function Sidebar({ squads, selectedSquadId, selectedProject, curr
       )}
 
       <div className="sidebar-footer">
-        Codaxia Pipeline v2.0
+        Codaxia Pipeline v3.0
         <br />
-        Multi-agent system
+        Direct chat workflow
       </div>
     </aside>
   );

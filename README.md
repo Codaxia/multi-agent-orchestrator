@@ -1,6 +1,6 @@
 # Multi-Agent Orchestrator
 
-Real-time dashboard for orchestrating, tracking, and reviewing multi-agent AI workflows across projects.
+Real-time dashboard for tracking multi-agent delivery workflows across projects.
 
 ## Overview
 
@@ -9,10 +9,14 @@ Multi-Agent Orchestrator is a lightweight control center for supervising AI agen
 - live agent status tracking
 - Kanban task management
 - activity logs
-- project switching
-- agent profile drawers with markdown-based definitions
+- multi-project switching
+- agent profile drawers loaded from markdown definitions
 
-The project ships with Codaxia sample squads and seed data so the dashboard is usable right away.
+The dashboard is intentionally chat-driven:
+
+- the real briefing and execution happen in direct chats with the assistant
+- the dashboard is the visual tracking layer for agents, tasks, and activity
+- live project state stays local in ignored runtime JSON files
 
 ## Stack
 
@@ -26,8 +30,9 @@ The project ships with Codaxia sample squads and seed data so the dashboard is u
 - Real-time polling dashboard for agent pipeline visibility
 - Task board with drag and drop workflow updates
 - Per-agent detail views loaded from markdown definitions
-- Multi-project data model with separate runtime files
-- Seed data tracked in Git, runtime state kept out of version control
+- Multi-project workspace API for local project creation
+- Public-safe seed data tracked in Git
+- Private runtime state kept out of version control
 
 ## Getting Started
 
@@ -96,7 +101,7 @@ The repository separates tracked starter content from local runtime state:
 - `data/seeds/` contains public-safe demo data
 - `data/runtime/` is generated locally and ignored by Git
 
-On startup, the server bootstraps runtime files from the corresponding seeds when needed. This keeps the repository public-friendly while real project history stays local.
+On startup, the server bootstraps missing runtime files from the corresponding seeds. This keeps the repository public-friendly while real project history stays local.
 
 If you want to preview the public demo state locally, run:
 
@@ -116,8 +121,7 @@ src/
 data/
   seeds/
   runtime/
-agents/
-  codaxia/
+lib/
 scripts/
 server.js
 ```
