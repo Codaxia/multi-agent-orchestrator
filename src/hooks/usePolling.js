@@ -20,6 +20,10 @@ export function usePolling(url, interval = 2500) {
         if (!response.ok) {
           throw new Error(`HTTP ${response.status}`);
         }
+        const contentType = response.headers.get('content-type') || '';
+        if (!contentType.includes('application/json')) {
+          throw new Error('API returned a non-JSON response');
+        }
         const json = await response.json();
         if (mountedRef.current) {
           setData(json);

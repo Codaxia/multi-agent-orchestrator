@@ -29,8 +29,28 @@ const AGENT_FILE_MAP = {
 const VALID_STATUSES = ['idle', 'active', 'done', 'blocked'];
 const VALID_COLUMNS = ['Backlog', 'In Progress', 'In Review', 'QA', 'Done'];
 const VALID_PRIORITIES = ['Must', 'Should', 'Could', "Won't"];
+const DEFAULT_ALLOWED_ORIGINS = [
+  'http://localhost:5173',
+  'http://127.0.0.1:5173',
+  'http://localhost:3001',
+  'http://127.0.0.1:3001',
+];
+const CORS_ALLOWED_ORIGINS = new Set(
+  (process.env.CORS_ORIGINS ? process.env.CORS_ORIGINS.split(',') : DEFAULT_ALLOWED_ORIGINS)
+    .map((origin) => origin.trim())
+    .filter(Boolean),
+);
 
-app.use(cors());
+app.use(cors({
+  origin(origin, callback) {
+    if (!origin || CORS_ALLOWED_ORIGINS.has(origin)) {
+      callback(null, true);
+      return;
+    }
+
+    callback(null, false);
+  },
+}));
 app.use(express.json());
 
 // ── Utility helpers ──────────────────────────────────────────────────────────
@@ -42,6 +62,10 @@ function readJSON(filePath) {
 
 function writeJSON(filePath, data) {
   fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf8');
+}
+
+function sendInternalError(res, message) {
+  res.status(500).json({ error: message });
 }
 
 function ensureDataDir() {
@@ -109,7 +133,7 @@ app.get('/api/agents', (req, res) => {
     const data = readJSON(DEFAULT_PROJECT_FILES.agents.runtime);
     res.json(data);
   } catch (err) {
-    res.status(500).json({ error: 'Failed to read agents data', details: err.message });
+    sendInternalError(res, 'Failed to read agents data');
   }
 });
 
@@ -152,7 +176,7 @@ app.post('/api/agents/:id', (req, res) => {
     writeJSON(DEFAULT_PROJECT_FILES.agents.runtime, data);
     res.json(data.agents[idx]);
   } catch (err) {
-    res.status(500).json({ error: 'Failed to update agent', details: err.message });
+    sendInternalError(res, 'Failed to update agent');
   }
 });
 
@@ -172,7 +196,7 @@ app.get('/api/agents/:id/definition', (req, res) => {
     const content = fs.readFileSync(filePath, 'utf8');
     res.json({ id, filename, content });
   } catch (err) {
-    res.status(500).json({ error: 'Failed to read agent definition', details: err.message });
+    sendInternalError(res, 'Failed to read agent definition');
   }
 });
 
@@ -184,7 +208,7 @@ app.get('/api/tasks', (req, res) => {
     const data = readJSON(DEFAULT_PROJECT_FILES.tasks.runtime);
     res.json(data);
   } catch (err) {
-    res.status(500).json({ error: 'Failed to read tasks data', details: err.message });
+    sendInternalError(res, 'Failed to read tasks data');
   }
 });
 
@@ -198,7 +222,7 @@ app.get('/api/tasks/:id', (req, res) => {
     }
     res.json(task);
   } catch (err) {
-    res.status(500).json({ error: 'Failed to read task', details: err.message });
+    sendInternalError(res, 'Failed to read task');
   }
 });
 
@@ -247,7 +271,7 @@ app.post('/api/tasks/:id', (req, res) => {
     writeJSON(DEFAULT_PROJECT_FILES.tasks.runtime, data);
     res.json(data.tasks[idx]);
   } catch (err) {
-    res.status(500).json({ error: 'Failed to update task', details: err.message });
+    sendInternalError(res, 'Failed to update task');
   }
 });
 
@@ -296,7 +320,7 @@ app.patch('/api/tasks/:id', (req, res) => {
     writeJSON(DEFAULT_PROJECT_FILES.tasks.runtime, data);
     res.json(data.tasks[idx]);
   } catch (err) {
-    res.status(500).json({ error: 'Failed to update task', details: err.message });
+    sendInternalError(res, 'Failed to update task');
   }
 });
 
@@ -308,7 +332,7 @@ app.get('/api/activity', (req, res) => {
     const data = readJSON(DEFAULT_PROJECT_FILES.activity.runtime);
     res.json(data);
   } catch (err) {
-    res.status(500).json({ error: 'Failed to read activity data', details: err.message });
+    sendInternalError(res, 'Failed to read activity data');
   }
 });
 
@@ -320,7 +344,7 @@ app.get('/api/sample/agents', (req, res) => {
     const data = readJSON(SAMPLE_PROJECT_FILES.agents.runtime);
     res.json(data);
   } catch (err) {
-    res.status(500).json({ error: 'Failed to read sample agents data', details: err.message });
+    sendInternalError(res, 'Failed to read sample agents data');
   }
 });
 
@@ -363,7 +387,7 @@ app.post('/api/sample/agents/:id', (req, res) => {
     writeJSON(SAMPLE_PROJECT_FILES.agents.runtime, data);
     res.json(data.agents[idx]);
   } catch (err) {
-    res.status(500).json({ error: 'Failed to update sample agent', details: err.message });
+    sendInternalError(res, 'Failed to update sample agent');
   }
 });
 
@@ -373,7 +397,7 @@ app.get('/api/sample/tasks', (req, res) => {
     const data = readJSON(SAMPLE_PROJECT_FILES.tasks.runtime);
     res.json(data);
   } catch (err) {
-    res.status(500).json({ error: 'Failed to read sample tasks data', details: err.message });
+    sendInternalError(res, 'Failed to read sample tasks data');
   }
 });
 
@@ -422,7 +446,7 @@ app.post('/api/sample/tasks/:id', (req, res) => {
     writeJSON(SAMPLE_PROJECT_FILES.tasks.runtime, data);
     res.json(data.tasks[idx]);
   } catch (err) {
-    res.status(500).json({ error: 'Failed to update sample task', details: err.message });
+    sendInternalError(res, 'Failed to update sample task');
   }
 });
 
@@ -471,7 +495,7 @@ app.patch('/api/sample/tasks/:id', (req, res) => {
     writeJSON(SAMPLE_PROJECT_FILES.tasks.runtime, data);
     res.json(data.tasks[idx]);
   } catch (err) {
-    res.status(500).json({ error: 'Failed to update sample task', details: err.message });
+    sendInternalError(res, 'Failed to update sample task');
   }
 });
 
@@ -481,11 +505,15 @@ app.get('/api/sample/activity', (req, res) => {
     const data = readJSON(SAMPLE_PROJECT_FILES.activity.runtime);
     res.json(data);
   } catch (err) {
-    res.status(500).json({ error: 'Failed to read sample activity data', details: err.message });
+    sendInternalError(res, 'Failed to read sample activity data');
   }
 });
 
 // ── Static files (Vite build output) ─────────────────────────────────────────
+app.use('/api', (req, res) => {
+  res.status(404).json({ error: `Unknown API endpoint: ${req.originalUrl}` });
+});
+
 app.use(express.static(path.join(__dirname, 'dist')));
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
