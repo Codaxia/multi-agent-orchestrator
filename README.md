@@ -56,6 +56,7 @@ npm run server
 npm run client
 npm run build
 npm run preview
+npm run reset-demo-data
 npm run sync-agents
 npm run sync-agents:codaxia
 ```
@@ -92,10 +93,18 @@ The app maps known agent IDs to markdown files such as:
 
 The repository separates tracked starter content from local runtime state:
 
-- `data/seeds/` contains versioned sample data
+- `data/seeds/` contains public-safe demo data
 - `data/runtime/` is generated locally and ignored by Git
 
-On startup, the server bootstraps runtime files from the corresponding seeds when needed.
+On startup, the server bootstraps runtime files from the corresponding seeds when needed. This keeps the repository public-friendly while real project history stays local.
+
+If you want to preview the public demo state locally, run:
+
+```bash
+npm run reset-demo-data
+```
+
+Then restart the API so runtime files are regenerated from `data/seeds/`.
 
 ## Project Structure
 
@@ -122,5 +131,6 @@ npm run build
 ## Notes
 
 - Runtime data is intentionally not committed.
+- Versioned JSON files are demo templates, not private delivery history.
 - Local Claude configuration files are intentionally ignored.
 - This repo is sanitized for public sharing and does not include private local paths or personal Git identity.

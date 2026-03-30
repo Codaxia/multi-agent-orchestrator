@@ -37,12 +37,12 @@ const SQUADS = [
   },
   {
     id: 'maintenance-web',
-    label: 'Maintenance Web',
+    label: 'Support Ops',
     icon: '🔧',
-    description: 'Agents specialises pour la maintenance de plateformes existantes.',
+    description: 'Squad generique pour illustrer comment brancher un second projet local.',
     agents: [],
     projects: [
-      { id: 'atuvu', label: 'atuvu', apiBase: '/atuvu' },
+      { id: 'sample-client', label: 'Sample Client', apiBase: '/sample' },
     ],
   },
 ];

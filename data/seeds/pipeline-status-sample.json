@@ -5,72 +5,72 @@
       "name": "Orchestrator",
       "role": "Pipeline coordinator",
       "status": "idle",
-      "lastMessage": "En attente — pipeline atuvu non démarré",
-      "updatedAt": "2026-03-26T00:00:00Z"
+      "lastMessage": "Waiting for a local project to be attached",
+      "updatedAt": "2026-03-28T18:00:00Z"
     },
     {
       "id": "pm-discovery",
       "name": "PM Discovery",
       "role": "User Stories & scope",
       "status": "idle",
-      "lastMessage": "En attente — analyse du projet atuvu",
-      "updatedAt": "2026-03-26T00:00:00Z"
+      "lastMessage": "No client brief loaded in the sample project",
+      "updatedAt": "2026-03-28T18:00:00Z"
     },
     {
       "id": "architect",
       "name": "Architect",
       "role": "Architecture & tickets",
       "status": "idle",
-      "lastMessage": "En attente — architecture Laravel à définir",
-      "updatedAt": "2026-03-26T00:00:00Z"
+      "lastMessage": "Awaiting discovery output",
+      "updatedAt": "2026-03-28T18:00:00Z"
     },
     {
       "id": "developer",
       "name": "Developer",
       "role": "Full-stack implementation",
       "status": "idle",
-      "lastMessage": "En attente — implémentation non démarrée",
-      "updatedAt": "2026-03-26T00:00:00Z"
+      "lastMessage": "No implementation started",
+      "updatedAt": "2026-03-28T18:00:00Z"
     },
     {
       "id": "cto-reviewer",
       "name": "CTO Reviewer",
       "role": "Code review & mentoring",
       "status": "idle",
-      "lastMessage": "En attente — aucun code à réviser",
-      "updatedAt": "2026-03-26T00:00:00Z"
+      "lastMessage": "Nothing queued for review",
+      "updatedAt": "2026-03-28T18:00:00Z"
     },
     {
       "id": "qa",
       "name": "QA",
       "role": "Testing & validation",
       "status": "idle",
-      "lastMessage": "En attente — tests non commencés",
-      "updatedAt": "2026-03-26T00:00:00Z"
+      "lastMessage": "Waiting for testable work",
+      "updatedAt": "2026-03-28T18:00:00Z"
     },
     {
       "id": "security",
       "name": "Security",
       "role": "OWASP audit",
       "status": "idle",
-      "lastMessage": "En attente — audit de sécurité non planifié",
-      "updatedAt": "2026-03-26T00:00:00Z"
+      "lastMessage": "No security checks requested",
+      "updatedAt": "2026-03-28T18:00:00Z"
     },
     {
       "id": "deploy",
       "name": "Deploy",
       "role": "Deployment & release",
       "status": "idle",
-      "lastMessage": "En attente — déploiement non configuré",
-      "updatedAt": "2026-03-26T00:00:00Z"
+      "lastMessage": "No release in progress",
+      "updatedAt": "2026-03-28T18:00:00Z"
     },
     {
       "id": "estimation",
       "name": "Estimation",
       "role": "Effort & complexity",
       "status": "idle",
-      "lastMessage": "En attente — estimation non demandée",
-      "updatedAt": "2026-03-26T00:00:00Z"
+      "lastMessage": "Waiting for scope before estimating",
+      "updatedAt": "2026-03-28T18:00:00Z"
     }
   ]
 }

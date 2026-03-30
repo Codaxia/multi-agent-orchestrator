@@ -99,7 +99,7 @@ function ensureProjectFiles(projectFiles) {
 }
 
 const DEFAULT_PROJECT_FILES = getProjectFiles();
-const ATUVU_PROJECT_FILES = getProjectFiles('atuvu');
+const SAMPLE_PROJECT_FILES = getProjectFiles('sample');
 
 // ── Routes: Agents ───────────────────────────────────────────────────────────
 
@@ -312,20 +312,20 @@ app.get('/api/activity', (req, res) => {
   }
 });
 
-// ── Routes: atuvu project ────────────────────────────────────────────────────
+// ── Routes: sample project ───────────────────────────────────────────────────
 
-// GET /api/atuvu/agents
-app.get('/api/atuvu/agents', (req, res) => {
+// GET /api/sample/agents
+app.get('/api/sample/agents', (req, res) => {
   try {
-    const data = readJSON(ATUVU_PROJECT_FILES.agents.runtime);
+    const data = readJSON(SAMPLE_PROJECT_FILES.agents.runtime);
     res.json(data);
   } catch (err) {
-    res.status(500).json({ error: 'Failed to read atuvu agents data', details: err.message });
+    res.status(500).json({ error: 'Failed to read sample agents data', details: err.message });
   }
 });
 
-// POST /api/atuvu/agents/:id
-app.post('/api/atuvu/agents/:id', (req, res) => {
+// POST /api/sample/agents/:id
+app.post('/api/sample/agents/:id', (req, res) => {
   const { id } = req.params;
   const updates = req.body;
 
@@ -346,7 +346,7 @@ app.post('/api/atuvu/agents/:id', (req, res) => {
   }
 
   try {
-    const data = readJSON(ATUVU_PROJECT_FILES.agents.runtime);
+    const data = readJSON(SAMPLE_PROJECT_FILES.agents.runtime);
     const idx = data.agents.findIndex((a) => a.id === id);
 
     if (idx === -1) {
@@ -360,25 +360,25 @@ app.post('/api/atuvu/agents/:id', (req, res) => {
       updatedAt: new Date().toISOString(),
     };
 
-    writeJSON(ATUVU_PROJECT_FILES.agents.runtime, data);
+    writeJSON(SAMPLE_PROJECT_FILES.agents.runtime, data);
     res.json(data.agents[idx]);
   } catch (err) {
-    res.status(500).json({ error: 'Failed to update atuvu agent', details: err.message });
+    res.status(500).json({ error: 'Failed to update sample agent', details: err.message });
   }
 });
 
-// GET /api/atuvu/tasks
-app.get('/api/atuvu/tasks', (req, res) => {
+// GET /api/sample/tasks
+app.get('/api/sample/tasks', (req, res) => {
   try {
-    const data = readJSON(ATUVU_PROJECT_FILES.tasks.runtime);
+    const data = readJSON(SAMPLE_PROJECT_FILES.tasks.runtime);
     res.json(data);
   } catch (err) {
-    res.status(500).json({ error: 'Failed to read atuvu tasks data', details: err.message });
+    res.status(500).json({ error: 'Failed to read sample tasks data', details: err.message });
   }
 });
 
-// POST /api/atuvu/tasks/:id
-app.post('/api/atuvu/tasks/:id', (req, res) => {
+// POST /api/sample/tasks/:id
+app.post('/api/sample/tasks/:id', (req, res) => {
   const { id } = req.params;
   const updates = req.body;
 
@@ -405,7 +405,7 @@ app.post('/api/atuvu/tasks/:id', (req, res) => {
   }
 
   try {
-    const data = readJSON(ATUVU_PROJECT_FILES.tasks.runtime);
+    const data = readJSON(SAMPLE_PROJECT_FILES.tasks.runtime);
     const idx = data.tasks.findIndex((t) => t.id === id);
 
     if (idx === -1) {
@@ -419,15 +419,15 @@ app.post('/api/atuvu/tasks/:id', (req, res) => {
       updatedAt: new Date().toISOString(),
     };
 
-    writeJSON(ATUVU_PROJECT_FILES.tasks.runtime, data);
+    writeJSON(SAMPLE_PROJECT_FILES.tasks.runtime, data);
     res.json(data.tasks[idx]);
   } catch (err) {
-    res.status(500).json({ error: 'Failed to update atuvu task', details: err.message });
+    res.status(500).json({ error: 'Failed to update sample task', details: err.message });
   }
 });
 
-// PATCH /api/atuvu/tasks/:id
-app.patch('/api/atuvu/tasks/:id', (req, res) => {
+// PATCH /api/sample/tasks/:id
+app.patch('/api/sample/tasks/:id', (req, res) => {
   const { id } = req.params;
   const updates = req.body;
 
@@ -454,7 +454,7 @@ app.patch('/api/atuvu/tasks/:id', (req, res) => {
   }
 
   try {
-    const data = readJSON(ATUVU_PROJECT_FILES.tasks.runtime);
+    const data = readJSON(SAMPLE_PROJECT_FILES.tasks.runtime);
     const idx = data.tasks.findIndex((t) => t.id === id);
 
     if (idx === -1) {
@@ -468,20 +468,20 @@ app.patch('/api/atuvu/tasks/:id', (req, res) => {
       updatedAt: new Date().toISOString(),
     };
 
-    writeJSON(ATUVU_PROJECT_FILES.tasks.runtime, data);
+    writeJSON(SAMPLE_PROJECT_FILES.tasks.runtime, data);
     res.json(data.tasks[idx]);
   } catch (err) {
-    res.status(500).json({ error: 'Failed to update atuvu task', details: err.message });
+    res.status(500).json({ error: 'Failed to update sample task', details: err.message });
   }
 });
 
-// GET /api/atuvu/activity
-app.get('/api/atuvu/activity', (req, res) => {
+// GET /api/sample/activity
+app.get('/api/sample/activity', (req, res) => {
   try {
-    const data = readJSON(ATUVU_PROJECT_FILES.activity.runtime);
+    const data = readJSON(SAMPLE_PROJECT_FILES.activity.runtime);
     res.json(data);
   } catch (err) {
-    res.status(500).json({ error: 'Failed to read atuvu activity data', details: err.message });
+    res.status(500).json({ error: 'Failed to read sample activity data', details: err.message });
   }
 });
 
@@ -503,7 +503,7 @@ app.use((err, req, res, next) => {
 
 ensureDataDir();
 ensureProjectFiles(DEFAULT_PROJECT_FILES);
-ensureProjectFiles(ATUVU_PROJECT_FILES);
+ensureProjectFiles(SAMPLE_PROJECT_FILES);
 app.listen(PORT, () => {
   console.log(`Codaxia Dashboard API listening on http://localhost:${PORT}`);
 });

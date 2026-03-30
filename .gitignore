@@ -3,8 +3,11 @@ dist/
 server.log
 *.log
 .env
+.env.*
 .claude/worktrees/
 .claude/settings.local.json
 .claude/launch.json
 .claude/settings.json
+# Local dashboard state is private and should never be versioned.
 data/runtime/
+data/runtime-backups/
