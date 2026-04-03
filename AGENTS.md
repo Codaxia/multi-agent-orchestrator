@@ -123,6 +123,27 @@ curl -s -X PATCH http://localhost:3001/api/projects/{projectId}/tasks/{taskId} \
   -d '{"column": "In Progress", "assignedAgent": "developer"}'
 ```
 
+### Check off acceptance criteria
+
+As you validate each acceptance criterion, mark it `done: true` by PATCHing the full `acceptanceCriteria` array.
+
+**Step 1 — GET the current task to read the IDs:**
+```bash
+curl -s http://localhost:3001/api/projects/{projectId}/tasks/{taskId}
+```
+
+**Step 2 — PATCH with updated `done` values** (write to payload file on Windows):
+```json
+{
+  "acceptanceCriteria": [
+    { "id": "ac-xxx-0", "text": "Criterion A", "done": true },
+    { "id": "ac-xxx-1", "text": "Criterion B", "done": false }
+  ]
+}
+```
+
+**Rule:** Check off each criterion **as you validate it**, not all at once at the end. The dashboard shows the live count (e.g. `2/5`) — the human should see it progress in real-time.
+
 ### Log an activity entry
 
 ```bash

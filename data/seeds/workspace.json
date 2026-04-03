@@ -46,7 +46,8 @@
         { "name": "Orchestrator", "role": "Pipeline coordination & scenario detection" },
         { "name": "CTO Reviewer", "role": "Code review & mentoring" },
         { "name": "Security", "role": "OWASP audit" },
-        { "name": "QA", "role": "Testing & validation" }
+        { "name": "QA", "role": "Testing & validation" },
+        { "name": "Developer", "role": "Fix issues found during review" }
       ],
       "projects": []
     }

@@ -19,7 +19,7 @@ Analyze the brief and classify it into one of these three modes:
 |----------|----------------|------------------|----------|
 | **full-build** | "new project", "from scratch", no existing repo, greenfield | All agents, full pipeline | PM → Architect → Developer → CTO Review → QA → Security → Deploy |
 | **feature-ops** | existing repo, "add feature", "fix bug", "update", "refactor", maintenance | orchestrator, developer, cto-reviewer, qa | Developer → CTO Review → QA |
-| **code-review** | "review", "audit", "check code", "security check" | orchestrator, cto-reviewer, security, qa | CTO Review → Security → QA |
+| **code-review** | "review", "audit", "check code", "security check" | orchestrator, cto-reviewer, security, qa, developer | CTO Review → Security → QA → Developer (if issues) → re-verify |
 
 **Rules:**
 - If the scenario is unclear, ask the user before proceeding
@@ -63,6 +63,19 @@ WHEN all tasks are Done:
      IF "CRITICAL BLOCK" → redispatch to Developer (targeted)
      IF "APPROVED" → continue
   6. Deploy → staging first, then production (if scenario includes deploy)
+```
+
+**code-review loop:**
+```
+1. CTO Reviewer → audit full codebase
+2. Security → OWASP audit
+3. QA → functional tests
+   → For each agent: check off acceptance criteria as each item is validated (PATCH task with done: true)
+4. IF issues found (any severity):
+     Developer → fix each issue as a dedicated sub-task
+     Re-run the relevant agent (CTO / Security / QA) to verify the fix
+     Max 3 fix attempts per issue
+5. Mark all tasks Done
 ```
 
 **3-attempt rule:** If a task fails review OR QA 3 times, stop and alert the user with a detailed report.
