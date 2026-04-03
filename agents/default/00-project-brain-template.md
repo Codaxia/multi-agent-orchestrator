@@ -1,6 +1,6 @@
 # 🧠 Project Brain — [NOM DU PROJET]
 
-> Fichier central partagé entre tous les agents Codaxia.
+> Shared central file used by all pipeline agents.
 > TOUS les agents lisent ce fichier au démarrage et y écrivent leurs outputs.
 > NE PAS modifier manuellement sauf la section "Brief client".
 
@@ -139,5 +139,5 @@
 
 ---
 
-*Template Codaxia — pipeline multi-agents v1.0*
+*Dashboard Agents — multi-agent pipeline template v1.0*
 *Copier ce fichier dans chaque projet : `project-brain.md`*
