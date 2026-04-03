@@ -1,7 +1,7 @@
 {
-  "name": "codaxia-dashboard",
+  "name": "dashboard-agents",
   "version": "1.0.0",
-  "description": "Jira-like dashboard for monitoring Codaxia AI agent pipeline in real-time",
+  "description": "Real-time supervision dashboard for AI agent pipelines",
   "scripts": {
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "start": "concurrently \"npm run server\" \"npm run client\"",
@@ -9,9 +9,7 @@
     "client": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "reset-demo-data": "node scripts/reset-runtime-data.js",
-    "sync-agents": "node scripts/sync-agents.js",
-    "sync-agents:codaxia": "node scripts/sync-agents.js codaxia"
+    "reset-demo-data": "node scripts/reset-runtime-data.js"
   },
   "dependencies": {
     "@hello-pangea/dnd": "^16.6.0",

@@ -1,6 +1,6 @@
-# 🧠 Project Brain — Codaxia Dashboard
+# 🧠 Project Brain — Dashboard Agents Dashboard
 
-> Fichier central partagé entre tous les agents Codaxia.
+> Fichier central partagé entre tous les agents Dashboard Agents.
 > TOUS les agents lisent ce fichier au démarrage et y écrivent leurs outputs.
 > NE PAS modifier manuellement sauf la section "Brief client".
 
@@ -9,9 +9,9 @@
 ## 📋 Brief client (rempli par PM/Discovery)
 
 ```
-Nom : codaxia-dashboard
+Nom : dashboard-agents
 Dossier : [workspace local]
-Description : Dashboard Jira-like pour monitorer en temps réel le pipeline d'agents IA de Codaxia.
+Description : Dashboard Jira-like pour monitorer en temps réel le pipeline d'agents IA de Dashboard Agents.
 
 Stack : Node.js (Express) + React, stockage fichiers JSON, polling toutes les 2-3 secondes, langue anglais.
 
@@ -35,13 +35,13 @@ Données :
 
 Style visuel :
 - Sidebar gauche sombre (#1a1a2e ou similaire) avec nav entre les deux vues
-- Header "Codaxia Dashboard" avec status indicator
+- Header "Dashboard Agents Dashboard" avec status indicator
 - Kanban colonnes blanches/gris clair, cartes avec ombre
 - Agent actif : bordure verte + animation pulse
 - Couleurs MoSCoW : rouge (Must), orange (Should), bleu (Could), gris (Won't)
 ```
 
-**Objectif principal :** Monitorer en temps réel le pipeline d'agents IA Codaxia via un dashboard Jira-like
+**Objectif principal :** Monitorer en temps réel le pipeline d'agents IA Dashboard Agents via un dashboard Jira-like
 **Deadline :** V1 immédiate
 **Budget estimé :** N/A (projet interne)
 **Contraintes connues :** Pas de base de données (fichiers JSON), pas d'authentification, app locale
@@ -70,7 +70,7 @@ Style visuel :
 
 **Brief cité :** "Affiche les 9 agents (Orchestrator, PM, Architect, Developer, CTO Reviewer, QA, Security, Deploy, Estimation) — chaque agent a un statut : idle / active / done / blocked — l'agent actif est surligné avec animation pulse — dernier message/action de chaque agent visible"
 **Priorité MoSCoW :** Must
-**User Story :** En tant qu'utilisateur, je veux voir l'état de chaque agent IA en temps réel afin de monitorer l'avancement du pipeline Codaxia.
+**User Story :** En tant qu'utilisateur, je veux voir l'état de chaque agent IA en temps réel afin de monitorer l'avancement du pipeline Dashboard Agents.
 **Critères d'acceptation :**
 - [ ] Les 9 agents sont affichés avec leur nom exact
 - [ ] Chaque agent affiche son statut parmi : idle / active / done / blocked
@@ -257,7 +257,7 @@ dashboard-agents/
 ### ADR-01 : Node.js + Express vs Laravel
 **Décision :** Node.js avec Express
 **Raison :** Stack imposée par le brief. Express est minimal et adapté à une API JSON simple sans ORM ni auth.
-**Alternative écartée :** Laravel (stack Codaxia par défaut)
+**Alternative écartée :** Laravel (stack Dashboard Agents par défaut)
 **Conséquences :** Mise en place rapide ✅ / Pas de validation ORM intégrée ⚠️
 
 ### ADR-02 : Stockage JSON files vs base de données
@@ -502,4 +502,4 @@ La séparation des responsabilités est bien respectée : hooks pour le data-fet
 
 ---
 
-*Template Codaxia — pipeline multi-agents v1.0*
+*Template Dashboard Agents — pipeline multi-agents v1.0*

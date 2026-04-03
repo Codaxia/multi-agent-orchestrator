@@ -11,7 +11,7 @@ function formatStatus(status) {
 export default function Header({ title, status }) {
   return (
     <header className="header">
-      <div className="header-branding">CODAXIA AGENCE IA</div>
+      <div className="header-branding">DASHBOARD AGENTS</div>
       <h1 className="header-title">
         <span>{title}</span>
       </h1>

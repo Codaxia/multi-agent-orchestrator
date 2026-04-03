@@ -1,7 +1,7 @@
-# RAPPORT-PIPELINE — Codaxia Dashboard
+# RAPPORT-PIPELINE — Dashboard Agents Dashboard
 **Date :** 2026-03-22
-**Pipeline :** Multi-agents Codaxia v1.0
-**Projet :** codaxia-dashboard
+**Pipeline :** Multi-agents Dashboard Agents v1.0
+**Projet :** dashboard-agents
 **Statut final :** ✅ LIVRÉ
 
 ---
@@ -185,7 +185,7 @@ curl -X POST http://localhost:3001/api/tasks/task-1 \
 ## 3. Fonctionnalités livrées (V1)
 
 ### Vue 1 — Agent Pipeline Monitor
-- Grille responsive affichant les **9 agents** du pipeline Codaxia
+- Grille responsive affichant les **9 agents** du pipeline Dashboard Agents
 - Statuts visuels : `idle` (gris), `active` (vert + **animation pulse**), `done` (bleu), `blocked` (rouge)
 - Dernier message/action de chaque agent visible
 - **Polling automatique toutes les 2.5 secondes**
@@ -199,7 +199,7 @@ curl -X POST http://localhost:3001/api/tasks/task-1 \
 
 ### Navigation
 - Sidebar sombre `#1a1a2e` avec navigation SPA entre les deux vues
-- Header "Codaxia Dashboard" avec indicateur de statut live animé
+- Header "Dashboard Agents Dashboard" avec indicateur de statut live animé
 
 ---
 
@@ -228,4 +228,4 @@ curl -X POST http://localhost:3001/api/tasks/task-1 \
 
 ---
 
-*Codaxia Pipeline v1.0 — Generated 2026-03-22*
+*Dashboard Agents Pipeline v1.0 — Generated 2026-03-22*

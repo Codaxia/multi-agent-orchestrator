@@ -1,140 +1,244 @@
-# Multi-Agent Orchestrator
+# Dashboard Agents — Real-time AI Pipeline Supervision
 
-Real-time dashboard for tracking multi-agent delivery workflows across projects.
+## The concept in 30 seconds
 
-## Overview
+This dashboard is a **control panel** for supervising AI agents working through any compatible AI coding assistant.
 
-Multi-Agent Orchestrator is a lightweight control center for supervising AI agent pipelines with:
+**How it works:**
 
-- live agent status tracking
-- Kanban task management
-- activity logs
-- multi-project switching
-- agent profile drawers loaded from markdown definitions
+1. You open your AI assistant in a project
+2. You ask it to work using the agent system
+3. The AI assumes different roles (PM, Architect, Developer, Reviewer, QA...) as needed
+4. The dashboard updates in real-time: you see which agent is active, where tasks stand, and what happened
 
-The dashboard is intentionally chat-driven:
+**This is NOT a SaaS platform.** It is a local, lightweight tool for visually tracking the work of an AI assistant you already use.
 
-- the real briefing and execution happen in direct chats with the assistant
-- the dashboard is the visual tracking layer for agents, tasks, and activity
-- live project state stays local in ignored runtime JSON files
+---
 
-## Stack
+## How it works
 
-- React + Vite
-- Express
-- Local JSON seed/runtime storage
-- Markdown-backed agent definitions
+```
+┌─────────────────────────────────────────────────────┐
+│  YOU (human)                                        │
+│  "New project: auth module refactor,                │
+│   Laravel 11, with security audit"                  │
+└──────────────────┬──────────────────────────────────┘
+                   │
+                   ▼
+┌─────────────────────────────────────────────────────┐
+│  AI ASSISTANT (terminal)                            │
+│  - Reads AGENTS.md for the work protocol            │
+│  - Assumes the Orchestrator role                    │
+│  - Detects scenario (full-build / feature / review) │
+│  - Creates tasks in the kanban                      │
+│  - Switches roles as needed (PM → Arch → Dev → ...) │
+│  - Updates the dashboard via the local API          │
+└──────────────────┬──────────────────────────────────┘
+                   │ curl http://localhost:3001/api/...
+                   ▼
+┌─────────────────────────────────────────────────────┐
+│  DASHBOARD (browser)                                │
+│  - Agents: who is doing what, in real-time          │
+│  - Kanban: Backlog → In Progress → Review → Done    │
+│  - Activity: full history of everything that happened│
+└─────────────────────────────────────────────────────┘
+```
 
-## Features
+**The dashboard does nothing by itself.** It displays state. The AI does the work and updates the board as it goes.
 
-- Real-time polling dashboard for agent pipeline visibility
-- Task board with drag and drop workflow updates
-- Per-agent detail views loaded from markdown definitions
-- Multi-project workspace API for local project creation
-- Public-safe seed data tracked in Git
-- Private runtime state kept out of version control
+---
 
-## Getting Started
+## Scenarios
 
-### 1. Install dependencies
+The Orchestrator detects the type of work from your brief and activates only the relevant agents:
+
+| Scenario | When | Pipeline |
+|----------|------|----------|
+| **full-build** | New project from scratch | PM → Architect → Developer → Review → QA → Security → Deploy |
+| **feature-ops** | Existing project, new feature, bug fix | Developer → Review → QA |
+| **code-review** | Audit, review, security check | CTO Review → Security → QA |
+
+A single project can receive tasks of different scenarios over time. The same project that started as a full-build can later receive feature-ops or code-review tasks.
+
+---
+
+## The agents
+
+9 specialized roles, defined in `agents/default/`:
+
+| Agent | Role | When it intervenes |
+|-------|------|---------------------|
+| **Orchestrator** | Pipeline coordination | Always — detects scenario and manages flow |
+| **PM Discovery** | Scoping, user stories | At the start of a full-build project |
+| **Architect** | Architecture & technical breakdown | After discovery |
+| **Developer** | Full-stack implementation | Code phase |
+| **CTO Reviewer** | Code review & mentoring | After each implementation |
+| **QA** | Testing & validation | Before release |
+| **Security** | OWASP audit | On sensitive projects |
+| **Deploy** | Deployment & release | End of pipeline |
+| **Estimation** | Effort & complexity | On demand |
+
+---
+
+## Quick start
+
+### 1. Install
 
 ```bash
 npm install
 ```
 
-### 2. Start the app
+### 2. Start the dashboard
 
 ```bash
 npm start
 ```
 
-This runs:
+This starts:
+- The Express API on `http://localhost:3001`
+- The Vite frontend on `http://localhost:5173`
 
-- the API server on `http://localhost:3001`
-- the Vite client on `http://localhost:5173`
+### 3. Start working
 
-## Available Scripts
+Open your AI assistant and paste:
 
-```bash
-npm start
-npm run server
-npm run client
-npm run build
-npm run preview
-npm run reset-demo-data
-npm run sync-agents
-npm run sync-agents:codaxia
+```
+Read AGENTS.md and follow the protocol.
 ```
 
-## Agent Definitions
+Then add your project brief. The Orchestrator detects the scenario and activates the right agents automatically.
 
-Agent detail panels are loaded from markdown files stored in your local Claude agents directory.
+---
 
-By default, the server reads from:
+## Usage examples
 
-```text
-~/.claude/agents
+### New project from scratch (full-build)
+
+```
+Read AGENTS.md and follow the protocol.
+
+---
+
+Project: My SaaS App
+Stack: Laravel 11, React, PostgreSQL
+Repo: (none yet — creating from scratch)
+
+Description:
+Build a project management tool with user authentication,
+team workspaces, task boards, and role-based permissions.
+Start with the MVP: auth + one workspace + basic task CRUD.
 ```
 
-You can override that location with:
+**What happens:** Orchestrator detects `full-build` → activates all agents → PM scopes the features → Architect designs the structure → Developer implements → CTO reviews → QA validates → Security audits → Deploy releases.
 
-```bash
-CLAUDE_AGENTS_DIR=/custom/path/to/agents
+---
+
+### Adding a feature to an existing project (feature-ops)
+
+```
+Read AGENTS.md and follow the protocol.
+
+---
+
+Project: My SaaS App
+Stack: Laravel 11, PHP 8.3
+Repo: /path/to/my-saas-app
+
+Description:
+Add two-factor authentication (2FA) to the existing login system.
+Login and register already work. Add TOTP verification
+(Google Authenticator) with backup codes and a user settings page
+to enable/disable 2FA.
 ```
 
-The app maps known agent IDs to markdown files such as:
+**What happens:** Orchestrator detects `feature-ops` → activates developer, cto-reviewer, qa → Developer implements → CTO reviews → QA validates. No PM or Architect needed.
 
-- `01-orchestrator.md`
-- `02-pm-discovery.md`
-- `03-architect.md`
-- `04-developer.md`
-- `05-cto-reviewer.md`
-- `06-qa.md`
-- `07-security.md`
-- `08-deploy.md`
-- `09-estimation.md`
+---
 
-## Data Model
+### Code review or security audit (code-review)
 
-The repository separates tracked starter content from local runtime state:
+```
+Read AGENTS.md and follow the protocol.
 
-- `data/seeds/` contains public-safe demo data
-- `data/runtime/` is generated locally and ignored by Git
+---
 
-On startup, the server bootstraps missing runtime files from the corresponding seeds. This keeps the repository public-friendly while real project history stays local.
+Project: My SaaS App
+Stack: Laravel 11, PHP 8.3
+Repo: /path/to/my-saas-app
 
-If you want to preview the public demo state locally, run:
-
-```bash
-npm run reset-demo-data
+Description:
+Full code review and security audit before production release.
+Focus on authentication flows, API endpoints, input validation,
+and session management. Flag any OWASP Top 10 vulnerabilities.
 ```
 
-Then restart the API so runtime files are regenerated from `data/seeds/`.
+**What happens:** Orchestrator detects `code-review` → activates cto-reviewer, security, qa → CTO reviews code quality → Security audits for vulnerabilities → QA validates fixes if any.
 
-## Project Structure
+---
 
-```text
-src/
-  components/
-  hooks/
-  utils/
+## Stack
+
+- **Frontend:** React 18 + Vite
+- **Backend:** Express.js (local REST API)
+- **Storage:** Local JSON files (`data/runtime/`, not versioned)
+- **Agents:** Markdown files (`agents/default/`)
+
+---
+
+## Project structure
+
+```
+agents/default/          ← 9 agent definitions (markdown)
 data/
-  seeds/
-  runtime/
+  seeds/                 ← Demo data (versioned)
+  runtime/               ← Live local state (git-ignored)
+src/
+  components/            ← React components (Board, Kanban, Activity...)
+  hooks/                 ← Real-time polling
+  utils/                 ← Agent colors, time formatting
 lib/
-scripts/
-server.js
+  dashboard-data.js      ← Backend data logic
+server.js                ← Express API
+AGENTS.md                ← Work protocol for AI assistants
+PROMPT-BOOTSTRAP.md      ← Startup prompt to paste into any AI assistant
 ```
 
-## Build
+---
+
+## Available scripts
 
 ```bash
-npm run build
+npm start              # Start API + frontend
+npm run server         # API only (port 3001)
+npm run client         # Frontend only (port 5173)
+npm run build          # Production build
+npm run reset-demo-data  # Restore demo seed data
 ```
 
-## Notes
+---
 
-- Runtime data is intentionally not committed.
-- Versioned JSON files are demo templates, not private delivery history.
-- Local Claude configuration files are intentionally ignored.
-- This repo is sanitized for public sharing and does not include private local paths or personal Git identity.
+## Data
+
+- **`data/seeds/`**: public demo data, versioned in git
+- **`data/runtime/`**: real project state, local only, git-ignored
+
+On startup, if runtime files do not exist, the server creates them from seeds.
+
+---
+
+## FAQ
+
+**Q: Are the agents standalone programs?**
+No. Agents are roles that the AI assistant assumes one at a time. Each agent has a `.md` file describing its behavior, rules, and expected outputs. The AI reads these files and adapts its work accordingly.
+
+**Q: Does the dashboard run agents?**
+No. The dashboard displays state. The AI assistant (in the terminal) does the work and updates the dashboard via the API.
+
+**Q: Does this only work with one specific AI?**
+No. The `AGENTS.md` file and the bootstrap prompt are LLM-agnostic. Any AI assistant that can read files and run shell commands can use this system.
+
+**Q: How much does it cost?**
+Nothing beyond your existing AI subscription. No additional API, no cloud server. Everything runs locally.
+
+**Q: Can I use this for my own project?**
+Yes. Create a new project in the dashboard or customize the agents in `agents/default/`. The dashboard supports multiple projects simultaneously.
