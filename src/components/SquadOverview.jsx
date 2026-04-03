@@ -14,7 +14,7 @@ export default function SquadOverview({ squad, onCreateProjectClick }) {
       {squad.agents.length > 0 ? (
         <section className="squad-overview-section">
           <h3 className="squad-overview-section-title">
-            Agents de la squad
+            Agents du scenario
             <span className="squad-overview-count">{squad.agents.length} agents</span>
           </h3>
           <div className="squad-agents-grid">

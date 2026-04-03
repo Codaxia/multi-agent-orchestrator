@@ -50,7 +50,7 @@ export default function CreateProjectModal({
           </label>
 
           <label className="modal-field">
-            <span>Squad</span>
+            <span>Scenario</span>
             <select value={squadId} onChange={(event) => setSquadId(event.target.value)}>
               {squads.map((squad) => (
                 <option key={squad.id} value={squad.id}>{squad.label}</option>

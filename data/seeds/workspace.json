@@ -4,51 +4,51 @@
       "id": "full-build",
       "label": "Full Build",
       "icon": "🏗️",
-      "description": "Pipeline complet de creation de projet from scratch, de la discovery au deploiement.",
+      "description": "New project from scratch — full pipeline from discovery to deployment.",
       "agents": [
-        { "name": "Orchestrateur", "role": "Coordination du pipeline" },
-        { "name": "PM Discovery", "role": "Cadrage, user stories et scope" },
-        { "name": "Architecte", "role": "Architecture et decoupage technique" },
-        { "name": "Developer", "role": "Implementation full-stack" },
-        { "name": "CTO Reviewer", "role": "Revue de code et mentoring" },
-        { "name": "QA", "role": "Validation fonctionnelle et tests" },
-        { "name": "Securite", "role": "Audit et bonnes pratiques OWASP" },
-        { "name": "Deploiement", "role": "Mise en prod et release" },
-        { "name": "Estimation", "role": "Complexite et chiffrage" },
-        { "name": "Project Brain", "role": "Memoire et coordination projet" }
+        { "name": "Orchestrator", "role": "Pipeline coordination & scenario detection" },
+        { "name": "PM Discovery", "role": "Scoping, user stories & prioritization" },
+        { "name": "Architect", "role": "Architecture & technical breakdown" },
+        { "name": "Developer", "role": "Full-stack implementation" },
+        { "name": "CTO Reviewer", "role": "Code review & mentoring" },
+        { "name": "QA", "role": "Testing & validation" },
+        { "name": "Security", "role": "OWASP audit" },
+        { "name": "Deploy", "role": "Deployment & release" },
+        { "name": "Estimation", "role": "Effort & complexity estimation" }
       ],
       "projects": [
         {
-          "id": "codaxia",
-          "label": "Codaxia Agent IA",
-          "description": "Workspace principal de demonstration et de pilotage."
+          "id": "demo",
+          "label": "Demo Project",
+          "description": "Default demonstration and onboarding project."
         }
       ]
     },
     {
-      "id": "support-ops",
-      "label": "Support Ops",
+      "id": "feature-ops",
+      "label": "Feature Ops",
       "icon": "🔧",
-      "description": "Squad generique pour les projets locaux de maintenance, support et experimentation.",
+      "description": "Existing project — new features, bug fixes, refactoring, maintenance.",
       "agents": [
-        { "name": "Orchestrateur", "role": "Coordination du pipeline" },
-        { "name": "PM Discovery", "role": "Cadrage, user stories et scope" },
-        { "name": "Architecte", "role": "Architecture et decoupage technique" },
-        { "name": "Developer", "role": "Implementation full-stack" },
-        { "name": "CTO Reviewer", "role": "Revue de code et mentoring" },
-        { "name": "QA", "role": "Validation fonctionnelle et tests" },
-        { "name": "Securite", "role": "Audit et bonnes pratiques OWASP" },
-        { "name": "Deploiement", "role": "Mise en prod et release" },
-        { "name": "Estimation", "role": "Complexite et chiffrage" },
-        { "name": "Project Brain", "role": "Memoire et coordination projet" }
+        { "name": "Orchestrator", "role": "Pipeline coordination & scenario detection" },
+        { "name": "Developer", "role": "Full-stack implementation" },
+        { "name": "CTO Reviewer", "role": "Code review & mentoring" },
+        { "name": "QA", "role": "Testing & validation" }
       ],
-      "projects": [
-        {
-          "id": "sample",
-          "label": "Sample Client",
-          "description": "Projet de demonstration minimal et public-safe."
-        }
-      ]
+      "projects": []
+    },
+    {
+      "id": "code-review",
+      "label": "Code Review",
+      "icon": "🔍",
+      "description": "Code audit, security review, quality check on an existing codebase.",
+      "agents": [
+        { "name": "Orchestrator", "role": "Pipeline coordination & scenario detection" },
+        { "name": "CTO Reviewer", "role": "Code review & mentoring" },
+        { "name": "Security", "role": "OWASP audit" },
+        { "name": "QA", "role": "Testing & validation" }
+      ],
+      "projects": []
     }
   ]
 }

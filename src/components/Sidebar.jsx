@@ -26,15 +26,15 @@ export default function Sidebar({
   return (
     <aside className="sidebar">
       <div className="sidebar-logo">
-        <div className="sidebar-logo-icon">C</div>
+        <div className="sidebar-logo-icon">DA</div>
         <div className="sidebar-logo-info">
-          <span className="sidebar-logo-text">Codaxia Agence IA</span>
-          <span className="sidebar-logo-sub">Chat-driven project tracking</span>
+          <span className="sidebar-logo-text">Dashboard Agents</span>
+          <span className="sidebar-logo-sub">AI pipeline supervision</span>
         </div>
       </div>
 
       <div className="sidebar-squads-wrapper">
-        <div className="sidebar-section-label">SQUADS IA</div>
+        <div className="sidebar-section-label">SCENARIOS</div>
 
         <nav className="sidebar-squads">
           {squads.map((squad) => {
@@ -109,9 +109,9 @@ export default function Sidebar({
       )}
 
       <div className="sidebar-footer">
-        Codaxia Pipeline v3.0
+        Dashboard Agents v1.0
         <br />
-        Direct chat workflow
+        AI pipeline supervision
       </div>
     </aside>
   );

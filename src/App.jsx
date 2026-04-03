@@ -8,12 +8,40 @@ import SquadOverview from './components/SquadOverview.jsx';
 import CreateProjectModal from './components/CreateProjectModal.jsx';
 import { usePolling } from './hooks/usePolling.js';
 
-const DASHBOARD_SELECTION_KEY = 'codaxia-dashboard-selection';
+const DASHBOARD_SELECTION_KEY = 'dashboard-agents-selection';
+const LEGACY_SELECTION_KEYS = ['codaxia-dashboard-selection'];
+const VALID_VIEWS = new Set(['agents', 'kanban', 'activity']);
 const DEFAULT_SELECTION = {
   squadId: 'full-build',
-  projectId: 'codaxia',
+  projectId: 'demo',
   view: 'agents',
 };
+
+function normalizeStoredSelection(parsed) {
+  if (!parsed || typeof parsed !== 'object') {
+    return DEFAULT_SELECTION;
+  }
+
+  const next = {
+    squadId: typeof parsed.squadId === 'string' ? parsed.squadId : DEFAULT_SELECTION.squadId,
+    projectId: parsed.projectId ?? DEFAULT_SELECTION.projectId,
+    view: VALID_VIEWS.has(parsed.view) ? parsed.view : DEFAULT_SELECTION.view,
+  };
+
+  if (next.squadId === 'support-ops') {
+    next.squadId = 'feature-ops';
+  }
+
+  if (next.projectId === 'codaxia') {
+    next.projectId = 'demo';
+  }
+
+  if (next.projectId === 'sample') {
+    next.projectId = null;
+  }
+
+  return next;
+}
 
 function readStoredSelection() {
   if (typeof window === 'undefined') {
@@ -21,20 +49,24 @@ function readStoredSelection() {
   }
 
   try {
-    const raw = window.localStorage.getItem(DASHBOARD_SELECTION_KEY);
-    if (!raw) {
-      return DEFAULT_SELECTION;
-    }
+    const storageKeys = [DASHBOARD_SELECTION_KEY, ...LEGACY_SELECTION_KEYS];
 
-    const parsed = JSON.parse(raw);
-    return {
-      squadId: parsed.squadId || DEFAULT_SELECTION.squadId,
-      projectId: parsed.projectId ?? DEFAULT_SELECTION.projectId,
-      view: parsed.view || DEFAULT_SELECTION.view,
-    };
+    for (const key of storageKeys) {
+      const raw = window.localStorage.getItem(key);
+      if (!raw) {
+        continue;
+      }
+
+      const normalized = normalizeStoredSelection(JSON.parse(raw));
+      LEGACY_SELECTION_KEYS.forEach((legacyKey) => window.localStorage.removeItem(legacyKey));
+      return normalized;
+    }
   } catch {
-    return DEFAULT_SELECTION;
+    // Ignore invalid persisted state and fall back to the default landing page.
   }
+
+  LEGACY_SELECTION_KEYS.forEach((legacyKey) => window.localStorage.removeItem(legacyKey));
+  return DEFAULT_SELECTION;
 }
 
 function findProject(workspace, squadId, projectId) {
@@ -99,6 +131,7 @@ export default function App() {
       return;
     }
 
+    LEGACY_SELECTION_KEYS.forEach((legacyKey) => window.localStorage.removeItem(legacyKey));
     window.localStorage.setItem(
       DASHBOARD_SELECTION_KEY,
       JSON.stringify({

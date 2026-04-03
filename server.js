@@ -6,6 +6,7 @@ const path = require('path');
 const {
   AGENT_FILE_MAP,
   AGENTS_DEFINITIONS_DIR,
+  DEMO_PROJECT_ID,
   DEFAULT_ALLOWED_ORIGINS,
   VALID_COLUMNS,
   VALID_PRIORITIES,
@@ -72,6 +73,17 @@ function requireProject(req, res) {
   return context;
 }
 
+function denyDemoWrites(projectId, res) {
+  if (projectId !== DEMO_PROJECT_ID) {
+    return false;
+  }
+
+  res.status(403).json({
+    error: 'Demo Project is read-only. Create a new project for live work.',
+  });
+  return true;
+}
+
 function buildActivityEntry(agent, action) {
   return {
     id: `evt-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
@@ -131,6 +143,10 @@ app.get('/api/projects/:projectId/agents', (req, res) => {
 app.post('/api/projects/:projectId/agents/:id', async (req, res) => {
   const context = requireProject(req, res);
   if (!context) {
+    return;
+  }
+
+  if (denyDemoWrites(context.project.id, res)) {
     return;
   }
 
@@ -288,6 +304,10 @@ app.post('/api/projects/:projectId/tasks', async (req, res) => {
     return;
   }
 
+  if (denyDemoWrites(context.project.id, res)) {
+    return;
+  }
+
   const validationError = validateNewTask(req.body);
   if (validationError) {
     return res.status(400).json({ error: validationError });
@@ -304,6 +324,10 @@ app.post('/api/projects/:projectId/tasks', async (req, res) => {
 app.post('/api/projects/:projectId/tasks/:id', async (req, res) => {
   const context = requireProject(req, res);
   if (!context) {
+    return;
+  }
+
+  if (denyDemoWrites(context.project.id, res)) {
     return;
   }
 
@@ -327,6 +351,10 @@ app.post('/api/projects/:projectId/tasks/:id', async (req, res) => {
 app.patch('/api/projects/:projectId/tasks/:id', async (req, res) => {
   const context = requireProject(req, res);
   if (!context) {
+    return;
+  }
+
+  if (denyDemoWrites(context.project.id, res)) {
     return;
   }
 
@@ -363,6 +391,10 @@ app.get('/api/projects/:projectId/activity', (req, res) => {
 app.post('/api/projects/:projectId/activity', async (req, res) => {
   const context = requireProject(req, res);
   if (!context) {
+    return;
+  }
+
+  if (denyDemoWrites(context.project.id, res)) {
     return;
   }
 
@@ -405,5 +437,5 @@ ensureDataDirs();
 ensureWorkspaceCatalog();
 
 app.listen(PORT, () => {
-  console.log(`Codaxia Dashboard API listening on http://localhost:${PORT}`);
+  console.log(`Dashboard Agents API listening on http://localhost:${PORT}`);
 });
