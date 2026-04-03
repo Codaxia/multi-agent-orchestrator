@@ -158,7 +158,8 @@ curl -s -X POST http://localhost:3001/api/projects \
 ## Available scenarios
 
 - **`full-build`** — Full project creation pipeline from scratch
-- **`support-ops`** — Maintenance, support, and experimentation
+- **`feature-ops`** — Existing project, new feature, bug fix, refactor
+- **`code-review`** — Code audit, review, and security check
 
 ---
 
