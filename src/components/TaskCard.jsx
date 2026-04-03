@@ -24,7 +24,10 @@ export default function TaskCard({ task, dragHandleProps, draggableProps, innerR
     >
       <div className="task-card-title">{title}</div>
       {description && (
-        <div className="task-card-description">{description}</div>
+        <div className="task-card-description">
+          {description.replace(/[#*`_~>\[\]]/g, '').slice(0, 100).trim()}
+          {description.length > 100 ? '…' : ''}
+        </div>
       )}
       <div className="task-card-footer">
         {assignedAgent && (

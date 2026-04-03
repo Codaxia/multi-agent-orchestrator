@@ -130,6 +130,56 @@ curl -s -X POST http://localhost:3001/api/projects \
 
 ---
 
+## Data formats — exact JSON structures
+
+The API accepts two formats for `acceptanceCriteria` and `subTasks`. Both are normalized server-side.
+
+### `acceptanceCriteria`
+
+Simple form (strings — recommended for agents):
+```json
+"acceptanceCriteria": ["User can add a task", "User can delete a task"]
+```
+
+Full form (if you need to pre-set a checked state):
+```json
+"acceptanceCriteria": [
+  { "text": "User can add a task", "done": false },
+  { "text": "User can delete a task", "done": true }
+]
+```
+
+### `subTasks`
+
+Simple form (strings — recommended for agents):
+```json
+"subTasks": ["Write HTML structure", "Add JS logic", "Style with CSS"]
+```
+
+Full form (if you need to track completion state):
+```json
+"subTasks": [
+  { "text": "Write HTML structure", "status": "done" },
+  { "text": "Add JS logic", "status": "todo" }
+]
+```
+
+> **Note:** `status` values are `"todo"` or `"done"`. Legacy `{ "title": "...", "completed": true }` format is also accepted.
+
+### Sending payloads with accented characters (Windows)
+
+On Windows, `curl` inline `-d` strings corrupt accented characters. **Always use a payload file:**
+
+```bash
+# 1. Write your JSON to a temp file (outside the repo)
+# 2. Send it with @filename
+curl -s -X PATCH http://localhost:3001/api/projects/{projectId}/tasks/{taskId} \
+  -H "Content-Type: application/json" \
+  -d @/tmp/payload.json
+```
+
+---
+
 ## Work protocol
 
 ### Starting a task
@@ -149,9 +199,10 @@ curl -s -X POST http://localhost:3001/api/projects \
 ### Completing a task
 
 1. Move the task to `Done`
-2. Set involved agents to `done` or `idle`
-3. Log a summary in the activity feed
-4. Set the Orchestrator to `idle` when everything is finished
+2. Update the task `description` via `PATCH` with a Markdown log of what was done: files modified, commands run, decisions made. Preserve previous agents' entries — append, do not overwrite.
+3. Set involved agents to `done` or `idle`
+4. Log a summary in the activity feed
+5. Set the Orchestrator to `idle` when everything is finished
 
 ---
 

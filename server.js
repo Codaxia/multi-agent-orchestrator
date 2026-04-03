@@ -231,6 +231,37 @@ app.get('/api/projects/:projectId/tasks/:id', (req, res) => {
   }
 });
 
+// Normalize acceptanceCriteria: accepts string[] OR {id,text,done}[]
+function normalizeAcceptanceCriteria(raw) {
+  if (!Array.isArray(raw)) return [];
+  return raw.map((item, i) => {
+    if (typeof item === 'string') {
+      return { id: `ac-${Date.now()}-${i}`, text: item, done: false };
+    }
+    // Already an object — ensure required fields exist
+    return {
+      id: item.id ?? `ac-${Date.now()}-${i}`,
+      text: item.text ?? item.label ?? String(item),
+      done: item.done ?? item.checked ?? item.completed ?? false,
+    };
+  });
+}
+
+// Normalize subTasks: accepts {title,completed}[] OR {id,text,status}[]
+function normalizeSubTasks(raw) {
+  if (!Array.isArray(raw)) return [];
+  return raw.map((item, i) => {
+    if (typeof item === 'string') {
+      return { id: `st-${Date.now()}-${i}`, text: item, status: 'todo' };
+    }
+    return {
+      id: item.id ?? `st-${Date.now()}-${i}`,
+      text: item.text ?? item.title ?? String(item),
+      status: item.status ?? (item.completed || item.done ? 'done' : 'todo'),
+    };
+  });
+}
+
 function validateTaskUpdates(updates, allowNested = false) {
   if (!updates || typeof updates !== 'object' || Array.isArray(updates)) {
     return 'Request body must be a JSON object';
@@ -287,9 +318,17 @@ function updateTask(projectId, taskId, updates) {
     return null;
   }
 
+  const normalized = { ...updates };
+  if (normalized.acceptanceCriteria !== undefined) {
+    normalized.acceptanceCriteria = normalizeAcceptanceCriteria(normalized.acceptanceCriteria);
+  }
+  if (normalized.subTasks !== undefined) {
+    normalized.subTasks = normalizeSubTasks(normalized.subTasks);
+  }
+
   data.tasks[index] = {
     ...data.tasks[index],
-    ...updates,
+    ...normalized,
     id: taskId,
     updatedAt: new Date().toISOString(),
   };
