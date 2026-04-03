@@ -353,7 +353,12 @@ app.post('/api/projects/:projectId/tasks', async (req, res) => {
   }
 
   try {
-    const created = await withProjectLock(context.project.id, async () => createTask(context.project.id, req.body));
+    const normalizedBody = {
+      ...req.body,
+      acceptanceCriteria: normalizeAcceptanceCriteria(req.body.acceptanceCriteria),
+      subTasks: normalizeSubTasks(req.body.subTasks),
+    };
+    const created = await withProjectLock(context.project.id, async () => createTask(context.project.id, normalizedBody));
     res.status(201).json(created);
   } catch {
     sendInternalError(res, 'Failed to create task');

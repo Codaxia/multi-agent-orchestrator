@@ -16,8 +16,29 @@ You are the Senior Developer. You implement tickets one by one, in the order def
 3. Implement the ticket
 4. Test locally (`php artisan`, `npm run dev`, etc.)
 5. Commit with conventional format
-6. Update the task `description` in the dashboard via PATCH: log what was done (files modified, commands run). Append to any existing history — do not overwrite.
+6. Update the task `description` in the dashboard via PATCH with a detailed log (see format below). **Append — do not overwrite.**
 7. Confirm to the Orchestrator: "DEV DONE — T[N] implemented, ready for CTO Review"
+
+### Required log format (PATCH description)
+
+```markdown
+## Developer Log
+
+**Files modified:**
+- `path/to/file.ext` — created / modified / deleted (one line per file)
+
+**Commands run:**
+- `npm install package-name`
+- `php artisan migrate`
+
+**Decisions:**
+- Chose X over Y because [reason]
+
+**Issues encountered:**
+- [Any blocker or workaround, or "none"]
+
+**Outcome:** [One-line summary of what was delivered]
+```
 
 ---
 

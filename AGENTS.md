@@ -98,11 +98,22 @@ curl -s -X POST http://localhost:3001/api/projects/{projectId}/agents/{agentId} 
 ```bash
 curl -s -X POST http://localhost:3001/api/projects/{projectId}/tasks \
   -H "Content-Type: application/json" \
-  -d '{"title": "Task title", "description": "Description", "column": "Backlog", "assignedAgent": "developer", "priority": "Must"}'
+  -d '{"title": "T01 — Task title", "description": "Context: why this task exists.\nDependencies: none / T01.\nScope: what is and is not included.", "column": "Backlog", "assignedAgent": "developer", "priority": "Must", "acceptanceCriteria": ["Specific testable outcome A", "Specific testable outcome B"], "subTasks": ["Concrete step 1 (file or command)", "Concrete step 2"]}'
 ```
 
 **Columns:** `Backlog`, `In Progress`, `In Review`, `QA`, `Done`
 **Priorities:** `Must`, `Should`, `Could`, `Won't`
+
+**Task quality standard — required fields:**
+
+| Field | Minimum content |
+|-------|----------------|
+| `title` | `T[N] — Short action verb + subject` |
+| `description` | Context (why), dependencies (parent tickets), scope (what is NOT included) |
+| `acceptanceCriteria` | At least 3 items. Each = observable, testable outcome. Format: "Given X, when Y, then Z" or "User can…" |
+| `subTasks` | Concrete implementation steps with target files or commands where relevant |
+
+**Do not create tasks with empty `acceptanceCriteria` or `subTasks`.** If a task genuinely has none, write at minimum: `["No sub-steps — single atomic action"]`.
 
 ### Move / update a task
 
@@ -199,10 +210,41 @@ curl -s -X PATCH http://localhost:3001/api/projects/{projectId}/tasks/{taskId} \
 ### Completing a task
 
 1. Move the task to `Done`
-2. Update the task `description` via `PATCH` with a Markdown log of what was done: files modified, commands run, decisions made. Preserve previous agents' entries — append, do not overwrite.
+2. Update the task `description` via `PATCH` with a detailed Markdown log. **Append to any existing content — do not overwrite previous agents' entries.**
+
+   Required log sections per agent:
+   ```markdown
+   ## [Agent Name] Log
+
+   **Files modified:** list each file (created / modified / deleted)
+   **Commands run:** list commands (npm install, php artisan migrate, etc.)
+   **Decisions:** any technical choice made and why
+   **Issues encountered:** blockers, workarounds applied
+   **Outcome:** one-line summary of what was delivered
+   ```
+
 3. Set involved agents to `done` or `idle`
-4. Log a summary in the activity feed
+4. Log a summary in the activity feed (1 line: what was done + verdict/result)
 5. Set the Orchestrator to `idle` when everything is finished
+
+### After the full pipeline completes (full-build or feature-ops)
+
+When all tasks are Done and the pipeline is closed, **print this message in the chat:**
+
+```
+✅ Pipeline complete — [Project name]
+
+App running at: [local URL or staging URL]
+→ Open in browser: [URL]
+
+Pipeline summary:
+- [N] tasks completed
+- CTO Review: [APPROVED / REWORK x times]
+- QA: [PASSED / FAILED x times]
+- Security: [APPROVED / issues found]
+```
+
+If the project has a local dev server (e.g. `npm run dev`, `php artisan serve`), start it and include the URL. The human should be able to click directly to see the result.
 
 ---
 
