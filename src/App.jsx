@@ -221,7 +221,7 @@ export default function App() {
           {workspace && !selected.squad && (
             <div className="squad-welcome">
               <span className="squad-welcome-icon">🤖</span>
-              <p>Sélectionnez une Squad IA pour commencer.</p>
+              <p>Select a scenario to get started.</p>
             </div>
           )}
 

@@ -2,6 +2,7 @@ import { useEffect, useCallback } from 'react';
 import { marked } from 'marked';
 import { AGENT_COLORS, AGENT_DISPLAY_NAMES, ACTIVITY_AGENT_COLORS } from '../utils/agentColors.js';
 import { formatRelativeTime } from '../utils/time.js';
+import { sanitizeMarkedHtml } from '../utils/sanitize.js';
 
 const MOSCOW_CLASSES = {
   Must: 'moscow-must',
@@ -107,7 +108,7 @@ export default function TaskDetailPanel({ task, onClose, onUpdate }) {
         {task.description && (
           <div className="panel-section">
             <div className="panel-section-label">Description</div>
-            <div className="panel-description" dangerouslySetInnerHTML={{ __html: marked.parse(task.description) }} />
+            <div className="panel-description" dangerouslySetInnerHTML={{ __html: sanitizeMarkedHtml(marked.parse(task.description)) }} />
           </div>
         )}
 
