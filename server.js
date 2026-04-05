@@ -333,13 +333,11 @@ function updateTask(projectId, taskId, updates) {
 
   const mergedTask = { ...data.tasks[index], ...normalized, id: taskId };
 
-  // When a task reaches Done, auto-complete any unchecked AC and subTasks.
-  if (mergedTask.column === 'Done') {
-    if (Array.isArray(mergedTask.acceptanceCriteria)) {
-      mergedTask.acceptanceCriteria = mergedTask.acceptanceCriteria.map((ac) => ({ ...ac, done: true }));
-    }
-    if (Array.isArray(mergedTask.subTasks)) {
-      mergedTask.subTasks = mergedTask.subTasks.map((st) => ({ ...st, status: 'done' }));
+  // Block moving to Done if any acceptance criteria are unchecked.
+  if (mergedTask.column === 'Done' && Array.isArray(mergedTask.acceptanceCriteria)) {
+    const unchecked = mergedTask.acceptanceCriteria.filter((ac) => !ac.done);
+    if (unchecked.length > 0) {
+      return { error: `Cannot move to Done: ${unchecked.length} acceptance criterion/criteria not validated:\n${unchecked.map((ac) => `- ${ac.text}`).join('\n')}\n\nValidate each criterion via PATCH acceptanceCriteria before closing the task.` };
     }
   }
 
@@ -397,6 +395,9 @@ app.post('/api/projects/:projectId/tasks/:id', async (req, res) => {
     if (!updated) {
       return res.status(404).json({ error: `Task '${req.params.id}' not found` });
     }
+    if (updated.error) {
+      return res.status(400).json({ error: updated.error });
+    }
 
     res.json(updated);
   } catch {
@@ -423,6 +424,9 @@ app.patch('/api/projects/:projectId/tasks/:id', async (req, res) => {
     const updated = await withProjectLock(context.project.id, async () => updateTask(context.project.id, req.params.id, req.body));
     if (!updated) {
       return res.status(404).json({ error: `Task '${req.params.id}' not found` });
+    }
+    if (updated.error) {
+      return res.status(400).json({ error: updated.error });
     }
 
     res.json(updated);
