@@ -289,6 +289,20 @@ Pipeline summary:
 
 If the project has a local dev server (e.g. `npm run dev`, `php artisan serve`), start it and include the URL. The human should be able to click directly to see the result.
 
+### Snapshot task data to private workspace
+
+After every completed pipeline, run the sync script to version all project data in the private repo:
+
+```bash
+bash sprints/sync.sh
+```
+
+This copies all task, pipeline-status, and activity-log files from `data/runtime/` into the
+private `sprints/data/` repo and pushes a timestamped commit to `codaxia-agent-workspace`.
+
+**This step is mandatory.** Do not close the pipeline without running it.
+If `sprints/sync.sh` does not exist, skip this step and notify the human.
+
 ---
 
 ## Available scenarios
