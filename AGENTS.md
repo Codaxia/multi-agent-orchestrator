@@ -70,10 +70,32 @@ The Orchestrator detects the scenario from the user's brief and activates only t
 | Scenario | When | Agents activated |
 |----------|------|------------------|
 | **full-build** | New project from scratch | All agents, full pipeline |
-| **feature-ops** | Existing project, new feature, bug fix, refactor | orchestrator, developer, cto-reviewer, qa |
-| **code-review** | Audit, review, security check | orchestrator, cto-reviewer, security, qa |
+| **feature-ops** | Existing project, new feature, bug fix, refactor | orchestrator, pm-discovery (if needed), developer, cto-reviewer, qa, security (if needed) |
+| **code-review** | Audit, review, security check | orchestrator, cto-reviewer, security, qa, developer |
 
 A single project can receive tasks of different scenarios over time.
+
+---
+
+## Reading external tasks (feature-ops)
+
+If the user provides a ClickUp task ID or URL, use the ClickUp MCP to read it:
+
+```
+Tool: clickup_get_task
+Input: task_id (the ID from the URL, e.g. "abc123xyz")
+```
+
+The task response contains: title, description, acceptance criteria, status, assignees, comments.
+Treat the ClickUp content as the task brief — apply the same PM skip/activate logic as for text tasks.
+
+After the pipeline completes, update the ClickUp task:
+```
+Tool: clickup_update_task
+Input: task_id, status: "complete" (or the appropriate status in the user's workspace)
+```
+
+**Do not update ClickUp status mid-pipeline** — only at the very end, when QA has passed.
 
 ---
 
