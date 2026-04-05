@@ -331,12 +331,19 @@ function updateTask(projectId, taskId, updates) {
     normalized.subTasks = normalizeSubTasks(normalized.subTasks);
   }
 
-  data.tasks[index] = {
-    ...data.tasks[index],
-    ...normalized,
-    id: taskId,
-    updatedAt: new Date().toISOString(),
-  };
+  const mergedTask = { ...data.tasks[index], ...normalized, id: taskId };
+
+  // When a task reaches Done, auto-complete any unchecked AC and subTasks.
+  if (mergedTask.column === 'Done') {
+    if (Array.isArray(mergedTask.acceptanceCriteria)) {
+      mergedTask.acceptanceCriteria = mergedTask.acceptanceCriteria.map((ac) => ({ ...ac, done: true }));
+    }
+    if (Array.isArray(mergedTask.subTasks)) {
+      mergedTask.subTasks = mergedTask.subTasks.map((st) => ({ ...st, status: 'done' }));
+    }
+  }
+
+  data.tasks[index] = { ...mergedTask, updatedAt: new Date().toISOString() };
 
   writeProjectData(projectId, 'tasks', data);
   return data.tasks[index];
