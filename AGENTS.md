@@ -297,6 +297,19 @@ If the project has a local dev server (e.g. `npm run dev`, `php artisan serve`),
 - **`feature-ops`** — Existing project, new feature, bug fix, refactor
 - **`code-review`** — Code audit, review, and security check
 
+## Sprint definitions (LLM-agnostic)
+
+Sprint files live in `sprints/` (a private directory, not versioned in this public repo).
+They define repeatable autonomous workflows for a specific project.
+Any LLM can use them — no platform-specific features required.
+
+**To discover available sprints:**
+1. Check if `sprints/INDEX.md` exists — it lists all available sprint files and their triggers
+2. If no INDEX.md, run `ls sprints/` to list available `.md` files
+
+**To start a sprint:** read the relevant file in `sprints/` and follow its instructions.
+The file is self-contained — it defines filters, sort order, per-task workflow, and rules.
+
 ---
 
 ## Rules
@@ -305,3 +318,5 @@ If the project has a local dev server (e.g. `npm run dev`, `php artisan serve`),
 - Do not activate all agents on every task — only those relevant to the detected scenario
 - Log activity so the human can follow the thread after the fact
 - Never include sensitive data (API keys, credentials, private paths) in dashboard updates
+- **Always create a QA task (T03)** for every feature-ops pipeline — even if QA is brief or logic-only. No pipeline is complete without a QA task in the kanban.
+- **Attach a screenshot when possible** — after completing a visible change (UI, error message, browser output), take a screenshot and embed it in the task description log under a `**Screenshot:**` field. Use the Chrome MCP or preview tools. If a screenshot cannot be taken (no browser, server-side only), note why in the log.

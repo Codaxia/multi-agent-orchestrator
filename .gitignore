@@ -11,3 +11,6 @@ server.log
 # Local dashboard state is private and should never be versioned.
 data/runtime/
 data/runtime-backups/
+
+# Sprint files are project-specific and live in a separate private repo.
+sprints/
