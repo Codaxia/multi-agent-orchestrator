@@ -143,14 +143,17 @@ export default function App() {
   }, [selectedProjectId, selectedSquadId, currentView]);
 
   function handleSquadClick(squadId) {
+    const squad = workspace?.squads?.find((s) => s.id === squadId);
+    const firstProject = squad?.projects?.[0] ?? null;
     setSelectedSquadId(squadId);
-    setSelectedProjectId(null);
+    setSelectedProjectId(firstProject?.id ?? null);
+    setCurrentView('agents');
   }
 
   function handleProjectClick(projectId, squadId) {
     setSelectedSquadId(squadId);
     setSelectedProjectId(projectId);
-    setCurrentView('agents');
+    setCurrentView('kanban');
   }
 
   async function handleCreateProject(payload) {
