@@ -84,13 +84,18 @@ function denyDemoWrites(projectId, res) {
   return true;
 }
 
-function buildActivityEntry(agent, action) {
-  return {
+const VALID_ENTRY_TYPES = new Set(['command', 'test', 'file', 'info', 'error', 'decision']);
+
+function buildActivityEntry(agent, action, type, detail) {
+  const entry = {
     id: `evt-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
     agent,
     action,
     timestamp: new Date().toISOString(),
   };
+  if (type && VALID_ENTRY_TYPES.has(type)) entry.type = type;
+  if (detail && typeof detail === 'string') entry.detail = detail.trim();
+  return entry;
 }
 
 // Workspace routes
@@ -442,7 +447,7 @@ app.post('/api/projects/:projectId/activity', async (req, res) => {
     return;
   }
 
-  const { agent, action } = req.body || {};
+  const { agent, action, type, detail } = req.body || {};
   if (!agent || !action || typeof agent !== 'string' || typeof action !== 'string') {
     return res.status(400).json({ error: 'agent and action are required' });
   }
@@ -450,7 +455,7 @@ app.post('/api/projects/:projectId/activity', async (req, res) => {
   try {
     const nextEntries = await withProjectLock(context.project.id, async () => {
       const entries = readProjectData(context.project.id, 'activity');
-      entries.unshift(buildActivityEntry(agent.trim(), action.trim()));
+      entries.unshift(buildActivityEntry(agent.trim(), action.trim(), type, detail));
       writeProjectData(context.project.id, 'activity', entries);
       return entries;
     });

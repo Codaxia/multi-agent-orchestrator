@@ -171,7 +171,37 @@ curl -s http://localhost:3001/api/projects/{projectId}/tasks/{taskId}
 ```bash
 curl -s -X POST http://localhost:3001/api/projects/{projectId}/activity \
   -H "Content-Type: application/json" \
-  -d '{"agent": "developer", "action": "Auth module implementation complete"}'
+  -d '{"agent": "developer", "action": "npm run build", "type": "command", "detail": "output here..."}'
+```
+
+**Required fields:** `agent`, `action`
+
+**Optional fields:**
+
+| Field | Values | When to use |
+|-------|--------|-------------|
+| `type` | `command` | Shell command executed (renders in monospace green-on-dark) |
+| | `test` | Test run result (green badge) |
+| | `file` | File created or modified (blue badge) |
+| | `error` | Error or failure (red badge) |
+| | `decision` | Technical decision made (amber badge) |
+| | `info` | General info — default if omitted |
+| `detail` | string | Full output, stack trace, diff, or test results — shown in expandable toggle |
+
+**Examples:**
+
+```bash
+# Command with output
+-d '{"agent": "developer", "action": "npm run build", "type": "command", "detail": "✓ Built in 1.23s\n  dist/index.js  42kb"}'
+
+# Test result
+-d '{"agent": "qa", "action": "Cypress: 12 tests passed", "type": "test", "detail": "✓ login form\n✓ dashboard loads\n✓ task creation"}'
+
+# File change
+-d '{"agent": "developer", "action": "src/components/TaskCard.jsx modifié", "type": "file"}'
+
+# Decision
+-d '{"agent": "architect", "action": "Choix: JWT stateless plutôt que sessions", "type": "decision", "detail": "Raison: scalabilité horizontale requise. Impact: logout global non supporté."}'
 ```
 
 ### Create a new project

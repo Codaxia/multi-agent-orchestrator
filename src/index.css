@@ -1200,13 +1200,88 @@ html, body, #root {
 .activity-log-time {
   font-size: 11px;
   color: #9aa5b4;
-  margin-top: 2px;
+  margin-left: auto;
+  white-space: nowrap;
 }
 
 .activity-log-empty {
   font-size: 13px;
   color: #9aa5b4;
   padding: 20px 0;
+}
+
+.activity-log-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* Type badges */
+.activity-type-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 2px 7px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.activity-type-icon { font-style: normal; }
+
+.type-command  { background: #1e293b; color: #94d8a8; }
+.type-test     { background: #dcfce7; color: #166534; }
+.type-file     { background: #eff6ff; color: #1d4ed8; }
+.type-error    { background: #fee2e2; color: #991b1b; }
+.type-decision { background: #fef3c7; color: #92400e; }
+.type-info     { background: #f1f5f9; color: #475569; }
+
+/* Toggle button */
+.activity-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 6px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #5e6ad2;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.15s;
+}
+
+.activity-toggle-btn:hover { color: #3730a3; }
+.activity-toggle-chevron { font-size: 9px; }
+
+/* Detail block */
+.activity-detail {
+  margin-top: 8px;
+  padding: 12px 14px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-left: 3px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 12.5px;
+  color: #334155;
+  white-space: pre-wrap;
+  word-break: break-word;
+  line-height: 1.6;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.activity-detail.is-code {
+  font-family: 'Consolas', 'Menlo', 'Monaco', monospace;
+  background: #0f172a;
+  color: #94d8a8;
+  border-color: #1e293b;
+  border-left-color: #4ade80;
+  font-size: 12px;
 }
 
 /* ── Sidebar — Squads architecture ────────────────────────────────────────── */
