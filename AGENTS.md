@@ -289,19 +289,33 @@ Pipeline summary:
 
 If the project has a local dev server (e.g. `npm run dev`, `php artisan serve`), start it and include the URL. The human should be able to click directly to see the result.
 
-### Snapshot task data to private workspace
+### Snapshot task data to private workspace (optional)
 
-After every completed pipeline, run the sync script to version all project data in the private repo:
+After every completed pipeline, check whether a private workspace repo is configured:
+
+```bash
+git -C sprints/ rev-parse --is-inside-work-tree 2>/dev/null && echo "HAS_PRIVATE_REPO" || echo "NO_PRIVATE_REPO"
+```
+
+**If `HAS_PRIVATE_REPO` and `sprints/sync.sh` exists:**
 
 ```bash
 bash sprints/sync.sh
 ```
 
-This copies all task, pipeline-status, and activity-log files from `data/runtime/` into the
-private `sprints/data/` repo and pushes a timestamped commit to `codaxia-agent-workspace`.
+This copies all task, pipeline-status, and activity-log files from `data/runtime/` into
+`sprints/data/` and pushes a timestamped commit to the private repo.
 
-**This step is mandatory.** Do not close the pipeline without running it.
-If `sprints/sync.sh` does not exist, skip this step and notify the human.
+**If `NO_PRIVATE_REPO`:** ask the user **once**:
+
+> "Your task data is stored locally in `data/runtime/` (excluded from the public repo).
+> Would you like to version it in a private git repo so it is backed up and tracked over time?
+> (yes / no — you can set this up later at any time)"
+
+- If **yes**: guide the user to create a private GitHub repo, run `git init` in `sprints/`,
+  add the remote, and push. Then run `bash sprints/sync.sh`.
+- If **no**: skip silently. Task data remains local only — this is the default behavior
+  and nothing is lost.
 
 ---
 
