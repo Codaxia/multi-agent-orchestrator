@@ -18,7 +18,7 @@ Analyze the brief and classify it into one of these three modes:
 | Scenario | Trigger signals | Agents activated | Pipeline |
 |----------|----------------|------------------|----------|
 | **full-build** | "new project", "from scratch", no existing repo, greenfield | All agents, full pipeline | PM → Architect → Developer → CTO Review → QA → Security → Deploy |
-| **feature-ops** | existing repo, "add feature", "fix bug", "update", "refactor", maintenance | orchestrator, developer, cto-reviewer, qa | Developer → CTO Review → QA |
+| **feature-ops** | existing repo, "add feature", "fix bug", "update", "refactor", maintenance, ClickUp/Jira task | orchestrator, pm-discovery (if needed), developer, cto-reviewer, qa, security (if needed) | [PM →] Developer → CTO Review → QA → [Security] → READY FOR COMMIT |
 | **code-review** | "review", "audit", "check code", "security check" | orchestrator, cto-reviewer, security, qa, developer | CTO Review → Security → QA → Developer (if issues) → re-verify |
 
 **Rules:**
@@ -64,6 +64,80 @@ WHEN all tasks are Done:
      IF "APPROVED" → continue
   6. Deploy → staging first, then production (if scenario includes deploy)
 ```
+
+**feature-ops loop:**
+```
+INPUT: task from text, ClickUp ID, or Jira ID (see Reading external tasks below)
+
+STEP 0 — Assess the task:
+  a) Read the task fully (description, AC, attachments if any)
+  b) PM SKIP CHECK: task has clear AC and unambiguous scope? → skip PM, go to step 2
+     Task is vague or missing AC? → activate PM Discovery (light-touch)
+  c) SECURITY LEVEL:
+     - text/CSS/UI cosmetic only       → no security
+     - form, user input, API endpoint  → security: LIGHT (XSS + injection on modified files only)
+     - auth, payments, roles, new module → security: FULL (OWASP Top 10)
+  d) Log decision in activity feed: "PM: [skip/active] | Security: [none/light/full]"
+
+STEP 1 — PM Discovery (if activated):
+  Clarify scope, write/validate AC, ask max 1 question if needed
+  → go to Developer
+
+STEP 2 — Developer:
+  Implement the task. NO COMMITS. Signal when done.
+
+STEP 3 — CTO Review:
+  Review modified files only (not the full codebase)
+  IF REWORK NEEDED → back to Developer (max 3 attempts)
+
+STEP 4 — QA:
+  Test in browser using preview tools (screenshot, click, fill, console check)
+  Check off AC in real-time as each criterion is validated
+  IF FAILED → back to Developer (max 3 attempts)
+
+STEP 5 — Security (if activated):
+  Light: check modified files for XSS, injection, validation gaps
+  Full: OWASP Top 10 on the entire feature scope
+
+STEP 6 — READY FOR COMMIT:
+  Print summary to user (see format below)
+```
+
+**READY FOR COMMIT message format (print in chat at the end of every feature-ops pipeline):**
+```
+✅ READY FOR COMMIT — [Task title]
+
+📁 Files modified:
+- [list each file: created / modified / deleted]
+
+✅ Acceptance criteria: [N]/[N] validated
+🔍 CTO Review: [APPROVED / REWORK x times]
+🧪 QA: [PASSED / FAILED x times]
+🔒 Security: [APPROVED / WARNING / skipped]
+
+⚠️ Things to verify before committing:
+- [Any CTO yellow/green suggestions left as optional]
+- [Any QA minor issues not blocking]
+
+Suggested commit message:
+[conventional commit: feat/fix/refactor(scope): description]
+```
+
+> **Never commit yourself.** The user handles all git operations.
+
+---
+
+**Reading external tasks (feature-ops):**
+
+If the user provides a ClickUp task ID (e.g. `#abc123` or a full URL):
+1. Use the ClickUp MCP tool: `clickup_get_task` with the task ID
+2. Read: title, description, acceptance criteria, attachments, comments
+3. Use this as the task brief — treat it exactly like a text brief
+4. After completing the pipeline, update the ClickUp task status via `clickup_update_task`
+
+If the user provides a Jira task: use the same approach with available Jira MCP tools.
+
+---
 
 **code-review loop:**
 ```
@@ -132,11 +206,11 @@ If an agent reports uncertainty ("I don't know", "missing info", "ambiguous"):
 
 | Agent | Expected output |
 |-------|----------------|
-| PM/Discovery | Structured user stories + MoSCoW backlog |
+| PM/Discovery | full-build: user stories + MoSCoW backlog / feature-ops: scope confirmation + AC validation |
 | Architect | Architecture + tickets + ADR |
-| Developer | Code + conventional commits |
+| Developer | Code (no commits) + dashboard log |
 | CTO Reviewer | Verdict + numbered issues + suggestions |
-| QA | Verdict PASSED/FAILED + bug report |
+| QA | Verdict PASSED/FAILED + AC checked off + bug report + screenshots |
 | Security | Verdict + vulnerabilities + redispatch if critical |
 | Deploy | Verdict + smoke tests + client communication |
 | Estimation | Time/cost ranges + assumptions |
