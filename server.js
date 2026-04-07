@@ -10,8 +10,10 @@ const {
   DEFAULT_ALLOWED_ORIGINS,
   VALID_COLUMNS,
   VALID_PRIORITIES,
+  VALID_RECAP_TYPES,
   VALID_STATUSES,
   createProject,
+  setRecap,
   createTask,
   ensureDataDirs,
   ensureWorkspaceCatalog,
@@ -474,6 +476,45 @@ app.post('/api/projects/:projectId/activity', async (req, res) => {
     res.status(201).json(nextEntries[0]);
   } catch {
     sendInternalError(res, 'Failed to append activity entry');
+  }
+});
+
+// Recap routes — one recap per mission
+app.get('/api/projects/:projectId/recap', (req, res) => {
+  const context = requireProject(req, res);
+  if (!context) return;
+
+  try {
+    const recap = readProjectData(context.project.id, 'recap');
+    res.json(recap ?? null);
+  } catch {
+    sendInternalError(res, 'Failed to read recap');
+  }
+});
+
+app.post('/api/projects/:projectId/recap', async (req, res) => {
+  const context = requireProject(req, res);
+  if (!context) return;
+
+  if (denyDemoWrites(context.project.id, res)) return;
+
+  const body = req.body || {};
+
+  if (!body.summary || typeof body.summary !== 'string' || !body.summary.trim()) {
+    return res.status(400).json({ error: 'summary is required' });
+  }
+
+  if (body.type !== undefined && !VALID_RECAP_TYPES.includes(body.type)) {
+    return res.status(400).json({
+      error: `Invalid type. Allowed values: ${VALID_RECAP_TYPES.join(', ')}`,
+    });
+  }
+
+  try {
+    const recap = await withProjectLock(context.project.id, async () => setRecap(context.project.id, body));
+    res.status(201).json(recap);
+  } catch {
+    sendInternalError(res, 'Failed to save recap');
   }
 });
 

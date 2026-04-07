@@ -4,6 +4,7 @@ import { AGENT_COLORS, AGENT_DISPLAY_NAMES, ACTIVITY_AGENT_COLORS } from '../uti
 import { formatRelativeTime } from '../utils/time.js';
 import { sanitizeMarkedHtml } from '../utils/sanitize.js';
 
+
 const MOSCOW_CLASSES = {
   Must: 'moscow-must',
   Should: 'moscow-should',
@@ -33,7 +34,7 @@ function CloseIcon() {
   );
 }
 
-export default function TaskDetailPanel({ task, onClose, onUpdate }) {
+export default function TaskDetailPanel({ task, projectId, onClose, onUpdate }) {
   const agentColor = AGENT_COLORS[task.assignedAgent] ?? '#6c63ff';
   const agentLabel = AGENT_DISPLAY_NAMES[task.assignedAgent] ?? task.assignedAgent;
   const moscowClass = MOSCOW_CLASSES[task.priority] ?? 'moscow-wont';
@@ -95,7 +96,7 @@ export default function TaskDetailPanel({ task, onClose, onUpdate }) {
 
         {/* Assigned agent */}
         <div className="panel-section">
-          <div className="panel-section-label">Agent assigné</div>
+          <div className="panel-section-label">Assigned agent</div>
           <div className="panel-agent">
             <div className="panel-agent-avatar" style={{ background: agentColor }}>
               {agentLabel.charAt(0)}
@@ -141,7 +142,7 @@ export default function TaskDetailPanel({ task, onClose, onUpdate }) {
         {/* Sub-tasks */}
         {task.subTasks?.length > 0 && (
           <div className="panel-section">
-            <div className="panel-section-label">Sous-tâches</div>
+            <div className="panel-section-label">Sub-tasks</div>
             <ul className="panel-subtask-list">
               {task.subTasks.map((st) => (
                 <li key={st.id} className={`panel-subtask-item${st.status === 'done' ? ' done' : ''}`}>
@@ -156,7 +157,7 @@ export default function TaskDetailPanel({ task, onClose, onUpdate }) {
         {/* Activity */}
         {task.activity?.length > 0 && (
           <div className="panel-section">
-            <div className="panel-section-label">Activité</div>
+            <div className="panel-section-label">Activity</div>
             <div className="panel-activity-timeline">
               {task.activity.map((entry, i) => {
                 const color = ACTIVITY_AGENT_COLORS[entry.agent] ?? '#6c63ff';
@@ -191,9 +192,9 @@ export default function TaskDetailPanel({ task, onClose, onUpdate }) {
             → {nextColumn}
           </button>
         ) : (
-          <span className="panel-completed-label">✓ Tâche terminée</span>
+          <span className="panel-completed-label">✓ Task complete</span>
         )}
-        <button className="panel-btn-close" onClick={onClose}>Fermer</button>
+        <button className="panel-btn-close" onClick={onClose}>Close</button>
       </div>
     </aside>
   );

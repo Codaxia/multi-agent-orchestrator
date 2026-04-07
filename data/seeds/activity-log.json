@@ -1,50 +1,82 @@
 [
   {
-    "id": 1,
-    "agent": "Orchestrator",
-    "action": "Public demo workspace initialized from safe seed data",
-    "timestamp": "2026-03-28T12:55:00Z"
+    "id": "evt-demo-11",
+    "agent": "Deploy",
+    "action": "rsync dist/ → staging — déploiement terminé ✅",
+    "type": "command",
+    "detail": "$ npm run build && rsync -avz dist/ atuvu-staging:/var/www/todo-demo/\n\nvite v4.5.0 building for production...\n✓ 34 modules transformed.\ndist/assets/index-Bk9mZxYl.js   18.43 kB │ gzip: 7.12 kB\n✓ built in 843ms\n\nsending incremental file list\ndist/index.html\ndist/assets/index-DxQ3KW2k.css\ndist/assets/index-Bk9mZxYl.js\nsent 22,847 bytes  received 92 bytes\n\n✅ https://staging.example.com/todo-demo",
+    "timestamp": "2026-03-28T17:10:00Z"
   },
   {
-    "id": 2,
-    "agent": "PM Discovery",
-    "action": "Sample brief intake completed",
-    "timestamp": "2026-03-28T13:05:00Z"
-  },
-  {
-    "id": 3,
-    "agent": "Estimation",
-    "action": "Initial delivery range added to the example workflow",
-    "timestamp": "2026-03-28T13:20:00Z"
-  },
-  {
-    "id": 4,
-    "agent": "Architect",
-    "action": "Architecture outline moved into active drafting",
-    "timestamp": "2026-03-28T14:15:00Z"
-  },
-  {
-    "id": 5,
-    "agent": "Developer",
-    "action": "Implementation slice prepared for review",
-    "timestamp": "2026-03-28T15:25:00Z"
-  },
-  {
-    "id": 6,
-    "agent": "CTO Reviewer",
-    "action": "Review window scheduled for the next iteration",
-    "timestamp": "2026-03-28T15:40:00Z"
-  },
-  {
-    "id": 7,
+    "id": "evt-demo-10",
     "agent": "QA",
-    "action": "Validation checklist drafted for the sample board",
+    "action": "Tests end-to-end : 5/5 passés — 1 avertissement mineur",
+    "type": "test",
+    "detail": "✓ [US-01] Créer une tâche avec titre + date\n      → tâche apparaît dans la liste avec la date formatée\n\n✓ [US-02] Cliquer sur la tâche → statut passe à \"done\"\n      → style barré appliqué, persistance OK après reload\n\n✓ [US-02] Re-cliquer → retour en \"todo\"\n      → toggle bidirectionnel confirmé\n\n✓ [US-03] Filtre \"Done\" → seules les tâches terminées visibles\n✓ [US-03] Filtre \"Todo\" → seules les tâches actives visibles\n\n⚠ Soumission formulaire vide → aucune validation côté client\n      → bug mineur, non bloquant pour la démo\n\nConclusion : ✅ PASSÉ",
+    "timestamp": "2026-03-28T16:55:00Z"
+  },
+  {
+    "id": "evt-demo-9",
+    "agent": "CTO Reviewer",
+    "action": "Code review approuvé — 2 remarques non bloquantes",
+    "type": "decision",
+    "detail": "✅ APPROUVÉ avec remarques mineures\n\n① useTasks.js — pas de gestion d'erreur sur localStorage.setItem (quota)\n  → Recommandation : wrap dans try/catch\n  → Priorité : low\n\n② AddTaskForm.jsx — pas de validation si titre vide\n  → Recommandation : désactiver le bouton si champ vide\n  → Priorité : should-fix avant prod\n\nArchitecture : ✅ propre, aucune dette technique\nBundle      : ✅ 18kb gzippé — acceptable\nSécurité    : ✅ aucune donnée sensible",
     "timestamp": "2026-03-28T16:35:00Z"
   },
   {
-    "id": 8,
-    "agent": "Deploy",
-    "action": "Example release note stored as a finished item",
-    "timestamp": "2026-03-28T17:00:00Z"
+    "id": "evt-demo-8",
+    "agent": "Developer",
+    "action": "Erreur corrigée — ReferenceError import path useTasks",
+    "type": "error",
+    "detail": "ReferenceError: Cannot find module '../hooks/useTasks'\n  at App.jsx:3\n\nCause  : casse du nom de fichier (useTasks.js vs usetasks.js sur Linux)\nFix    : renommage + correction import\nStatut : ✅ résolu",
+    "timestamp": "2026-03-28T15:58:00Z"
+  },
+  {
+    "id": "evt-demo-7",
+    "agent": "Developer",
+    "action": "npm run dev — serveur local démarré sur localhost:5173",
+    "type": "command",
+    "detail": "$ npm run dev\n\n  VITE v4.5.0  ready in 312 ms\n\n  ➜  Local:   http://localhost:5173/\n  ➜  Network: use --host to expose",
+    "timestamp": "2026-03-28T15:45:00Z"
+  },
+  {
+    "id": "evt-demo-6",
+    "agent": "Developer",
+    "action": "4 fichiers créés / modifiés — hooks, utils, composants",
+    "type": "file",
+    "detail": "+ src/hooks/useTasks.js        (nouveau — état + persistance localStorage)\n+ src/utils/storage.js         (nouveau — getItem/setItem JSON + try/catch)\n~ src/App.jsx                  (modifié — import useTasks)\n~ src/components/TaskList.jsx  (modifié — props depuis useTasks)\n\nuseTasks expose : tasks, addTask, toggleTask, deleteTask",
+    "timestamp": "2026-03-28T15:25:00Z"
+  },
+  {
+    "id": "evt-demo-5",
+    "agent": "Architect",
+    "action": "Stack décidée : React + localStorage — aucun backend requis",
+    "type": "decision",
+    "detail": "Raison : prototype rapide, pas de contrainte de persistance serveur.\n\nStructure retenue :\n  src/\n    components/TaskList.jsx\n    components/TaskItem.jsx\n    components/AddTaskForm.jsx\n    hooks/useTasks.js\n    utils/storage.js\n\nFormat localStorage : JSON array [{ id, title, dueDate, done }]\nAucune librairie externe — CSS vanilla.",
+    "timestamp": "2026-03-28T14:15:00Z"
+  },
+  {
+    "id": "evt-demo-4",
+    "agent": "Estimation",
+    "action": "Effort estimé : 3h dev · 1h QA · 30min deploy",
+    "type": "info",
+    "detail": "Complexité : faible — aucun risque identifié\n\nDétail :\n  - useTasks hook + storage util   ~1h\n  - Composants UI (3 fichiers)     ~1h30\n  - Intégration + polish CSS       ~30min\n  - QA manuelle (5 scénarios)      ~1h\n  - Build + déploiement staging    ~30min\n\nTotal estimé : 4h30",
+    "timestamp": "2026-03-28T13:20:00Z"
+  },
+  {
+    "id": "evt-demo-3",
+    "agent": "PM Discovery",
+    "action": "4 user stories définies — Must / Should / Could",
+    "type": "decision",
+    "detail": "US-01 [Must]   — Créer une tâche avec titre + date\nUS-02 [Must]   — Marquer une tâche comme terminée\nUS-03 [Should] — Filtrer par statut (todo / done)\nUS-04 [Could]  — Réorganiser par drag & drop\n\nScope exclu : authentification, multi-utilisateurs, notifications",
+    "timestamp": "2026-03-28T13:05:00Z"
+  },
+  {
+    "id": "evt-demo-2",
+    "agent": "Orchestrator",
+    "action": "Pipeline démarré — Full Build · Todo List App",
+    "type": "info",
+    "detail": "Scenario : full-build\nAgents   : pm-discovery → estimation → architect → developer → cto-reviewer → qa → deploy\nSource   : brief utilisateur (chat)\nProjet   : todo-list-app",
+    "timestamp": "2026-03-28T12:55:00Z"
   }
 ]

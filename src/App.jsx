@@ -4,13 +4,14 @@ import Header from './components/Header.jsx';
 import AgentBoard from './components/AgentBoard.jsx';
 import TaskKanban from './components/TaskKanban.jsx';
 import ActivityLog from './components/ActivityLog.jsx';
+import RecapView from './components/RecapView.jsx';
 import SquadOverview from './components/SquadOverview.jsx';
 import CreateProjectModal from './components/CreateProjectModal.jsx';
 import { usePolling } from './hooks/usePolling.js';
 
 const DASHBOARD_SELECTION_KEY = 'dashboard-agents-selection';
 const LEGACY_SELECTION_KEYS = ['codaxia-dashboard-selection'];
-const VALID_VIEWS = new Set(['agents', 'kanban', 'activity']);
+const VALID_VIEWS = new Set(['agents', 'kanban', 'activity', 'recap']);
 const DEFAULT_SELECTION = {
   squadId: 'full-build',
   projectId: 'demo',
@@ -81,6 +82,7 @@ export default function App() {
   const [selectedProjectId, setSelectedProjectId] = useState(initialSelection.projectId);
   const [currentView, setCurrentView] = useState(initialSelection.view);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [workspaceOverride, setWorkspaceOverride] = useState(null);
   const [createError, setCreateError] = useState(null);
   const [isCreatingProject, setIsCreatingProject] = useState(false);
@@ -190,6 +192,13 @@ export default function App() {
 
   return (
     <div className="app-layout">
+      {sidebarOpen && (
+        <div
+          className="sidebar-mobile-backdrop"
+          onClick={() => setSidebarOpen(false)}
+          aria-hidden="true"
+        />
+      )}
       <Sidebar
         squads={workspace?.squads ?? []}
         selectedSquadId={selected.squad?.id ?? null}
@@ -201,10 +210,13 @@ export default function App() {
         onCreateProjectClick={() => {
           setCreateError(null);
           setIsCreateModalOpen(true);
+          setSidebarOpen(false);
         }}
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
       />
       <div className="app-main">
-        <Header title={headerTitle} status="live" />
+        <Header title={headerTitle} status="live" onMenuClick={() => setSidebarOpen(true)} />
         <main className="app-content">
           {loading && !workspace && (
             <div className="state-container">
@@ -249,6 +261,12 @@ export default function App() {
           )}
           {selected.project && currentView === 'activity' && (
             <ActivityLog
+              key={selected.project.id}
+              projectId={selected.project.id}
+            />
+          )}
+          {selected.project && currentView === 'recap' && (
+            <RecapView
               key={selected.project.id}
               projectId={selected.project.id}
             />

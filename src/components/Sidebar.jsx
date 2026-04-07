@@ -4,6 +4,7 @@ const NAV_LINKS = [
   { id: 'agents', label: 'Agent Pipeline', icon: '🤖' },
   { id: 'kanban', label: 'Task Kanban', icon: '📋' },
   { id: 'activity', label: 'Activity Log', icon: '📊' },
+  { id: 'recap', label: 'Recap', icon: '📝' },
 ];
 
 export default function Sidebar({
@@ -15,6 +16,8 @@ export default function Sidebar({
   onProjectClick,
   onViewChange,
   onCreateProjectClick,
+  isOpen,
+  onClose,
 }) {
   const [collapsedSquads, setCollapsedSquads] = useState({});
 
@@ -23,8 +26,23 @@ export default function Sidebar({
     setCollapsedSquads((prev) => ({ ...prev, [squadId]: !prev[squadId] }));
   }
 
+  function handleSquadClick(squadId) {
+    onSquadClick(squadId);
+    onClose?.();
+  }
+
+  function handleProjectClick(projectId, squadId) {
+    onProjectClick(projectId, squadId);
+    onClose?.();
+  }
+
+  function handleViewChange(view) {
+    onViewChange(view);
+    onClose?.();
+  }
+
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar${isOpen ? ' sidebar-open' : ''}`}>
       <div className="sidebar-logo">
         <div className="sidebar-logo-icon">DA</div>
         <div className="sidebar-logo-info">
@@ -45,7 +63,7 @@ export default function Sidebar({
               <div key={squad.id} className="squad-group">
                 <button
                   className={`squad-header${isSquadActive ? ' active' : ''}`}
-                  onClick={() => onSquadClick(squad.id)}
+                  onClick={() => handleSquadClick(squad.id)}
                 >
                   <span className="squad-icon">{squad.icon}</span>
                   <span className="squad-label">{squad.label}</span>
@@ -68,7 +86,7 @@ export default function Sidebar({
                         <button
                           key={project.id}
                           className={`squad-project-btn${isProjectActive ? ' active' : ''}`}
-                          onClick={() => onProjectClick(project.id, squad.id)}
+                          onClick={() => handleProjectClick(project.id, squad.id)}
                         >
                           {isProjectActive && <span className="squad-project-dot" />}
                           <span className="squad-project-icon">📁</span>
@@ -86,19 +104,19 @@ export default function Sidebar({
 
           <button className="squad-add-btn" onClick={onCreateProjectClick}>
             <span>＋</span>
-            Nouveau projet
+            New Mission
           </button>
         </nav>
       </div>
 
       {selectedProject && (
         <nav className="sidebar-project-nav">
-          <div className="sidebar-section-label">PROJET</div>
+          <div className="sidebar-section-label">MISSION</div>
           {NAV_LINKS.map((link) => (
             <button
               key={link.id}
               className={`sidebar-link${currentView === link.id ? ' active' : ''}`}
-              onClick={() => onViewChange(link.id)}
+              onClick={() => handleViewChange(link.id)}
               aria-current={currentView === link.id ? 'page' : undefined}
             >
               <span className="sidebar-link-icon" aria-hidden="true">{link.icon}</span>

@@ -204,6 +204,60 @@ curl -s -X POST http://localhost:3001/api/projects/{projectId}/activity \
 -d '{"agent": "architect", "action": "Choix: JWT stateless plutôt que sessions", "type": "decision", "detail": "Raison: scalabilité horizontale requise. Impact: logout global non supporté."}'
 ```
 
+### Publish a mission recap
+
+At the end of the mission (or at any key milestone), publish a recap so the human can understand what was done, why, and how. One recap entry per agent action — multiple entries are allowed per mission.
+
+```bash
+curl -s -X POST http://localhost:3001/api/projects/{projectId}/recap \
+  -H "Content-Type: application/json" \
+  -d @/tmp/recap.json
+```
+
+**Required fields:** `summary`
+
+**Optional fields:**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `type` | string | `bug_fix`, `feature`, `refactor`, `code_review`, `security`, `deploy` |
+| `agentAuthor` | string | Agent who writes the recap (e.g. `"developer"`) |
+| `summary` | string | **Required.** Plain-language summary of what was done |
+| `why` | string | Why it was needed / why the problem existed |
+| `how` | string | How it was implemented or fixed |
+| `outcome` | string | End result — what the user sees now |
+| `bugOrigin` | string | Root cause of the bug (`bug_fix` only) |
+| `bugSymptom` | string | What the user experienced (`bug_fix` only) |
+| `qaSteps` | string | Description of tests performed |
+| `clickupTaskId` | string | ClickUp task ID |
+| `clickupTaskTitle` | string | ClickUp task title |
+| `clickupUrl` | string | ClickUp task URL |
+| `commitHash` | string | Git commit hash |
+| `commitMessage` | string | Git commit message |
+| `commitUrl` | string | Link to commit on GitHub/GitLab |
+| `prUrl` | string | Pull Request URL |
+| `links` | array | Extra links: `[{"label": "Docs", "url": "https://..."}]` |
+
+**Example payload** (`/tmp/recap.json`):
+
+```json
+{
+  "type": "bug_fix",
+  "agentAuthor": "developer",
+  "summary": "L'app était illisible sur mobile — textes superposés, sidebar prenant toute la place.",
+  "why": "La CSS n'avait pas de breakpoint pour les écrans < 640px.",
+  "how": "Ajout d'un overlay mobile avec hamburger. 4 fichiers modifiés : index.css, App.jsx, Sidebar.jsx, Header.jsx.",
+  "outcome": "App 100% navigable sur mobile. Sidebar en overlay avec backdrop, fermeture auto à la navigation.",
+  "bugSymptom": "Textes superposés, projets invisibles, navigation impossible sur téléphone.",
+  "bugOrigin": "Absence de CSS responsive pour les petits écrans.",
+  "qaSteps": "Testé sur viewport 375x812 (iPhone), 768x1024 (tablet), 1280x800 (desktop).",
+  "commitHash": "dff9de4",
+  "commitMessage": "feat(ui): mobile responsive layout with hamburger overlay"
+}
+```
+
+**When to publish:** at the end of the mission, or after each significant agent action (deploy, code review, major feature). The recap belongs to the mission as a whole — not to individual kanban tasks.
+
 ### Create a new project
 
 ```bash

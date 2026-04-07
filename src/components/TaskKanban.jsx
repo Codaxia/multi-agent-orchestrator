@@ -178,6 +178,7 @@ export default function TaskKanban({ projectId }) {
           <div className="detail-overlay-backdrop" />
           <TaskDetailPanel
             task={selectedTask}
+            projectId={projectId}
             onClose={() => setSelectedTaskId(null)}
             onUpdate={handleTaskUpdate}
           />
