@@ -82,6 +82,8 @@ A single project can receive tasks of different scenarios over time.
 
 ## Reading external tasks (feature-ops)
 
+**One external ticket = one mission.** Each ClickUp or Jira ticket becomes its own dashboard project — never group multiple tickets into a single mission.
+
 If the user provides a ClickUp task ID or URL, use the ClickUp MCP to read it:
 
 ```
@@ -92,6 +94,15 @@ Input: task_id (the ID from the URL, e.g. "abc123xyz")
 The task response contains: title, description, acceptance criteria, status, assignees, comments.
 Treat the ClickUp content as the task brief — apply the same PM skip/activate logic as for text tasks.
 
+**Then immediately create a mission for it:**
+```bash
+curl -s -X POST http://localhost:3001/api/projects \
+  -H "Content-Type: application/json" \
+  -d '{"name": "[Ticket title]", "squadId": "feature-ops", "description": "[Ticket description]"}'
+```
+
+Inside that mission, create Kanban tasks representing the **agent pipeline steps** (T01 Developer, T02 CTO Review, T03 QA) — not the ticket content itself.
+
 After the pipeline completes, update the ClickUp task:
 ```
 Tool: clickup_update_task
@@ -99,6 +110,27 @@ Input: task_id, status: "complete" (or the appropriate status in the user's work
 ```
 
 **Do not update ClickUp status mid-pipeline** — only at the very end, when QA has passed.
+
+---
+
+## Data model — Scenario › Mission › Task
+
+The dashboard is organized in three levels:
+
+| Level | Dashboard name | Maps to |
+|-------|---------------|---------|
+| **Scenario** | Squad (e.g. `feature-ops`) | Type of pipeline (full-build, feature-ops, code-review) |
+| **Mission** | Project | **One external ticket** (ClickUp, Jira, text brief) = one mission |
+| **Task** | Kanban card | One agent pipeline step (Developer, CTO Review, QA…) |
+
+**Rules:**
+- **One ticket = one mission.** Each ClickUp or Jira ticket you receive becomes its own dashboard project. Never group multiple external tickets inside a single mission.
+- **Kanban tasks are for agents only.** They represent pipeline steps (T01 Developer, T02 CTO Review, T03 QA…), not business requirements or user stories. The human does not create or move tasks — agents do.
+- **Tasks are not tickets.** The Kanban is a visibility tool for the human to follow agent progress, not a backlog of business features.
+
+**Example:**
+- User gives 3 ClickUp tickets → create 3 missions, each with its own pipeline tasks
+- Inside each mission: T01 (Developer), T02 (CTO Review), T03 (QA) — these are agent steps, not ticket content
 
 ---
 
@@ -323,12 +355,18 @@ curl -s -X PATCH http://localhost:3001/api/projects/{projectId}/tasks/{taskId} \
 
 ## Work protocol
 
-### Starting a task
+### Starting a mission
 
-1. Read the Orchestrator definition to detect the scenario
-2. Set the Orchestrator to `active` with a message describing the task
-3. Create tasks in the Kanban board (column `Backlog`)
-4. When you begin a task, move it to `In Progress` and activate the relevant agent
+Each external ticket (ClickUp, Jira, text brief) = one mission. Start by creating the project, then populate the Kanban with **agent pipeline steps** (not business requirements).
+
+1. Create the mission: `POST /api/projects` with the ticket title and description
+2. Set the Orchestrator to `active` with a message describing the mission
+3. Create **agent pipeline tasks** in the Kanban (column `Backlog`):
+   - T01 — Developer: implementation
+   - T02 — CTO Review: code review
+   - T03 — QA: functional validation
+   - *(add Security, Deploy if the scenario requires)*
+4. When you begin a pipeline step, move its task to `In Progress` and activate the relevant agent
 5. Log each significant step in the activity feed
 
 ### During work
