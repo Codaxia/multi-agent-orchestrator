@@ -522,21 +522,34 @@ app.patch('/api/projects/:projectId/recap', async (req, res) => {
   const context = requireProject(req, res);
   if (!context) return;
 
-  const { humanNotes } = req.body || {};
-  if (typeof humanNotes !== 'string') {
+  const { humanNotes, reworkLog } = req.body || {};
+
+  if (humanNotes !== undefined && typeof humanNotes !== 'string') {
     return res.status(400).json({ error: 'humanNotes must be a string' });
+  }
+  if (reworkLog !== undefined && !Array.isArray(reworkLog)) {
+    return res.status(400).json({ error: 'reworkLog must be an array' });
+  }
+  if (humanNotes === undefined && reworkLog === undefined) {
+    return res.status(400).json({ error: 'Provide humanNotes or reworkLog' });
   }
 
   try {
     const updated = await withProjectLock(context.project.id, async () => {
       const existing = readProjectData(context.project.id, 'recap') ?? {};
-      const next = { ...existing, humanNotes: humanNotes.trim() };
+      const next = { ...existing };
+      if (humanNotes !== undefined) next.humanNotes = humanNotes.trim();
+      if (reworkLog !== undefined) {
+        // Merge — append new entries, don't overwrite previous ones
+        const current = Array.isArray(existing.reworkLog) ? existing.reworkLog : [];
+        next.reworkLog = [...current, ...reworkLog];
+      }
       writeProjectData(context.project.id, 'recap', next);
       return next;
     });
     res.json(updated);
   } catch {
-    sendInternalError(res, 'Failed to update recap notes');
+    sendInternalError(res, 'Failed to update recap');
   }
 });
 

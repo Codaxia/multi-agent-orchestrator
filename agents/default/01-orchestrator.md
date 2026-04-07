@@ -20,10 +20,13 @@ Analyze the brief and classify it into one of these three modes:
 | **full-build** | "new project", "from scratch", no existing repo, greenfield | All agents, full pipeline | PM → Architect → Developer → CTO Review → QA → Security → Deploy |
 | **feature-ops** | existing repo, "add feature", "fix bug", "update", "refactor", maintenance, ClickUp/Jira task | orchestrator, pm-discovery (if needed), developer, cto-reviewer, qa, security (if needed) | [PM →] Developer → CTO Review → QA → [Security] → READY FOR COMMIT |
 | **code-review** | "review", "audit", "check code", "security check" | orchestrator, cto-reviewer, security, qa, developer | CTO Review → Security → QA → Developer (if issues) → re-verify |
+| **rework** | human reports a bug or QA finding on a **completed** mission, "I found a bug", "fix this", ClickUp comment on a done task, correction after delivery | orchestrator, developer, cto-reviewer, security, qa | Developer → CTO Review → Security → QA (full pipeline, no shortcuts) |
 
 **Rules:**
 - If the scenario is unclear, ask the user before proceeding
 - A project can switch scenarios between tasks (a full-build project can later receive feature-ops tasks)
+- **Rework reuses the existing mission** — do NOT create a new project. Add a `[RW]` task to the existing Kanban.
+- Rework always runs the full pipeline (Developer → CTO Review → Security → QA) — even for one-line fixes.
 - Log the detected scenario in the dashboard activity feed
 - If a feature-ops task reveals an architectural issue, you may escalate and activate the Architect mid-task
 

@@ -117,6 +117,26 @@ function RecapCard({ recap }) {
           </div>
         )}
 
+        {/* Rework log */}
+        {recap.reworkLog?.length > 0 && (
+          <div className="recap-section">
+            <div className="recap-section-label recap-label-orange">🔁 Rework history</div>
+            <ul className="recap-rework-list">
+              {recap.reworkLog.map((entry, i) => (
+                <li key={i} className="recap-rework-entry">
+                  <span className="recap-rework-issue">{entry.issue}</span>
+                  {entry.fix && <span className="recap-rework-fix">→ {entry.fix}</span>}
+                  {entry.date && (
+                    <span className="recap-rework-date">
+                      {formatRelativeTime(entry.date)}
+                    </span>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         {/* Links */}
         {hasLinks && (
           <div className="recap-links-row">

@@ -355,6 +355,52 @@ curl -s -X PATCH http://localhost:3001/api/projects/{projectId}/tasks/{taskId} \
 
 ## Work protocol
 
+### Rework on an existing mission
+
+When the human reports a bug, a correction, or a QA finding on a mission that is already complete — **do not create a new mission**. Reuse the existing project and add a rework task to its Kanban.
+
+**Triggers:** human reports a bug in chat, shares a ClickUp comment, points to an issue in a previously delivered mission.
+
+**Protocol:**
+
+1. **Identify the existing project** — match to the mission the human is referencing
+2. **Set the Orchestrator to `active`** with message `"Rework — [short issue description]"`
+3. **Create one task per issue** in the existing project Kanban:
+   ```bash
+   curl -s -X POST http://localhost:3001/api/projects/{projectId}/tasks \
+     -H "Content-Type: application/json" \
+     -d '{"title": "[RW] — Short bug description", "description": "Bug report: ...\nExpected: ...\nActual: ...", "column": "Backlog", "assignedAgent": "developer", "priority": "Must"}'
+   ```
+   Task title must be prefixed with `[RW]` to distinguish rework from original pipeline tasks.
+
+4. **Run the full pipeline** — no shortcuts, even for minor fixes:
+
+   | Step | Agent | What to do |
+   |------|-------|-----------|
+   | 1 | Developer | Diagnose root cause, implement fix |
+   | 2 | CTO Reviewer | Code review the fix (diff only — not the whole project) |
+   | 3 | Security | Verify the fix doesn't introduce a vulnerability |
+   | 4 | QA | Validate the fix matches the bug report |
+
+5. **Update the recap** — PATCH the existing recap to reflect the rework. Add a `reworkLog` array entry:
+   ```bash
+   curl -s -X PATCH http://localhost:3001/api/projects/{projectId}/recap \
+     -H "Content-Type: application/json" \
+     -d '{"reworkLog": [{"issue": "Bug description", "fix": "What was changed", "date": "ISO date"}]}'
+   ```
+   > If `reworkLog` already exists, merge — do not overwrite previous entries.
+
+6. **Print the rework summary in chat:**
+   ```
+   ✅ Rework complete — [Project name]
+   Issue: [bug description]
+   Fix: [what was changed]
+   CTO Review: APPROVED
+   QA: PASSED
+   ```
+
+---
+
 ### Checking for human QA feedback
 
 Before starting any work on an existing mission, check whether the human left feedback in the Recap page:
