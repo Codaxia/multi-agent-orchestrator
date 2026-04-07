@@ -25,6 +25,9 @@ via its local API so the human can follow what is happening in real-time.
 Agent definitions are in `agents/default/`. Read the Orchestrator first — it contains the
 scenario detection matrix that determines which agents to activate.
 
+Then check for project-specific skills in `sprints/skills/INDEX.md`. If a skills file exists
+for the current project, load it — it overrides and extends the default agent rules.
+
 | ID | File | Role |
 |----|------|------|
 | `orchestrator` | `agents/default/01-orchestrator.md` | Pipeline coordination & scenario detection |
@@ -206,7 +209,7 @@ curl -s -X POST http://localhost:3001/api/projects/{projectId}/activity \
 
 ### Publish a mission recap
 
-At the end of the mission (or at any key milestone), publish a recap so the human can understand what was done, why, and how. One recap entry per agent action — multiple entries are allowed per mission.
+At the end of the mission, publish a single recap object summarizing what was done, why, and how. This is one document per mission — it replaces any previous recap for this project.
 
 ```bash
 curl -s -X POST http://localhost:3001/api/projects/{projectId}/recap \
@@ -244,19 +247,19 @@ curl -s -X POST http://localhost:3001/api/projects/{projectId}/recap \
 {
   "type": "bug_fix",
   "agentAuthor": "developer",
-  "summary": "L'app était illisible sur mobile — textes superposés, sidebar prenant toute la place.",
-  "why": "La CSS n'avait pas de breakpoint pour les écrans < 640px.",
-  "how": "Ajout d'un overlay mobile avec hamburger. 4 fichiers modifiés : index.css, App.jsx, Sidebar.jsx, Header.jsx.",
-  "outcome": "App 100% navigable sur mobile. Sidebar en overlay avec backdrop, fermeture auto à la navigation.",
-  "bugSymptom": "Textes superposés, projets invisibles, navigation impossible sur téléphone.",
-  "bugOrigin": "Absence de CSS responsive pour les petits écrans.",
-  "qaSteps": "Testé sur viewport 375x812 (iPhone), 768x1024 (tablet), 1280x800 (desktop).",
+  "summary": "The app was unreadable on mobile — overlapping text, sidebar taking the full screen.",
+  "why": "No CSS breakpoint existed for screens under 640px.",
+  "how": "Added mobile overlay sidebar with hamburger button. 4 files modified: index.css, App.jsx, Sidebar.jsx, Header.jsx.",
+  "outcome": "App fully navigable on mobile. Sidebar renders as overlay with backdrop, auto-closes on navigation.",
+  "bugSymptom": "Overlapping text, projects invisible, navigation impossible on phone.",
+  "bugOrigin": "Missing responsive CSS for small screens.",
+  "qaSteps": "Tested on viewport 375x812 (iPhone), 768x1024 (tablet), 1280x800 (desktop).",
   "commitHash": "dff9de4",
   "commitMessage": "feat(ui): mobile responsive layout with hamburger overlay"
 }
 ```
 
-**When to publish:** at the end of the mission, or after each significant agent action (deploy, code review, major feature). The recap belongs to the mission as a whole — not to individual kanban tasks.
+**When to publish:** once, at the end of the mission. One recap per mission — publishing replaces the previous one.
 
 ### Create a new project
 

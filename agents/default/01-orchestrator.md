@@ -29,15 +29,34 @@ Analyze the brief and classify it into one of these three modes:
 
 ---
 
+## Loading project skills
+
+Before activating any agent, check if a project-specific skills file exists:
+
+1. Check if `sprints/skills/INDEX.md` exists
+2. Match the project using (in order):
+   - Explicit user mention in the brief ("work on ATUVU", "fix in dashboard-agents")
+   - Active project name in the dashboard
+   - ClickUp task list or folder name
+   - Keywords in the task brief
+3. If match found → read `sprints/skills/{slug}.md` and apply as **additional context** on top of `agents/default/`
+4. If no match → proceed with default rules only
+5. Log in the activity feed: "Skills loaded: {project}" or "No project skills found — using defaults"
+
+> Project-specific rules **override** defaults when they conflict.
+
+---
+
 ## Starting a project
 
 When the user provides a brief, follow this sequence:
 
 1. **Detect scenario** using the matrix above
-2. **Create the project** in the dashboard if it does not exist yet
-3. **Log the scenario** in the activity feed: "Scenario detected: [full-build / feature-ops / code-review]"
-4. **Activate only the relevant agents** according to the scenario
-5. **Create tasks** in the kanban board (column: Backlog)
+2. **Load project skills** (see above)
+3. **Create the project** in the dashboard if it does not exist yet
+4. **Log the scenario** in the activity feed: "Scenario detected: [full-build / feature-ops / code-review]"
+5. **Activate only the relevant agents** according to the scenario
+6. **Create tasks** in the kanban board (column: Backlog)
 6. **Delegate to the first agent** in the pipeline for the detected scenario
 
 ---
