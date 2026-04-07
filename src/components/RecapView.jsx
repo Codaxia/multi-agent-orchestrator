@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { usePolling } from '../hooks/usePolling.js';
 import { AGENT_COLORS } from '../utils/agentColors.js';
 import { formatRelativeTime } from '../utils/time.js';
@@ -182,6 +183,55 @@ function RecapCard({ recap }) {
   );
 }
 
+function HumanNotesSection({ projectId, initialNotes }) {
+  const [notes, setNotes] = useState(initialNotes);
+  const [saveStatus, setSaveStatus] = useState('idle'); // 'idle' | 'saving' | 'saved' | 'error'
+
+  async function handleSave() {
+    setSaveStatus('saving');
+    try {
+      const res = await fetch(`/api/projects/${projectId}/recap`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ humanNotes: notes }),
+      });
+      if (!res.ok) throw new Error();
+      setSaveStatus('saved');
+      setTimeout(() => setSaveStatus('idle'), 2500);
+    } catch {
+      setSaveStatus('error');
+    }
+  }
+
+  return (
+    <div className="human-notes-section">
+      <div className="human-notes-label">Human QA Notes</div>
+      <p className="human-notes-hint">
+        Write your feedback here — the agent reads this at the start of the next session.
+      </p>
+      <textarea
+        className="human-notes-textarea"
+        value={notes}
+        onChange={(e) => { setNotes(e.target.value); setSaveStatus('idle'); }}
+        placeholder="- The modal doesn't close on iOS&#10;- Title overflows on mobile&#10;- ..."
+        rows={5}
+      />
+      <div className="human-notes-footer">
+        {saveStatus === 'saved' && <span className="human-notes-status human-notes-saved">✓ Saved</span>}
+        {saveStatus === 'error' && <span className="human-notes-status human-notes-error">Save failed — check the server</span>}
+        {saveStatus === 'idle' && <span />}
+        <button
+          className="human-notes-save-btn"
+          onClick={handleSave}
+          disabled={saveStatus === 'saving'}
+        >
+          {saveStatus === 'saving' ? 'Saving…' : 'Save'}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function RecapView({ projectId }) {
   const { data, error, loading } = usePolling(`/api/projects/${projectId}/recap`, 5000);
   const recap = data && typeof data === 'object' && !Array.isArray(data) ? data : null;
@@ -216,6 +266,14 @@ export default function RecapView({ projectId }) {
       )}
 
       {recap && <RecapCard recap={recap} />}
+
+      {!loading && (
+        <HumanNotesSection
+          key={projectId}
+          projectId={projectId}
+          initialNotes={recap?.humanNotes ?? ''}
+        />
+      )}
     </div>
   );
 }

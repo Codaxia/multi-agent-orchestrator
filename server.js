@@ -518,6 +518,28 @@ app.post('/api/projects/:projectId/recap', async (req, res) => {
   }
 });
 
+app.patch('/api/projects/:projectId/recap', async (req, res) => {
+  const context = requireProject(req, res);
+  if (!context) return;
+
+  const { humanNotes } = req.body || {};
+  if (typeof humanNotes !== 'string') {
+    return res.status(400).json({ error: 'humanNotes must be a string' });
+  }
+
+  try {
+    const updated = await withProjectLock(context.project.id, async () => {
+      const existing = readProjectData(context.project.id, 'recap') ?? {};
+      const next = { ...existing, humanNotes: humanNotes.trim() };
+      writeProjectData(context.project.id, 'recap', next);
+      return next;
+    });
+    res.json(updated);
+  } catch {
+    sendInternalError(res, 'Failed to update recap notes');
+  }
+});
+
 app.use('/api', (req, res) => {
   res.status(404).json({ error: 'Unknown API endpoint' });
 });

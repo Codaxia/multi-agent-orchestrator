@@ -355,6 +355,27 @@ curl -s -X PATCH http://localhost:3001/api/projects/{projectId}/tasks/{taskId} \
 
 ## Work protocol
 
+### Checking for human QA feedback
+
+Before starting any work on an existing mission, check whether the human left feedback in the Recap page:
+
+```bash
+curl -s http://localhost:3001/api/projects/{projectId}/recap
+```
+
+If the response contains a non-empty `humanNotes` field:
+1. Read each item — treat them as bug reports or rework requests
+2. Create one pipeline task per issue (column: `Backlog`, assignedAgent: `developer`)
+3. Fix each issue following the normal pipeline loop (Developer → CTO Review → QA)
+4. Once all issues are resolved, **clear the notes** by sending:
+   ```bash
+   curl -s -X PATCH http://localhost:3001/api/projects/{projectId}/recap \
+     -H "Content-Type: application/json" \
+     -d '{"humanNotes": ""}'
+   ```
+
+---
+
 ### Starting a mission
 
 Each external ticket (ClickUp, Jira, text brief) = one mission. Start by creating the project, then populate the Kanban with **agent pipeline steps** (not business requirements).
