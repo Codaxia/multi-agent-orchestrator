@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import TaskCard from './TaskCard.jsx';
 import TaskDetailPanel from './TaskDetailPanel.jsx';
 import { usePolling } from '../hooks/usePolling.js';
@@ -17,14 +16,7 @@ const COLUMN_HEADER_CLASSES = {
 export default function TaskKanban({ projectId }) {
   const { data, error, loading } = usePolling(`/api/projects/${projectId}/tasks`, 2500);
   const [tasks, setTasks] = useState([]);
-  const [dragError, setDragError] = useState(null);
   const [selectedTaskId, setSelectedTaskId] = useState(null);
-
-  function showTaskError(message) {
-    setDragError(message);
-    window.clearTimeout(showTaskError.timeoutId);
-    showTaskError.timeoutId = window.setTimeout(() => setDragError(null), 4000);
-  }
 
   useEffect(() => {
     if (data?.tasks) {
@@ -33,57 +25,6 @@ export default function TaskKanban({ projectId }) {
   }, [data]);
 
   const selectedTask = tasks.find((task) => task.id === selectedTaskId) ?? null;
-
-  const handleDragEnd = async (result) => {
-    const { destination, source, draggableId } = result;
-
-    if (!destination) return;
-    if (destination.droppableId === source.droppableId && destination.index === source.index) return;
-
-    const newColumn = destination.droppableId;
-
-    setTasks((prev) =>
-      prev.map((task) => (task.id === draggableId ? { ...task, column: newColumn } : task)),
-    );
-
-    try {
-      const response = await fetch(`/api/projects/${projectId}/tasks/${encodeURIComponent(draggableId)}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ column: newColumn }),
-      });
-
-      if (!response.ok) {
-        const body = await response.json().catch(() => ({}));
-        showTaskError(body.error ?? `Move failed (HTTP ${response.status})`);
-      } else {
-        setDragError(null);
-      }
-    } catch {
-      showTaskError('Move failed — server unreachable. Reverting on next poll.');
-    }
-  };
-
-  const handleTaskUpdate = async (taskId, updates) => {
-    setTasks((prev) => prev.map((task) => (task.id === taskId ? { ...task, ...updates } : task)));
-
-    try {
-      const response = await fetch(`/api/projects/${projectId}/tasks/${encodeURIComponent(taskId)}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updates),
-      });
-
-      if (!response.ok) {
-        const body = await response.json().catch(() => ({}));
-        showTaskError(body.error ?? `Task update failed (HTTP ${response.status})`);
-      } else {
-        setDragError(null);
-      }
-    } catch {
-      showTaskError('Task update failed — server unreachable. Reverting on next poll.');
-    }
-  };
 
   if (loading) {
     return (
@@ -112,7 +53,7 @@ export default function TaskKanban({ projectId }) {
             <p className="workspace-panel-eyebrow">Flow management</p>
             <h2 className="kanban-title">Task Kanban</h2>
             <p className="kanban-subtitle">
-              {tasks.length} tasks, {COLUMNS.length} columns, drag and drop enabled.
+              {tasks.length} tasks across {COLUMNS.length} columns.
             </p>
           </div>
           <div className="workspace-stats">
@@ -122,55 +63,31 @@ export default function TaskKanban({ projectId }) {
           </div>
         </div>
 
-        {dragError && (
-          <div className="workspace-alert workspace-alert-error" role="alert">
-            {dragError}
-          </div>
-        )}
+        <div className="kanban-board">
+          {COLUMNS.map((column) => {
+            const columnTasks = tasks.filter((task) => task.column === column);
+            const headerClass = COLUMN_HEADER_CLASSES[column];
 
-        <DragDropContext onDragEnd={handleDragEnd}>
-          <div className="kanban-board">
-            {COLUMNS.map((column) => {
-              const columnTasks = tasks.filter((task) => task.column === column);
-              const headerClass = COLUMN_HEADER_CLASSES[column];
-
-              return (
-                <div key={column} className="kanban-column">
-                  <div className={`kanban-column-header ${headerClass}`}>
-                    <span className="kanban-column-title">{column}</span>
-                    <span className="kanban-column-count">{columnTasks.length}</span>
-                  </div>
-
-                  <Droppable droppableId={column}>
-                    {(provided, snapshot) => (
-                      <div
-                        className={`kanban-cards-container${snapshot.isDraggingOver ? ' is-dragging-over' : ''}`}
-                        ref={provided.innerRef}
-                        {...provided.droppableProps}
-                      >
-                        {columnTasks.map((task, index) => (
-                          <Draggable key={task.id} draggableId={task.id} index={index}>
-                            {(draggableProvided) => (
-                              <TaskCard
-                                task={task}
-                                innerRef={draggableProvided.innerRef}
-                                draggableProps={draggableProvided.draggableProps}
-                                dragHandleProps={draggableProvided.dragHandleProps}
-                                isSelected={task.id === selectedTaskId}
-                                onTaskClick={() => setSelectedTaskId(task.id)}
-                              />
-                            )}
-                          </Draggable>
-                        ))}
-                        {provided.placeholder}
-                      </div>
-                    )}
-                  </Droppable>
+            return (
+              <div key={column} className="kanban-column">
+                <div className={`kanban-column-header ${headerClass}`}>
+                  <span className="kanban-column-title">{column}</span>
+                  <span className="kanban-column-count">{columnTasks.length}</span>
                 </div>
-              );
-            })}
-          </div>
-        </DragDropContext>
+                <div className="kanban-cards-container">
+                  {columnTasks.map((task) => (
+                    <TaskCard
+                      key={task.id}
+                      task={task}
+                      isSelected={task.id === selectedTaskId}
+                      onTaskClick={() => setSelectedTaskId(task.id)}
+                    />
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </section>
 
       {selectedTask && (
@@ -178,9 +95,7 @@ export default function TaskKanban({ projectId }) {
           <div className="detail-overlay-backdrop" />
           <TaskDetailPanel
             task={selectedTask}
-            projectId={projectId}
             onClose={() => setSelectedTaskId(null)}
-            onUpdate={handleTaskUpdate}
           />
         </div>
       )}

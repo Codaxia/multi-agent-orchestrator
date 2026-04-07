@@ -12,14 +12,6 @@ const MOSCOW_CLASSES = {
   "Won't": 'moscow-wont',
 };
 
-const NEXT_COLUMN = {
-  'Backlog': 'In Progress',
-  'In Progress': 'In Review',
-  'In Review': 'QA',
-  'QA': 'Done',
-  'Done': null,
-};
-
 function CloseIcon() {
   return (
     <svg viewBox="0 0 20 20" aria-hidden="true" className="panel-close-icon">
@@ -34,11 +26,10 @@ function CloseIcon() {
   );
 }
 
-export default function TaskDetailPanel({ task, projectId, onClose, onUpdate }) {
+export default function TaskDetailPanel({ task, onClose }) {
   const agentColor = AGENT_COLORS[task.assignedAgent] ?? '#6c63ff';
   const agentLabel = AGENT_DISPLAY_NAMES[task.assignedAgent] ?? task.assignedAgent;
   const moscowClass = MOSCOW_CLASSES[task.priority] ?? 'moscow-wont';
-  const nextColumn = NEXT_COLUMN[task.column];
 
   // ESC key closes the panel
   const handleKeyDown = useCallback((e) => {
@@ -49,19 +40,6 @@ export default function TaskDetailPanel({ task, projectId, onClose, onUpdate }) 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [handleKeyDown]);
-
-  const toggleCriteria = async (criteriaId) => {
-    if (!task.acceptanceCriteria) return;
-    const updated = task.acceptanceCriteria.map((ac) =>
-      ac.id === criteriaId ? { ...ac, done: !ac.done } : ac
-    );
-    onUpdate(task.id, { acceptanceCriteria: updated });
-  };
-
-  const handleMoveToNext = () => {
-    if (!nextColumn) return;
-    onUpdate(task.id, { column: nextColumn });
-  };
 
   return (
     // Stop propagation so clicks inside don't bubble to the kanban's "close" handler
@@ -129,8 +107,9 @@ export default function TaskDetailPanel({ task, projectId, onClose, onUpdate }) 
                     type="checkbox"
                     id={ac.id}
                     checked={ac.done}
-                    onChange={() => toggleCriteria(ac.id)}
+                    onChange={() => {}}
                     className="panel-criteria-checkbox"
+                    readOnly
                   />
                   <label htmlFor={ac.id} className="panel-criteria-text">{ac.text}</label>
                 </li>
@@ -183,17 +162,6 @@ export default function TaskDetailPanel({ task, projectId, onClose, onUpdate }) 
 
       {/* Footer */}
       <div className="panel-footer">
-        {nextColumn ? (
-          <button
-            className="panel-btn-next"
-            onClick={handleMoveToNext}
-            style={{ borderColor: agentColor, color: agentColor }}
-          >
-            → {nextColumn}
-          </button>
-        ) : (
-          <span className="panel-completed-label">✓ Task complete</span>
-        )}
         <button className="panel-btn-close" onClick={onClose}>Close</button>
       </div>
     </aside>

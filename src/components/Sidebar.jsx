@@ -15,7 +15,6 @@ export default function Sidebar({
   onSquadClick,
   onProjectClick,
   onViewChange,
-  onCreateProjectClick,
   isOpen,
   onClose,
 }) {
@@ -102,10 +101,6 @@ export default function Sidebar({
             );
           })}
 
-          <button className="squad-add-btn" onClick={onCreateProjectClick}>
-            <span>＋</span>
-            New Mission
-          </button>
         </nav>
       </div>
 

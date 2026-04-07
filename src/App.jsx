@@ -6,7 +6,6 @@ import TaskKanban from './components/TaskKanban.jsx';
 import ActivityLog from './components/ActivityLog.jsx';
 import RecapView from './components/RecapView.jsx';
 import SquadOverview from './components/SquadOverview.jsx';
-import CreateProjectModal from './components/CreateProjectModal.jsx';
 import { usePolling } from './hooks/usePolling.js';
 
 const DASHBOARD_SELECTION_KEY = 'dashboard-agents-selection';
@@ -81,20 +80,8 @@ export default function App() {
   const [selectedSquadId, setSelectedSquadId] = useState(initialSelection.squadId);
   const [selectedProjectId, setSelectedProjectId] = useState(initialSelection.projectId);
   const [currentView, setCurrentView] = useState(initialSelection.view);
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [workspaceOverride, setWorkspaceOverride] = useState(null);
-  const [createError, setCreateError] = useState(null);
-  const [isCreatingProject, setIsCreatingProject] = useState(false);
-  const { data, error, loading } = usePolling('/api/workspace', 4000);
-
-  useEffect(() => {
-    if (data) {
-      setWorkspaceOverride(null);
-    }
-  }, [data]);
-
-  const workspace = workspaceOverride ?? data;
+  const { data: workspace, error, loading } = usePolling('/api/workspace', 4000);
 
   const selected = useMemo(() => {
     if (!workspace) {
@@ -158,34 +145,6 @@ export default function App() {
     setCurrentView('kanban');
   }
 
-  async function handleCreateProject(payload) {
-    setIsCreatingProject(true);
-    setCreateError(null);
-
-    try {
-      const response = await fetch('/api/projects', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-
-      const body = await response.json().catch(() => ({}));
-      if (!response.ok) {
-        throw new Error(body.error || `HTTP ${response.status}`);
-      }
-
-      setWorkspaceOverride(body.workspace);
-      setSelectedSquadId(body.squad.id);
-      setSelectedProjectId(body.project.id);
-      setCurrentView('agents');
-      setIsCreateModalOpen(false);
-    } catch (err) {
-      setCreateError(err.message);
-    } finally {
-      setIsCreatingProject(false);
-    }
-  }
-
   const headerTitle = selected.project
     ? `${selected.squad?.label} / ${selected.project.label}`
     : selected.squad?.label ?? 'Dashboard';
@@ -207,11 +166,6 @@ export default function App() {
         onSquadClick={handleSquadClick}
         onProjectClick={handleProjectClick}
         onViewChange={setCurrentView}
-        onCreateProjectClick={() => {
-          setCreateError(null);
-          setIsCreateModalOpen(true);
-          setSidebarOpen(false);
-        }}
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
       />
@@ -241,10 +195,7 @@ export default function App() {
           )}
 
           {workspace && selected.squad && !selected.project && (
-            <SquadOverview
-              squad={selected.squad}
-              onCreateProjectClick={() => setIsCreateModalOpen(true)}
-            />
+            <SquadOverview squad={selected.squad} />
           )}
 
           {selected.project && currentView === 'agents' && (
@@ -273,17 +224,6 @@ export default function App() {
           )}
         </main>
       </div>
-
-      {isCreateModalOpen && workspace && (
-        <CreateProjectModal
-          squads={workspace.squads}
-          initialSquadId={selected.squad?.id ?? workspace.squads?.[0]?.id}
-          error={createError}
-          isSubmitting={isCreatingProject}
-          onClose={() => setIsCreateModalOpen(false)}
-          onSubmit={handleCreateProject}
-        />
-      )}
     </div>
   );
 }

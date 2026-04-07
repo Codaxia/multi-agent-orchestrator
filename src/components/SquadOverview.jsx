@@ -1,6 +1,6 @@
 const AGENT_ICONS = ['🎯', '📋', '🏗️', '💻', '🔍', '✅', '🔒', '🚀', '📊', '🧠'];
 
-export default function SquadOverview({ squad, onCreateProjectClick }) {
+export default function SquadOverview({ squad }) {
   return (
     <div className="squad-overview">
       <div className="squad-overview-header">
@@ -14,7 +14,7 @@ export default function SquadOverview({ squad, onCreateProjectClick }) {
       {squad.agents.length > 0 ? (
         <section className="squad-overview-section">
           <h3 className="squad-overview-section-title">
-            Agents du scenario
+            Scenario agents
             <span className="squad-overview-count">{squad.agents.length} agents</span>
           </h3>
           <div className="squad-agents-grid">
@@ -31,11 +31,9 @@ export default function SquadOverview({ squad, onCreateProjectClick }) {
         </section>
       ) : (
         <section className="squad-overview-section">
-          <p className="squad-overview-empty">Aucun agent configuré pour cette squad.</p>
+          <p className="squad-overview-empty">No agents configured for this scenario.</p>
         </section>
       )}
-
-      <button className="squad-new-project-btn" onClick={onCreateProjectClick}>＋ Nouveau projet</button>
     </div>
   );
 }

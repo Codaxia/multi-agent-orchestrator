@@ -5,17 +5,13 @@ const MOSCOW_CLASSES = {
   "Won't": 'moscow-wont',
 };
 
-export default function TaskCard({ task, dragHandleProps, draggableProps, innerRef, isSelected, onTaskClick }) {
+export default function TaskCard({ task, isSelected, onTaskClick }) {
   const { title, description, assignedAgent, priority } = task;
   const moscowClass = MOSCOW_CLASSES[priority] ?? 'moscow-wont';
 
   return (
     <div
       className={`task-card${isSelected ? ' task-card-selected' : ''}`}
-      ref={innerRef}
-      {...draggableProps}
-      {...dragHandleProps}
-      // stopPropagation prevents the kanban wrapper's onClick (which closes panel) from firing
       onClick={(e) => { e.stopPropagation(); onTaskClick?.(); }}
       aria-label={`Task: ${title}`}
       role="button"
