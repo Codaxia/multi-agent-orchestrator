@@ -34,44 +34,38 @@ Analyze the brief and classify it into one of these three modes:
 
 ## Loading project skills
 
-Before activating any agent, check if a project-specific skills file exists:
+Skills files use a **two-level lookup**. Check in order — first match wins:
 
-1. Check if `sprints/skills/INDEX.md` exists
-2. Match the project using (in order):
-   - Explicit user mention in the brief ("work on ATUVU", "fix in dashboard-agents")
-   - Active project name in the dashboard
-   - ClickUp task list or folder name
-   - Keywords in the task brief
-3. If match found → read `sprints/skills/{slug}.md` and apply as **additional context** on top of `agents/default/`
-4. If no match → **bootstrap a new skills file** (see protocol below), then proceed with defaults
-5. Log in the activity feed: "Skills loaded: {project}" or "Skills file created: sprints/skills/{slug}.md"
+```
+Level 1: sprints/skills/{slug}.md   ← private repo (local paths, credentials, overrides)
+Level 2: skills/{slug}.md           ← public repo  (shared stack + conventions)
+```
 
-> Project-specific rules **override** defaults when they conflict.
+**Detection — match the project using (in order):**
+- Explicit user mention in the brief ("work on ATUVU", "fix in dashboard-agents")
+- Active project name in the dashboard
+- ClickUp task list or folder name
+- Keywords in the task brief
 
-### Skills Bootstrap Protocol (new project — no skills file found)
+**Once matched:**
+- Read the file at the matched level and apply as **additional context** on top of `agents/default/`
+- If both levels exist for the same project, merge them — private overrides public on conflict
+- Log in the activity feed: `"Skills loaded: {slug} (private)"` / `"Skills loaded: {slug} (public)"`
 
-When no skills file matches the current project:
+**If no match at either level → bootstrap:**
 
 ```bash
-# 1. Determine slug (project name → lowercase, spaces → hyphens)
-SLUG="my-project-name"
-
-# 2. Copy template
-cp sprints/skills/_template.md sprints/skills/$SLUG.md
-
-# 3. Replace placeholder in the new file
+# Template is always available in the public repo
+cp skills/_template.md sprints/skills/$SLUG.md
 sed -i "s/{Project Name}/$PROJECT_NAME/g" sprints/skills/$SLUG.md
 ```
 
 Then:
-4. Add an entry to `sprints/skills/INDEX.md` under "Available skills":
-   ```
-   | `{slug}.md` | {Project Name} | `{slug}`, `{keyword}` |
-   ```
-5. Log in the activity feed (type: `file`): `"Skills file created: sprints/skills/{slug}.md"`
-6. Signal PM Discovery to **populate** the file after discovery (see `02-pm-discovery.md` → Skills Harvesting)
+1. Add an entry to `sprints/skills/INDEX.md` (private) under "Available skills"
+2. Log in the activity feed (type: `file`): `"Skills file created: sprints/skills/{slug}.md"`
+3. Signal PM Discovery to populate the file (see `02-pm-discovery.md` → Skills Harvesting)
 
-> The file starts mostly empty — PM Discovery fills it in. Later agents (QA, Developer) can append their own sections as they discover project-specific quirks.
+> Project-specific rules **override** defaults when they conflict.
 
 ---
 

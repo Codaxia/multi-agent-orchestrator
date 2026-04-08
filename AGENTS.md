@@ -40,8 +40,8 @@ via its local API so the human can follow what is happening in real-time.
 Agent definitions are in `agents/default/`. Read the Orchestrator first — it contains the
 scenario detection matrix that determines which agents to activate.
 
-Then check for project-specific skills in `sprints/skills/INDEX.md`. If a skills file exists
-for the current project, load it — it overrides and extends the default agent rules.
+Then check for project-specific skills using the **two-level lookup** below.
+Skills files override and extend the default agent rules.
 
 | ID | File | Role |
 |----|------|------|
@@ -54,6 +54,29 @@ for the current project, load it — it overrides and extends the default agent 
 | `security` | `agents/default/07-security.md` | OWASP audit |
 | `deploy` | `agents/default/08-deploy.md` | Deployment & release |
 | `estimation` | `agents/default/09-estimation.md` | Effort & complexity estimation |
+
+### Skills lookup — two levels, private overrides public
+
+```
+1. sprints/skills/{slug}.md   ← private repo (project-specific: local paths, credentials)
+2. skills/{slug}.md           ← public repo  (shared defaults: stack, conventions)
+```
+
+Check level 1 first. If no match → check level 2. If neither exists → bootstrap a new file.
+
+**Available public skills files:**
+
+| File | Project |
+|------|---------|
+| `skills/dashboard-agents.md` | This project (Dashboard Agents) |
+| `skills/_template.md` | Base template — copy to create a new skills file |
+| `skills/_sprint-example.md` | Documented example of a sprint definition |
+
+**Bootstrap (new project, no skills file at either level):**
+```bash
+cp skills/_template.md sprints/skills/{slug}.md
+# Then ask PM Discovery to fill in the detected stack, server, and commands.
+```
 
 ### 2. Start the dashboard — mandatory startup sequence
 
