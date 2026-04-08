@@ -79,14 +79,22 @@ Then:
 
 When the user provides a brief, follow this sequence:
 
-1. **Detect scenario** using the matrix above
-2. **Detect language** from the user's message — all dashboard content (mission name, task titles, descriptions, AC, activity logs) must be written in that language
-3. **Load project skills** (see above)
-4. **Create the project** in the dashboard if it does not exist yet
-5. **Log the scenario** in the activity feed: "Scenario detected: [full-build / feature-ops / code-review]"
-6. **Activate only the relevant agents** according to the scenario
-7. **Create tasks** in the kanban board (column: Backlog)
-8. **Delegate to the first agent** in the pipeline for the detected scenario
+1. **Check the dashboard is running** — do this automatically, without waiting to be asked:
+   ```bash
+   node -e "const h=require('http');h.get('http://localhost:3001/api/workspace',r=>console.log('OK')).on('error',()=>console.log('OFF'))"
+   ```
+   - If OFF → run `npm run build` then `preview_start("Dashboard — Express API")` and `preview_start("Dashboard — Vite Dev")`
+   - If ON → no action needed
+   - **Either way** → print `📊 Dashboard: http://localhost:5173 → Navigate to: [scenario] > [project name]`
+
+2. **Detect scenario** using the matrix above
+3. **Detect language** from the user's message — all dashboard content must be written in that language
+4. **Load project skills** (see above)
+5. **Create the project** in the dashboard if it does not exist yet
+6. **Log the scenario** in the activity feed: "Scenario detected: [full-build / feature-ops / code-review]"
+7. **Activate only the relevant agents** according to the scenario
+8. **Create tasks** in the kanban board (column: Backlog)
+9. **Delegate to the first agent** in the pipeline for the detected scenario
 
 > **Language reminder:** code = English always. Dashboard content = user's language. See AGENTS.md → Language rules.
 

@@ -55,29 +55,54 @@ for the current project, load it — it overrides and extends the default agent 
 | `deploy` | `agents/default/08-deploy.md` | Deployment & release |
 | `estimation` | `agents/default/09-estimation.md` | Effort & complexity estimation |
 
-### 2. Check that the dashboard server is running
+### 2. Start the dashboard — mandatory startup sequence
+
+**The dashboard has two servers. Both must be running before any work starts.**
+
+| Server | Port | Role | URL for humans |
+|--------|------|------|---------------|
+| Express API | 3001 | REST API + data | never open directly |
+| Vite dev server | **5173** | React frontend (HMR) | **always use this one** |
+
+> ⚠️ **Never send the user to localhost:3001.** That port serves a static production build that may be stale. Port 5173 is the live dev server — always current via HMR.
+
+**Check and start in order:**
 
 ```bash
-node -e "const h=require('http');h.get('http://localhost:3001/api/workspace',r=>console.log('OK: port '+r.statusCode)).on('error',()=>console.log('SERVER OFF'))"
+# Step 1 — Check if the API is running
+node -e "const h=require('http');h.get('http://localhost:3001/api/workspace',r=>console.log('API OK')).on('error',()=>console.log('API OFF'))"
+
+# Step 2 — If API is OFF: rebuild dist/ then start both servers
+npm run build          # keeps dist/ in sync in case anyone visits port 3001
 ```
 
-If it is off, start it from the `dashboard-agents` repo:
+Then use `preview_start`:
+```
+preview_start("Dashboard — Express API")   → starts port 3001
+preview_start("Dashboard — Vite Dev")      → starts port 5173
+```
 
+If `preview_start` is unavailable, fall back to:
 ```bash
 node server.js &
+node node_modules/vite/bin/vite.js &
 ```
+
+**Always rebuild dist/ before starting** — this ensures port 3001 stays in sync even if the user opens it by accident.
 
 ### 3. Tell the user where to open the dashboard
 
-Before doing anything else, print this message to the user:
+**Always print this at the start of every session, before any work:**
 
 ```
-Dashboard open at: http://localhost:5173
-Navigate to: [squad name] > [project name]
+📊 Dashboard: http://localhost:5173
+→ Navigate to: [scenario name] > [project name]
 ```
 
-The user must have the correct project open in their browser before you start.
-If you are creating a new project, tell the user the project name so they can find it in the sidebar once it is created.
+If the servers were already running (reused), still print the URL — the user may not have the tab open.
+
+The user must have the correct project open in their browser before work starts.
+If creating a new project, include the project name so the user can find it in the sidebar.
 
 ---
 
