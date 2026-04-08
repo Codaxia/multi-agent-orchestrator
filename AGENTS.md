@@ -69,26 +69,28 @@ for the current project, load it — it overrides and extends the default agent 
 **Check and start in order:**
 
 ```bash
-# Step 1 — Check if the API is running
+# Step 1 — Check if the Express API is running
 node -e "const h=require('http');h.get('http://localhost:3001/api/workspace',r=>console.log('API OK')).on('error',()=>console.log('API OFF'))"
-
-# Step 2 — If API is OFF: rebuild dist/ then start both servers
-npm run build          # keeps dist/ in sync in case anyone visits port 3001
 ```
 
-Then use `preview_start`:
-```
-preview_start("Dashboard — Express API")   → starts port 3001
-preview_start("Dashboard — Vite Dev")      → starts port 5173
-```
-
-If `preview_start` is unavailable, fall back to:
+**If API is OFF:**
 ```bash
-node server.js &
-node node_modules/vite/bin/vite.js &
+# Start Express as a persistent background process (NOT via preview_start)
+node server.js > /tmp/dashboard-api.log 2>&1 &
+echo "Express API started (PID $!)"
 ```
 
-**Always rebuild dist/ before starting** — this ensures port 3001 stays in sync even if the user opens it by accident.
+> ⚠️ **Never start Express via `preview_start`.** That tool ties the process to its MCP session — the server dies when the session resets. Run it via Bash so it persists independently.
+
+**Then start the Vite dev server:**
+```
+preview_start("Dashboard — Vite Dev")   → port 5173, proxies /api to Express
+```
+
+**Always rebuild dist/ before starting** — keeps port 3001 in sync in case the user opens it directly:
+```bash
+npm run build
+```
 
 ### 3. Tell the user where to open the dashboard
 
