@@ -337,6 +337,7 @@ curl -s -X POST http://localhost:3001/api/projects/{projectId}/recap \
 | `commitUrl` | string | Link to commit on GitHub/GitLab |
 | `prUrl` | string | Pull Request URL |
 | `links` | array | Extra links: `[{"label": "Docs", "url": "https://..."}]` |
+| `stagingTestGuide` | string | Step-by-step functional test guide for staging — UI actions only, no code, no tinker (see format below) |
 
 **Example payload** (`/tmp/recap.json`):
 
@@ -352,11 +353,53 @@ curl -s -X POST http://localhost:3001/api/projects/{projectId}/recap \
   "bugOrigin": "Missing responsive CSS for small screens.",
   "qaSteps": "Tested on viewport 375x812 (iPhone), 768x1024 (tablet), 1280x800 (desktop).",
   "commitHash": "dff9de4",
-  "commitMessage": "feat(ui): mobile responsive layout with hamburger overlay"
+  "commitMessage": "feat(ui): mobile responsive layout with hamburger overlay",
+  "stagingTestGuide": "## 🧪 Test guide — Mobile responsive layout\n\n**Goal:** Verify the app is usable on a phone.\n\n### Steps\n1. Open https://staging.example.com on your phone (or resize your browser to 375px width)\n2. You should see a hamburger menu (☰) in the top-left corner\n3. Tap it — a sidebar should slide in from the left\n4. Tap any item in the sidebar — it should navigate and close automatically\n5. Navigate to the Projects page — all project cards should be visible without horizontal scrolling\n\n### ✅ Expected result\nThe app is fully navigable at 375px — no text overlap, no horizontal scroll, hamburger visible.\n\n### ❌ What it looked like before\nText was overlapping, the sidebar was covering the whole screen, projects were invisible."
 }
 ```
 
 **When to publish:** once, at the end of the mission. One recap per mission — publishing replaces the previous one.
+
+---
+
+### Staging test guide — format rules
+
+The `stagingTestGuide` field must be a Markdown string. It is shown to the user (and their team) in the Recap panel as a tutorial to manually validate the feature on staging.
+
+**Mandatory rules:**
+
+1. **UI actions only** — no code, no terminal commands, no `tinker`, no `curl`. The reader has no developer access.
+2. **Links everywhere possible** — include full URLs to the exact pages to visit (e.g. `https://staging.example.com/admin/plays/42`).
+3. **Before / after** — describe what the behavior was before and what it should be now. Helps the reader know what to compare against.
+4. **Numbered steps** — each action is a numbered step: *go to X*, *click Y*, *fill Z*, *verify that W appears*.
+5. **One scenario per section** — if the feature has multiple flows (happy path + error case), split them into separate sections with `###` headers.
+6. **Accessible to a non-developer** — assume the reader can use a browser but cannot read code.
+
+**Template:**
+
+```markdown
+## 🧪 Test guide — [Feature name]
+
+**Goal:** [One sentence — what this feature does for the user.]
+**Staging URL:** [Direct link to the page where the feature is visible]
+
+### Scenario 1 — [Happy path title]
+1. Go to [URL or page name]
+2. [Action — click, fill, select…]
+3. [Action]
+4. Verify: [what you should see]
+
+### Scenario 2 — [Edge case or error case]
+1. …
+
+### ✅ Expected result
+[What the user should experience after these steps — in plain language.]
+
+### ❌ What it looked like before (if bug fix)
+[What the user saw before — optional for features, required for bug fixes.]
+```
+
+**When to include it:** always for `feature` and `bug_fix` types. Optional for `refactor` (only if user-visible behavior changed).
 
 ### Create a new project
 
@@ -545,6 +588,18 @@ Pipeline summary:
 ```
 
 If the project has a local dev server (e.g. `npm run dev`, `php artisan serve`), start it and include the URL. The human should be able to click directly to see the result.
+
+**Also print the staging test guide** — immediately after the pipeline summary, print the functional test steps so the human can validate in staging without needing developer access:
+
+```
+---
+🧪 How to test on staging — [Feature name]
+
+[Paste the stagingTestGuide content here — plain text, no code blocks, just numbered steps and links]
+```
+
+> This guide is also saved in the recap (`stagingTestGuide` field) and visible in the Recap panel of the dashboard.
+> Rule: **no terminal commands, no tinker, no code** — only UI steps and staging URLs a non-developer can follow.
 
 ### Snapshot task data to private workspace (optional)
 

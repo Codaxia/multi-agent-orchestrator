@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import { marked } from 'marked';
 import { usePolling } from '../hooks/usePolling.js';
 import { AGENT_COLORS } from '../utils/agentColors.js';
 import { formatRelativeTime } from '../utils/time.js';
+import { sanitizeMarkedHtml } from '../utils/sanitize.js';
 
 const TYPE_CONFIG = {
   bug_fix:     { label: 'Bug Fix',     icon: '🐛', cls: 'recap-type-bug'     },
@@ -117,6 +119,17 @@ function RecapCard({ recap }) {
           </div>
         )}
 
+        {/* Staging test guide */}
+        {recap.stagingTestGuide && (
+          <div className="recap-section recap-staging-guide-section">
+            <div className="recap-section-label recap-label-teal">🧪 How to test on staging</div>
+            <div
+              className="recap-staging-guide-body"
+              dangerouslySetInnerHTML={{ __html: sanitizeMarkedHtml(marked.parse(recap.stagingTestGuide)) }}
+            />
+          </div>
+        )}
+
         {/* Rework log */}
         {recap.reworkLog?.length > 0 && (
           <div className="recap-section">
@@ -206,9 +219,11 @@ function RecapCard({ recap }) {
 function HumanNotesSection({ projectId, initialNotes }) {
   const [notes, setNotes] = useState(initialNotes);
   const [saveStatus, setSaveStatus] = useState('idle'); // 'idle' | 'saving' | 'saved' | 'error'
+  const timerRef = useRef(null);
 
   async function handleSave() {
     setSaveStatus('saving');
+    clearTimeout(timerRef.current);
     try {
       const res = await fetch(`/api/projects/${projectId}/recap`, {
         method: 'PATCH',
@@ -217,7 +232,7 @@ function HumanNotesSection({ projectId, initialNotes }) {
       });
       if (!res.ok) throw new Error();
       setSaveStatus('saved');
-      setTimeout(() => setSaveStatus('idle'), 2500);
+      timerRef.current = setTimeout(() => setSaveStatus('idle'), 2500);
     } catch {
       setSaveStatus('error');
     }

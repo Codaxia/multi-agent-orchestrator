@@ -2902,6 +2902,73 @@ a.recap-link-chip:hover {
   color: #344563;
 }
 
+/* ── Recap staging test guide ──────────────────────────────────────────────── */
+.recap-label-teal { color: #00897b; }
+
+.recap-staging-guide-section {
+  border-top: 1px solid #e3f4f1;
+  padding-top: 12px;
+}
+
+.recap-staging-guide-body {
+  background: #f0faf8;
+  border-left: 3px solid #00897b;
+  border-radius: 0 8px 8px 0;
+  padding: 14px 18px;
+  font-size: 13.5px;
+  color: #1e3a30;
+  line-height: 1.65;
+}
+
+.recap-staging-guide-body h2 {
+  font-size: 15px;
+  font-weight: 700;
+  margin: 0 0 10px 0;
+  color: #00695c;
+}
+
+.recap-staging-guide-body h3 {
+  font-size: 13.5px;
+  font-weight: 700;
+  margin: 14px 0 6px 0;
+  color: #00796b;
+  padding-bottom: 3px;
+  border-bottom: 1px solid #b2dfdb;
+}
+
+.recap-staging-guide-body ol,
+.recap-staging-guide-body ul {
+  margin: 6px 0;
+  padding-left: 20px;
+}
+
+.recap-staging-guide-body li {
+  margin-bottom: 4px;
+}
+
+.recap-staging-guide-body p {
+  margin: 6px 0;
+}
+
+.recap-staging-guide-body strong {
+  color: #004d40;
+}
+
+.recap-staging-guide-body code {
+  background: #e0f2f1;
+  color: #004d40;
+  padding: 2px 5px;
+  border-radius: 4px;
+  font-size: 12.5px;
+  font-family: monospace;
+}
+
+.recap-staging-guide-body hr {
+  border: none;
+  border-top: 1px dashed #b2dfdb;
+  margin: 12px 0;
+}
+
 /* ── Recap rework log ──────────────────────────────────────────────────────── */
 .recap-label-orange { color: #ff8b00; }
 

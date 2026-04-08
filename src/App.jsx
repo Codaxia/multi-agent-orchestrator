@@ -9,7 +9,7 @@ import SquadOverview from './components/SquadOverview.jsx';
 import { usePolling } from './hooks/usePolling.js';
 
 const DASHBOARD_SELECTION_KEY = 'dashboard-agents-selection';
-const LEGACY_SELECTION_KEYS = ['codaxia-dashboard-selection'];
+const LEGACY_SELECTION_KEYS = [];
 const VALID_VIEWS = new Set(['agents', 'kanban', 'activity', 'recap']);
 const DEFAULT_SELECTION = {
   squadId: 'full-build',
@@ -30,10 +30,6 @@ function normalizeStoredSelection(parsed) {
 
   if (next.squadId === 'support-ops') {
     next.squadId = 'feature-ops';
-  }
-
-  if (next.projectId === 'codaxia') {
-    next.projectId = 'demo';
   }
 
   if (next.projectId === 'sample') {
