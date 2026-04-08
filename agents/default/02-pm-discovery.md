@@ -123,6 +123,57 @@ B) [Option B]
 
 Et tu confirmes à l'Orchestrateur : "PM DONE — [N] features, [N] tâches, prêt pour Architect"
 
+## Skills Harvesting (run after every discovery)
+
+When the Orchestrator has created a new skills file (or if the existing one is sparse), populate it during discovery. This is a **one-time investment** that saves every future session from re-discovering the same facts.
+
+### What to auto-detect
+
+Run these checks and write findings directly into `sprints/skills/{slug}.md`:
+
+```bash
+# Detect stack from manifest files
+test -f package.json    && echo "Node/JS project" && cat package.json | grep -E '"scripts"|"dependencies"' -A 5
+test -f composer.json   && echo "PHP project" && cat composer.json | grep -E '"require"' -A 5
+test -f artisan         && echo "Laravel detected"
+test -f manage.py       && echo "Django detected"
+test -f go.mod          && echo "Go detected"
+
+# Detect dev server command from package.json scripts
+cat package.json 2>/dev/null | grep -E '"dev"|"start"|"serve"'
+
+# Detect test command
+cat package.json 2>/dev/null | grep '"test"'
+php artisan test --help 2>/dev/null | head -1
+
+# Detect ports in .env or config
+grep -E "APP_URL|PORT|VITE_PORT" .env 2>/dev/null || grep -E "APP_URL|PORT" .env.example 2>/dev/null
+```
+
+### What to write (only when confident — never guess)
+
+Update the skills file sections:
+
+| Section | What to fill |
+|---------|-------------|
+| `## Stack` | Technologies detected from manifest files |
+| `## Dev Server` | Start command + local URL from `.env` / scripts |
+| `## Key Commands` | test, lint, build commands from `package.json` / `composer.json` |
+| `## Developer — additional rules` | Any conventions found in existing code (e.g. Service Classes pattern, naming) |
+| `## Gotchas` | Known issues discovered during exploration (missing dependencies, config quirks) |
+
+### What NOT to write
+
+- ❌ Passwords or secrets — never write credentials; add the note "ask user at session start"
+- ❌ Guesses — only write what was actually observed in the codebase
+- ❌ Ephemeral state (current branch, last commit) — that belongs in the activity log, not the skills file
+
+### After filling
+
+Confirm to Orchestrator: `"Skills harvested: sprints/skills/{slug}.md — [N] sections filled"`
+
+---
+
 ## Métriques de succès
 
 - **0 feature ajoutée** hors brief (anti-gold-plating respecté)

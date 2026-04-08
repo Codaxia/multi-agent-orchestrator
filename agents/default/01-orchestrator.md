@@ -43,10 +43,35 @@ Before activating any agent, check if a project-specific skills file exists:
    - ClickUp task list or folder name
    - Keywords in the task brief
 3. If match found → read `sprints/skills/{slug}.md` and apply as **additional context** on top of `agents/default/`
-4. If no match → proceed with default rules only
-5. Log in the activity feed: "Skills loaded: {project}" or "No project skills found — using defaults"
+4. If no match → **bootstrap a new skills file** (see protocol below), then proceed with defaults
+5. Log in the activity feed: "Skills loaded: {project}" or "Skills file created: sprints/skills/{slug}.md"
 
 > Project-specific rules **override** defaults when they conflict.
+
+### Skills Bootstrap Protocol (new project — no skills file found)
+
+When no skills file matches the current project:
+
+```bash
+# 1. Determine slug (project name → lowercase, spaces → hyphens)
+SLUG="my-project-name"
+
+# 2. Copy template
+cp sprints/skills/_template.md sprints/skills/$SLUG.md
+
+# 3. Replace placeholder in the new file
+sed -i "s/{Project Name}/$PROJECT_NAME/g" sprints/skills/$SLUG.md
+```
+
+Then:
+4. Add an entry to `sprints/skills/INDEX.md` under "Available skills":
+   ```
+   | `{slug}.md` | {Project Name} | `{slug}`, `{keyword}` |
+   ```
+5. Log in the activity feed (type: `file`): `"Skills file created: sprints/skills/{slug}.md"`
+6. Signal PM Discovery to **populate** the file after discovery (see `02-pm-discovery.md` → Skills Harvesting)
+
+> The file starts mostly empty — PM Discovery fills it in. Later agents (QA, Developer) can append their own sections as they discover project-specific quirks.
 
 ---
 
