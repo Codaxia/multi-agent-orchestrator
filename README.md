@@ -57,6 +57,7 @@ The Orchestrator detects the type of work from your brief and activates only the
 | **full-build** | New project from scratch | PM → Architect → Developer → Review → QA → Security → Deploy |
 | **feature-ops** | Existing project, new feature, bug fix | Developer → Review → QA |
 | **code-review** | Audit, review, security check | CTO Review → Security → QA |
+| **rework** | Bug reported on a completed mission | Developer → CTO Review → Security → QA (full pipeline, no shortcuts) |
 
 A single project can receive tasks of different scenarios over time. The same project that started as a full-build can later receive feature-ops or code-review tasks.
 
@@ -201,7 +202,12 @@ lib/
 server.js                ← Express API
 AGENTS.md                ← Work protocol for AI assistants
 PROMPT-BOOTSTRAP.md      ← Startup prompt to paste into any AI assistant
+sprints/                 ← Private workspace (separate git repo, not versioned here)
+  skills/                ← Per-project agent overrides (stack, dev server, QA setup)
+  data/                  ← Versioned task snapshots per mission
 ```
+
+> **`sprints/` is a private git repository** — not a subdirectory of this repo. It stores project-specific agent rules and task history. See `sprints/README.md` for setup.
 
 ---
 

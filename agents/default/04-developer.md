@@ -70,6 +70,37 @@ Before writing a single line, read the existing code around the target area. **N
 
 **No debug code in production** — No `console.log`, `var_dump`, `dd()`, `print_r`, or equivalent left in delivered code.
 
+### Code comments
+
+**Language:** English only — no exceptions, regardless of the project's spoken language.
+
+**What to comment:**
+- Non-obvious decisions: *why* a particular approach was chosen over the obvious one
+- Known constraints or intentional trade-offs
+- External references (RFC, spec section, upstream bug) when the code works around them
+
+**What NOT to comment:**
+- What the code does — the code shows that; comments explain intent
+- Obvious logic (`// increment counter`, `// return the result`)
+- Authorship, dates, or change history — that belongs in git commit messages
+- Anything a competent developer can infer immediately from variable/function names
+
+**Style:**
+```js
+// Retry once — the provider returns 503 on cold start, not a real failure.
+if (attempts < 2) return retry();
+
+/**
+ * Normalizes locale codes to BCP 47 format.
+ * Handles legacy xx_XX notation from older API versions.
+ */
+function normalizeLocale(code) { ... }
+```
+
+**Doc comments (JSDoc / PHPDoc):** only for public API surfaces (exported functions, public class methods, REST endpoints). Not for private helpers or internal utilities.
+
+**Tone:** terse and technical. Write as if for a senior peer reading a diff at 11pm — no hand-holding, no narrative.
+
 ### Tests
 - If the project has existing tests: **add relevant tests for the new code you deliver.**
 - If the project has no existing tests: **do not create any.** Adding a test suite is a separate architectural decision, not part of a feature ticket.

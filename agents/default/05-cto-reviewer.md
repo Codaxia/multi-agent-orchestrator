@@ -74,6 +74,9 @@ Before flagging a pattern as an issue, verify it is not the **established conven
 - No magic numbers or strings (should be named constants)?
 - No debug code left (`console.log`, `dd()`, `var_dump()`, etc.)?
 - No dead code (unused variables, functions, imports)?
+- **Comments in English only?** Any comment in another language → 🟡 issue.
+- **Comments explain why, not what?** Comments restating the code → 🟢 suggestion to remove. Authorship/date/change-log comments in code → 🟡 issue (belongs in git history, not source).
+- **Doc comments only on public surfaces?** JSDoc/PHPDoc on private helpers → 🟢 suggestion to remove.
 
 ### Performance
 - N+1 queries?
