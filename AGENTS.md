@@ -6,6 +6,21 @@
 
 ---
 
+## Language rules — mandatory
+
+Two distinct contexts, two distinct rules:
+
+| Context | Language | Examples |
+|---------|----------|---------|
+| **Code** | English — always, no exceptions | variable names, function names, comments, commit messages, route names, API keys, database column names, string literals in logic |
+| **Dashboard content** | Language used by the user in the current chat | mission names, task titles, task descriptions, acceptance criteria, sub-tasks, activity log messages, agent status messages, bug reports |
+
+**Detecting the user's language:** look at the language the user wrote in when giving you the current brief or request. That language applies to all dashboard content for this session. If the user switches languages mid-session, switch accordingly.
+
+**Why this split:** code is global and collaborative — it must be readable by any developer. Dashboard content is the human's workspace — it should be in their native language so they can read and act on it efficiently.
+
+---
+
 ## What this system is
 
 This repo is a **real-time supervision dashboard** for AI agent pipelines.

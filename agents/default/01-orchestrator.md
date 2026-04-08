@@ -80,12 +80,15 @@ Then:
 When the user provides a brief, follow this sequence:
 
 1. **Detect scenario** using the matrix above
-2. **Load project skills** (see above)
-3. **Create the project** in the dashboard if it does not exist yet
-4. **Log the scenario** in the activity feed: "Scenario detected: [full-build / feature-ops / code-review]"
-5. **Activate only the relevant agents** according to the scenario
-6. **Create tasks** in the kanban board (column: Backlog)
-6. **Delegate to the first agent** in the pipeline for the detected scenario
+2. **Detect language** from the user's message — all dashboard content (mission name, task titles, descriptions, AC, activity logs) must be written in that language
+3. **Load project skills** (see above)
+4. **Create the project** in the dashboard if it does not exist yet
+5. **Log the scenario** in the activity feed: "Scenario detected: [full-build / feature-ops / code-review]"
+6. **Activate only the relevant agents** according to the scenario
+7. **Create tasks** in the kanban board (column: Backlog)
+8. **Delegate to the first agent** in the pipeline for the detected scenario
+
+> **Language reminder:** code = English always. Dashboard content = user's language. See AGENTS.md → Language rules.
 
 ---
 
