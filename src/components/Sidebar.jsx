@@ -7,6 +7,29 @@ const NAV_LINKS = [
   { id: 'recap', label: 'Recap', icon: '📝' },
 ];
 
+// Split projects into named groups based on "GroupName — Mission" prefix.
+// Projects without " — " are left ungrouped (rendered as-is).
+function groupProjects(projects) {
+  const groupMap = {}; // groupName → [{ project, shortLabel }]
+  const ungrouped = [];
+
+  projects.forEach((project) => {
+    const sep = project.label.indexOf(' \u2014 ');
+    if (sep !== -1) {
+      const groupName = project.label.substring(0, sep);
+      const shortLabel = project.label.substring(sep + 3);
+      if (!groupMap[groupName]) groupMap[groupName] = [];
+      groupMap[groupName].push({ project, shortLabel });
+    } else {
+      ungrouped.push({ project, shortLabel: project.label });
+    }
+  });
+
+  // Build ordered list: groups (insertion order) then ungrouped
+  const groups = Object.entries(groupMap).map(([name, items]) => ({ name, items }));
+  return { groups, ungrouped };
+}
+
 export default function Sidebar({
   squads,
   selectedSquadId,
@@ -19,10 +42,16 @@ export default function Sidebar({
   onClose,
 }) {
   const [collapsedSquads, setCollapsedSquads] = useState({});
+  const [collapsedGroups, setCollapsedGroups] = useState({});
 
   function toggleSquad(event, squadId) {
     event.stopPropagation();
     setCollapsedSquads((prev) => ({ ...prev, [squadId]: !prev[squadId] }));
+  }
+
+  function toggleGroup(event, key) {
+    event.stopPropagation();
+    setCollapsedGroups((prev) => ({ ...prev, [key]: !prev[key] }));
   }
 
   function handleSquadClick(squadId) {
@@ -57,6 +86,7 @@ export default function Sidebar({
           {squads.map((squad) => {
             const isCollapsed = !!collapsedSquads[squad.id];
             const isSquadActive = selectedSquadId === squad.id;
+            const { groups, ungrouped } = groupProjects(squad.projects || []);
 
             return (
               <div key={squad.id} className="squad-group">
@@ -79,7 +109,55 @@ export default function Sidebar({
 
                 {!isCollapsed && (
                   <div className="squad-projects">
-                    {squad.projects.map((project) => {
+
+                    {/* Grouped projects */}
+                    {groups.map(({ name, items }) => {
+                      const groupKey = `${squad.id}::${name}`;
+                      const isGroupCollapsed = !!collapsedGroups[groupKey];
+                      const groupHasActive = items.some(
+                        ({ project }) => selectedProject?.id === project.id
+                      );
+
+                      return (
+                        <div key={groupKey} className="project-group">
+                          <button
+                            className={`project-group-header${groupHasActive ? ' has-active' : ''}`}
+                            onClick={(e) => toggleGroup(e, groupKey)}
+                          >
+                            <span className="project-group-icon">📂</span>
+                            <span className="project-group-name">{name}</span>
+                            <span className="project-group-count">{items.length}</span>
+                            <span className="project-group-chevron">
+                              {isGroupCollapsed ? '▶' : '▼'}
+                            </span>
+                          </button>
+
+                          {!isGroupCollapsed && (
+                            <div className="project-group-items">
+                              {items.map(({ project, shortLabel }) => {
+                                const isProjectActive = selectedProject?.id === project.id;
+                                return (
+                                  <button
+                                    key={project.id}
+                                    className={`squad-project-btn squad-project-btn--nested${isProjectActive ? ' active' : ''}`}
+                                    onClick={() => handleProjectClick(project.id, squad.id)}
+                                  >
+                                    {isProjectActive && <span className="squad-project-dot" />}
+                                    <span className="squad-project-icon">📁</span>
+                                    <span className="squad-project-main">
+                                      <span>{shortLabel}</span>
+                                    </span>
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+
+                    {/* Ungrouped projects */}
+                    {ungrouped.map(({ project, shortLabel }) => {
                       const isProjectActive = selectedProject?.id === project.id;
                       return (
                         <button
@@ -90,17 +168,17 @@ export default function Sidebar({
                           {isProjectActive && <span className="squad-project-dot" />}
                           <span className="squad-project-icon">📁</span>
                           <span className="squad-project-main">
-                            <span>{project.label}</span>
+                            <span>{shortLabel}</span>
                           </span>
                         </button>
                       );
                     })}
+
                   </div>
                 )}
               </div>
             );
           })}
-
         </nav>
       </div>
 
