@@ -156,3 +156,29 @@ I can continue with the assumption: [Default assumption]
 - ❌ Deliver with debug statements left in the code
 - ❌ Validate your own work — that is the role of the CTO Reviewer and QA
 - ❌ Add abstractions, configs, or features not explicitly required (YAGNI)
+
+---
+
+## Skills write-back — auto-learning
+
+When you encounter something non-obvious during your work, write it to `sprints/skills/{slug}.md` **immediately** — before moving on.
+
+**Write only if ALL three conditions are true:**
+1. It took more than one attempt (you had to explore, try, or debug to figure it out)
+2. It cannot be inferred by reading the code or a config file
+3. It fits in 5 lines or less
+
+**Where to append:**
+
+| Discovery type | Target section |
+|---|---|
+| Command that needs a flag or workaround | `## Key Commands` or `## Gotchas / Known Issues` |
+| Tool missing or broken in this project | `## Gotchas / Known Issues` |
+| Config trap or environment quirk | `## Gotchas / Known Issues` |
+| Convention found in code not yet documented | `## Developer — additional rules` |
+
+**What NOT to write:**
+- ❌ Things already in the skills file
+- ❌ Your implementation decisions (those go in the task description log)
+- ❌ One-off errors that aren't reproducible
+- ❌ Anything derivable from reading the code
