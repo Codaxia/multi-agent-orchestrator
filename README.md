@@ -54,9 +54,9 @@ The Orchestrator detects the type of work from your brief and activates only the
 
 | Scenario | When | Pipeline |
 |----------|------|----------|
-| **full-build** | New project from scratch | PM → Architect → Developer → Review → QA → Security → Deploy |
-| **feature-ops** | Existing project, new feature, bug fix | Developer → Review → QA |
-| **code-review** | Audit, review, security check | CTO Review → Security → QA |
+| **full-build** | New project from scratch | Orchestrator -> PM -> Architect -> Developer -> Review -> QA -> Security -> Deploy |
+| **feature-ops** | Existing project, new feature, bug fix | Orchestrator -> Developer -> CTO Review -> QA |
+| **code-review** | Audit, review, security check | Orchestrator -> CTO Review -> Security -> QA |
 | **rework** | Bug reported on a completed mission | Developer → CTO Review → Security → QA (full pipeline, no shortcuts) |
 
 A single project can receive tasks of different scenarios over time. The same project that started as a full-build can later receive feature-ops or code-review tasks.
@@ -109,6 +109,14 @@ Read AGENTS.md and follow the protocol.
 
 Then add your project brief. The Orchestrator detects the scenario and activates the right agents automatically.
 
+For the short version, use:
+
+```
+Use dashboard-agents.
+```
+
+Then add your brief. This triggers the visible multi-agent flow before coding starts.
+
 ---
 
 ## Usage examples
@@ -152,9 +160,14 @@ Login and register already work. Add TOTP verification
 to enable/disable 2FA.
 ```
 
-**What happens:** Orchestrator detects `feature-ops` → activates developer, cto-reviewer, qa → Developer implements → CTO reviews → QA validates. No PM or Architect needed.
+**What happens:** Orchestrator detects `feature-ops` -> creates the visible pipeline cards -> Developer implements -> CTO reviews -> QA validates. PM Discovery is inserted only when the scope is unclear, and Security is added only when the risk requires it.
 
 ---
+
+Pipeline note:
+- `feature-ops` always includes Orchestrator, Developer, CTO Review, and QA
+- PM Discovery is added when the scope is unclear
+- Security is added when the risk level requires it
 
 ### Code review or security audit (code-review)
 
@@ -173,7 +186,7 @@ Focus on authentication flows, API endpoints, input validation,
 and session management. Flag any OWASP Top 10 vulnerabilities.
 ```
 
-**What happens:** Orchestrator detects `code-review` → activates cto-reviewer, security, qa → CTO reviews code quality → Security audits for vulnerabilities → QA validates fixes if any.
+**What happens:** Orchestrator detects `code-review` -> creates the visible review pipeline -> CTO reviews code quality -> Security audits for vulnerabilities -> QA validates the reviewed scope or any fixes.
 
 ---
 

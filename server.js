@@ -15,8 +15,10 @@ const {
   createProject,
   setRecap,
   createTask,
+  ensureProjectPipeline,
   ensureDataDirs,
   ensureWorkspaceCatalog,
+  getRequiredPipelineAgents,
   getWorkspace,
   readProjectData,
   resolveProject,
@@ -100,6 +102,16 @@ function buildActivityEntry(agent, action, type, detail) {
   return entry;
 }
 
+async function ensurePipelineContext(context) {
+  if (!context || context.project.id === DEMO_PROJECT_ID) {
+    return;
+  }
+
+  await withProjectLock(context.project.id, async () => {
+    ensureProjectPipeline(context.project.id, context.squad.id);
+  });
+}
+
 // Workspace routes
 app.get('/api/workspace', (req, res) => {
   try {
@@ -122,6 +134,8 @@ app.post('/api/projects', async (req, res) => {
       squadId,
       description,
     }));
+
+    await ensurePipelineContext(result);
 
     res.status(201).json({
       project: result.project,
@@ -174,6 +188,7 @@ app.post('/api/projects/:projectId/agents/:id', async (req, res) => {
   }
 
   try {
+    await ensurePipelineContext(context);
     const updated = await withProjectLock(context.project.id, async () => updateAgent(context.project.id, req.params.id, updates));
     if (!updated) {
       return res.status(404).json({ error: `Agent '${req.params.id}' not found` });
@@ -318,7 +333,54 @@ function validateNewTask(task) {
   return null;
 }
 
-function updateTask(projectId, taskId, updates) {
+function getTaskLabel(agentId) {
+  return String(agentId || '')
+    .split('-')
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
+}
+
+function getPipelineProgressError(squadId, tasks, taskId, mergedTask) {
+  const requiredAgents = getRequiredPipelineAgents(squadId);
+  if (!requiredAgents.length) {
+    return null;
+  }
+
+  const nextTasks = tasks.map((task) => (task.id === taskId ? mergedTask : task));
+  const missingAgents = requiredAgents.filter(
+    (agentId) => !nextTasks.some((task) => task.assignedAgent === agentId),
+  );
+
+  if (mergedTask.column === 'Done' && missingAgents.length > 0) {
+    return `Cannot move '${mergedTask.title}' to Done: missing required pipeline tasks: ${missingAgents.map(getTaskLabel).join(', ')}.`;
+  }
+
+  if (mergedTask.assignedAgent === 'developer' && mergedTask.column !== 'Backlog') {
+    const orchestratorTask = nextTasks.find((task) => task.assignedAgent === 'orchestrator');
+    if (!orchestratorTask) {
+      return 'Cannot start Developer work before the Orchestrator task exists.';
+    }
+  }
+
+  if (mergedTask.assignedAgent === 'cto-reviewer' && mergedTask.column === 'Done') {
+    const developerTask = nextTasks.find((task) => task.assignedAgent === 'developer');
+    if (!developerTask || developerTask.column !== 'Done') {
+      return 'Cannot complete CTO Review before Developer is Done.';
+    }
+  }
+
+  if (mergedTask.assignedAgent === 'qa' && mergedTask.column === 'Done') {
+    const reviewTask = nextTasks.find((task) => task.assignedAgent === 'cto-reviewer');
+    if (!reviewTask || reviewTask.column !== 'Done') {
+      return 'Cannot complete QA before CTO Review is Done.';
+    }
+  }
+
+  return null;
+}
+
+function updateTask(projectId, squadId, taskId, updates) {
   const data = readProjectData(projectId, 'tasks');
   const index = data.tasks.findIndex((task) => task.id === taskId);
   if (index === -1) {
@@ -343,6 +405,11 @@ function updateTask(projectId, taskId, updates) {
     }
   }
 
+  const pipelineError = getPipelineProgressError(squadId, data.tasks, taskId, mergedTask);
+  if (pipelineError) {
+    return { error: pipelineError };
+  }
+
   data.tasks[index] = { ...mergedTask, updatedAt: new Date().toISOString() };
 
   writeProjectData(projectId, 'tasks', data);
@@ -365,6 +432,7 @@ app.post('/api/projects/:projectId/tasks', async (req, res) => {
   }
 
   try {
+    await ensurePipelineContext(context);
     const normalizedBody = {
       ...req.body,
       acceptanceCriteria: normalizeAcceptanceCriteria(req.body.acceptanceCriteria),
@@ -393,7 +461,11 @@ app.post('/api/projects/:projectId/tasks/:id', async (req, res) => {
   }
 
   try {
-    const updated = await withProjectLock(context.project.id, async () => updateTask(context.project.id, req.params.id, req.body));
+    await ensurePipelineContext(context);
+    const updated = await withProjectLock(
+      context.project.id,
+      async () => updateTask(context.project.id, context.squad.id, req.params.id, req.body),
+    );
     if (!updated) {
       return res.status(404).json({ error: `Task '${req.params.id}' not found` });
     }
@@ -423,7 +495,11 @@ app.patch('/api/projects/:projectId/tasks/:id', async (req, res) => {
   }
 
   try {
-    const updated = await withProjectLock(context.project.id, async () => updateTask(context.project.id, req.params.id, req.body));
+    await ensurePipelineContext(context);
+    const updated = await withProjectLock(
+      context.project.id,
+      async () => updateTask(context.project.id, context.squad.id, req.params.id, req.body),
+    );
     if (!updated) {
       return res.status(404).json({ error: `Task '${req.params.id}' not found` });
     }
@@ -466,6 +542,7 @@ app.post('/api/projects/:projectId/activity', async (req, res) => {
   }
 
   try {
+    await ensurePipelineContext(context);
     const nextEntries = await withProjectLock(context.project.id, async () => {
       const entries = readProjectData(context.project.id, 'activity');
       entries.unshift(buildActivityEntry(agent.trim(), action.trim(), type, detail));

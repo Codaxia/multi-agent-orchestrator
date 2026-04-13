@@ -33,6 +33,34 @@ via its local API so the human can follow what is happening in real-time.
 
 ---
 
+## Global rules vs project rules
+
+Global orchestration rules live in this file and in `agents/default/`.
+If a rule must apply to every project, put it here or in the default agents.
+
+Project skills are for project-specific information only:
+- stack, framework, dev server commands
+- repo paths, local setup, credentials handling
+- project-specific QA flows or business constraints
+
+Do NOT put global pipeline discipline in project skills.
+
+---
+
+## Pipeline contract
+
+When the human asks to use `dashboard-agents`, the visible agent pipeline is mandatory by default.
+
+Global rules:
+- Before any code change, create the mission tasks and log the first activity entry
+- Never collapse a mission into one business card; Kanban cards must represent agent steps
+- The Orchestrator decides which agents are needed for the task
+- In `feature-ops`, CTO Review and QA are always mandatory
+- PM Discovery is activated by the Orchestrator when scope or acceptance criteria are unclear
+- Security is activated by the Orchestrator when risk level or user request requires it
+
+---
+
 ## Before starting any work
 
 ### 1. Read the relevant agent definitions
@@ -138,7 +166,7 @@ The Orchestrator detects the scenario from the user's brief and activates only t
 | Scenario | When | Agents activated |
 |----------|------|------------------|
 | **full-build** | New project from scratch | All agents, full pipeline |
-| **feature-ops** | Existing project, new feature, bug fix, refactor | orchestrator, pm-discovery (if needed), developer, cto-reviewer, qa, security (if needed) |
+| **feature-ops** | Existing project, new feature, bug fix, refactor | orchestrator, developer, cto-reviewer, qa, with pm-discovery/security added by scope and risk |
 | **code-review** | Audit, review, security check | orchestrator, cto-reviewer, security, qa, developer |
 
 A single project can receive tasks of different scenarios over time.
@@ -166,7 +194,15 @@ curl -s -X POST http://localhost:3001/api/projects \
   -d '{"name": "[Ticket title]", "squadId": "feature-ops", "description": "[Ticket description]"}'
 ```
 
-Inside that mission, create Kanban tasks representing the **agent pipeline steps** (T01 Developer, T02 CTO Review, T03 QA) — not the ticket content itself.
+Inside that mission, create Kanban tasks representing the **agent pipeline steps** — not the ticket content itself.
+
+Minimum `feature-ops` pipeline:
+- T00 Orchestrator
+- T01 Developer
+- T02 CTO Review
+- T03 QA
+- Add PM Discovery before Developer when scope or acceptance criteria are unclear
+- Add Security when risk level or user request requires it
 
 After the pipeline completes, update the ClickUp task:
 ```
@@ -190,12 +226,14 @@ The dashboard is organized in three levels:
 
 **Rules:**
 - **One ticket = one mission.** Each ClickUp or Jira ticket you receive becomes its own dashboard project. Never group multiple external tickets inside a single mission.
-- **Kanban tasks are for agents only.** They represent pipeline steps (T01 Developer, T02 CTO Review, T03 QA…), not business requirements or user stories. The human does not create or move tasks — agents do.
+- **Kanban tasks are for agents only.** They represent pipeline steps (for example T00 Orchestrator, T01 Developer, T02 CTO Review, T03 QA), not business requirements or user stories. The human does not create or move tasks — agents do.
 - **Tasks are not tickets.** The Kanban is a visibility tool for the human to follow agent progress, not a backlog of business features.
 
 **Example:**
-- User gives 3 ClickUp tickets → create 3 missions, each with its own pipeline tasks
-- Inside each mission: T01 (Developer), T02 (CTO Review), T03 (QA) — these are agent steps, not ticket content
+- User gives 3 ClickUp tickets -> create 3 missions, each with its own pipeline tasks
+- Standard `feature-ops`: T00 (Orchestrator), T01 (Developer), T02 (CTO Review), T03 (QA)
+- Add T01 PM Discovery before development when the task is vague
+- Add Security when the task touches risky surfaces or the human asks for it
 
 ---
 
@@ -537,10 +575,12 @@ Each external ticket (ClickUp, Jira, text brief) = one mission. Start by creatin
 1. Create the mission: `POST /api/projects` with the ticket title and description
 2. Set the Orchestrator to `active` with a message describing the mission
 3. Create **agent pipeline tasks** in the Kanban (column `Backlog`):
+   - T00 — Orchestrator: scenario + task creation + activity bootstrap
    - T01 — Developer: implementation
    - T02 — CTO Review: code review
    - T03 — QA: functional validation
-   - *(add Security, Deploy if the scenario requires)*
+   - Add PM Discovery before Developer when the task is vague or acceptance criteria are missing
+   - Add Security only when risk level or user request requires it
 4. When you begin a pipeline step, move its task to `In Progress` and activate the relevant agent
 5. Log each significant step in the activity feed
 
@@ -549,6 +589,10 @@ Each external ticket (ClickUp, Jira, text brief) = one mission. Start by creatin
 - Each time you switch roles, update the active agent and set the previous one to `done` or `idle`
 - Each task transition must be reflected in the kanban (In Progress → In Review → QA → Done)
 - Log important decisions in the activity feed
+
+Mandatory closure rules:
+- Do not let Developer start until the Orchestrator task exists
+- Do not close the mission until CTO Review and QA tasks are done
 
 ### Completing a task
 
@@ -658,5 +702,7 @@ The file is self-contained — it defines filters, sort order, per-task workflow
 - Do not activate all agents on every task — only those relevant to the detected scenario
 - Log activity so the human can follow the thread after the fact
 - Never include sensitive data (API keys, credentials, private paths) in dashboard updates
-- **Always create a QA task (T03)** for every feature-ops pipeline — even if QA is brief or logic-only. No pipeline is complete without a QA task in the kanban.
+- In `feature-ops`, always create an Orchestrator step, a CTO Review step, and a QA step
+- PM Discovery is optional but decided by the Orchestrator, not by omission or convenience
+- **Always create a QA task** for every feature-ops pipeline — even if QA is brief or logic-only. No pipeline is complete without a QA task in the kanban.
 - **Attach a screenshot when possible** — after completing a visible change (UI, error message, browser output), take a screenshot and embed it in the task description log under a `**Screenshot:**` field. Use the Chrome MCP or preview tools. If a screenshot cannot be taken (no browser, server-side only), note why in the log.
