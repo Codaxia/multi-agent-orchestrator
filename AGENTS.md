@@ -346,6 +346,8 @@ curl -s -X POST http://localhost:3001/api/projects/{projectId}/activity \
 
 At the end of the mission, publish a single recap object summarizing what was done, why, and how. This is one document per mission — it replaces any previous recap for this project.
 
+For missions that include QA in the delivery pipeline (`feature-ops`, `full-build`, `rework`), the **final recap is published after QA validation** so it can include the real test evidence and the browser-facing test guide.
+
 ```bash
 curl -s -X POST http://localhost:3001/api/projects/{projectId}/recap \
   -H "Content-Type: application/json" \
@@ -397,6 +399,8 @@ curl -s -X POST http://localhost:3001/api/projects/{projectId}/recap \
 ```
 
 **When to publish:** once, at the end of the mission. One recap per mission — publishing replaces the previous one.
+
+**Closure rule:** a mission that requires QA is not considered closed until this final recap exists.
 
 ---
 
@@ -612,6 +616,13 @@ Mandatory closure rules:
 3. Set involved agents to `done` or `idle`
 4. Log a summary in the activity feed (1 line: what was done + verdict/result)
 5. Set the Orchestrator to `idle` when everything is finished
+
+### Recap ownership
+
+- In `feature-ops`, `full-build`, and `rework`, the final recap should be published by QA after validation
+- The recap must include `qaSteps`
+- For `feature` and `bug_fix` recaps, the recap must also include `stagingTestGuide`
+- The Orchestrator must not close the mission before that recap exists
 
 ### After the full pipeline completes (full-build or feature-ops)
 

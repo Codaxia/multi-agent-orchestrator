@@ -245,6 +245,11 @@ Do not close a `feature-ops` mission until:
 - CTO Review task is done
 - QA task is done
 - Security task is done when it was activated
+- The final recap exists when QA is part of the pipeline
+
+When QA is part of the mission, expect the final recap to be published after QA validation so it includes:
+- `qaSteps`
+- `stagingTestGuide` for `feature` and `bug_fix` missions
 
 When the pipeline is complete, set Orchestrator back to `idle`.
 

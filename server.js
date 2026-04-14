@@ -187,6 +187,21 @@ app.post('/api/projects/:projectId/agents/:id', async (req, res) => {
     return res.status(400).json({ error: `Only these fields can be updated: ${allowedKeys.join(', ')}` });
   }
 
+  if (req.params.id === 'orchestrator' && (updates.status === 'idle' || updates.status === 'done')) {
+    const tasksData = readProjectData(context.project.id, 'tasks');
+    const requiredAgents = getRequiredPipelineAgents(context.squad.id);
+    const requiredTasksDone = requiredAgents.every((agentId) =>
+      tasksData.tasks.some((task) => task.assignedAgent === agentId && task.column === 'Done'),
+    );
+
+    if (requiredTasksDone) {
+      const recapError = validateFinalRecap(context.project.id, context.squad.id);
+      if (recapError) {
+        return res.status(400).json({ error: recapError });
+      }
+    }
+  }
+
   try {
     await ensurePipelineContext(context);
     const updated = await withProjectLock(context.project.id, async () => updateAgent(context.project.id, req.params.id, updates));
@@ -341,7 +356,32 @@ function getTaskLabel(agentId) {
     .join(' ');
 }
 
-function getPipelineProgressError(squadId, tasks, taskId, mergedTask) {
+const QA_RECAP_REQUIRED_SQUADS = new Set(['full-build', 'feature-ops', 'rework']);
+const STAGING_GUIDE_REQUIRED_TYPES = new Set(['feature', 'bug_fix']);
+
+function validateFinalRecap(projectId, squadId, recapInput) {
+  if (!QA_RECAP_REQUIRED_SQUADS.has(squadId)) {
+    return null;
+  }
+
+  const recap = recapInput ?? readProjectData(projectId, 'recap');
+  if (!recap || typeof recap !== 'object' || Array.isArray(recap) || !String(recap.summary || '').trim()) {
+    return 'Cannot close mission: final QA recap is required before pipeline closure.';
+  }
+
+  if (!String(recap.qaSteps || '').trim()) {
+    return 'Cannot close mission: final QA recap must include qaSteps.';
+  }
+
+  const recapType = VALID_RECAP_TYPES.includes(recap.type) ? recap.type : 'feature';
+  if (STAGING_GUIDE_REQUIRED_TYPES.has(recapType) && !String(recap.stagingTestGuide || '').trim()) {
+    return 'Cannot close mission: final QA recap must include stagingTestGuide for feature and bug-fix missions.';
+  }
+
+  return null;
+}
+
+function getPipelineProgressError(projectId, squadId, tasks, taskId, mergedTask) {
   const requiredAgents = getRequiredPipelineAgents(squadId);
   if (!requiredAgents.length) {
     return null;
@@ -375,6 +415,11 @@ function getPipelineProgressError(squadId, tasks, taskId, mergedTask) {
     if (!reviewTask || reviewTask.column !== 'Done') {
       return 'Cannot complete QA before CTO Review is Done.';
     }
+
+    const recapError = validateFinalRecap(projectId, squadId);
+    if (recapError) {
+      return recapError;
+    }
   }
 
   return null;
@@ -405,7 +450,7 @@ function updateTask(projectId, squadId, taskId, updates) {
     }
   }
 
-  const pipelineError = getPipelineProgressError(squadId, data.tasks, taskId, mergedTask);
+  const pipelineError = getPipelineProgressError(projectId, squadId, data.tasks, taskId, mergedTask);
   if (pipelineError) {
     return { error: pipelineError };
   }
@@ -585,6 +630,11 @@ app.post('/api/projects/:projectId/recap', async (req, res) => {
     return res.status(400).json({
       error: `Invalid type. Allowed values: ${VALID_RECAP_TYPES.join(', ')}`,
     });
+  }
+
+  const recapValidationError = validateFinalRecap(context.project.id, context.squad.id, body);
+  if (recapValidationError) {
+    return res.status(400).json({ error: recapValidationError });
   }
 
   try {
