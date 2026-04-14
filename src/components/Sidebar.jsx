@@ -1,17 +1,10 @@
 import { useState } from 'react';
 
-const NAV_LINKS = [
-  { id: 'agents', label: 'Agent Pipeline', icon: '🤖' },
-  { id: 'kanban', label: 'Task Kanban', icon: '📋' },
-  { id: 'activity', label: 'Activity Log', icon: '📊' },
-  { id: 'recap', label: 'Recap', icon: '📝' },
-];
-
 // Split projects into named groups based on "App name - Mission" (hyphen or em dash).
 // Each distinct app prefix becomes its own sidebar toggle, even with a single mission.
 // Projects without a recognized separator are left ungrouped as a legacy fallback.
 function groupProjects(projects) {
-  const groupMap = {}; // groupName -> [{ project, shortLabel }]
+  const groupMap = {};
   const ungrouped = [];
 
   function parseGroupedLabel(label) {
@@ -43,10 +36,8 @@ export default function Sidebar({
   squads,
   selectedSquadId,
   selectedProject,
-  currentView,
   onSquadClick,
   onProjectClick,
-  onViewChange,
   isOpen,
   onClose,
 }) {
@@ -70,11 +61,6 @@ export default function Sidebar({
 
   function handleProjectClick(projectId, squadId) {
     onProjectClick(projectId, squadId);
-    onClose?.();
-  }
-
-  function handleViewChange(view) {
-    onViewChange(view);
     onClose?.();
   }
 
@@ -118,20 +104,18 @@ export default function Sidebar({
 
                 {!isCollapsed && (
                   <div className="squad-projects">
-
-                    {/* Grouped projects */}
                     {groups.map(({ name, items }) => {
                       const groupKey = `${squad.id}::${name}`;
                       const isGroupCollapsed = !!collapsedGroups[groupKey];
                       const groupHasActive = items.some(
-                        ({ project }) => selectedProject?.id === project.id
+                        ({ project }) => selectedProject?.id === project.id,
                       );
 
                       return (
                         <div key={groupKey} className="project-group">
                           <button
                             className={`project-group-header${groupHasActive ? ' has-active' : ''}`}
-                            onClick={(e) => toggleGroup(e, groupKey)}
+                            onClick={(event) => toggleGroup(event, groupKey)}
                           >
                             <span className="project-group-icon">📂</span>
                             <span className="project-group-name">{name}</span>
@@ -165,7 +149,6 @@ export default function Sidebar({
                       );
                     })}
 
-                    {/* Ungrouped projects */}
                     {ungrouped.map(({ project, shortLabel }) => {
                       const isProjectActive = selectedProject?.id === project.id;
                       return (
@@ -182,7 +165,6 @@ export default function Sidebar({
                         </button>
                       );
                     })}
-
                   </div>
                 )}
               </div>
@@ -190,23 +172,6 @@ export default function Sidebar({
           })}
         </nav>
       </div>
-
-      {selectedProject && (
-        <nav className="sidebar-project-nav">
-          <div className="sidebar-section-label">MISSION</div>
-          {NAV_LINKS.map((link) => (
-            <button
-              key={link.id}
-              className={`sidebar-link${currentView === link.id ? ' active' : ''}`}
-              onClick={() => handleViewChange(link.id)}
-              aria-current={currentView === link.id ? 'page' : undefined}
-            >
-              <span className="sidebar-link-icon" aria-hidden="true">{link.icon}</span>
-              {link.label}
-            </button>
-          ))}
-        </nav>
-      )}
 
       <div className="sidebar-footer">
         Dashboard Agents v1.0

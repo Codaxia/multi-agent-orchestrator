@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import Sidebar from './components/Sidebar.jsx';
 import Header from './components/Header.jsx';
+import MissionTabs from './components/MissionTabs.jsx';
 import AgentBoard from './components/AgentBoard.jsx';
 import TaskKanban from './components/TaskKanban.jsx';
 import ActivityLog from './components/ActivityLog.jsx';
@@ -158,16 +159,17 @@ export default function App() {
         squads={workspace?.squads ?? []}
         selectedSquadId={selected.squad?.id ?? null}
         selectedProject={selected.project}
-        currentView={currentView}
         onSquadClick={handleSquadClick}
         onProjectClick={handleProjectClick}
-        onViewChange={setCurrentView}
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
       />
       <div className="app-main">
         <Header title={headerTitle} status="live" onMenuClick={() => setSidebarOpen(true)} />
-        <main className="app-content">
+        {selected.project && (
+          <MissionTabs currentView={currentView} onViewChange={setCurrentView} />
+        )}
+        <main className={`app-content${selected.project ? ' with-mission-tabs' : ''}`}>
           {loading && !workspace && (
             <div className="state-container">
               <div className="state-spinner" role="status" aria-label="Loading workspace" />
