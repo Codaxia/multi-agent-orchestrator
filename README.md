@@ -57,7 +57,7 @@ The Orchestrator detects the type of work from your brief and activates only the
 | **full-build** | New project from scratch | Orchestrator -> PM -> Architect -> Developer -> Review -> QA -> Security -> Deploy |
 | **feature-ops** | Existing project, new feature, bug fix | Orchestrator -> Developer -> CTO Review -> QA |
 | **code-review** | Audit, review, security check | Orchestrator -> CTO Review -> Security -> QA |
-| **rework** | Bug reported on a completed mission | Developer → CTO Review → Security → QA (full pipeline, no shortcuts) |
+| **rework** | Bug reported on a completed mission | Orchestrator -> Developer -> CTO Review -> Security -> QA (full pipeline, no shortcuts) |
 
 A single project can receive tasks of different scenarios over time. The same project that started as a full-build can later receive feature-ops or code-review tasks.
 

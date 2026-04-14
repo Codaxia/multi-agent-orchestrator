@@ -1,8 +1,10 @@
-# 🧠 Project Brain — [PROJECT NAME]
+# Project Brain — [PROJECT NAME]
 
-> Shared central file used by all pipeline agents.
-> All agents read this file at startup and write their outputs here.
-> DO NOT modify manually except the "Client brief" section.
+> **OFFLINE/LEGACY TEMPLATE** — This file is for use without the dashboard API.
+> When the dashboard is running, agents write via the REST API instead
+> (tasks, activity log, agent status). See AGENTS.md for the API reference.
+>
+> Use this template only if you need a single-file workflow without the dashboard.
 
 ---
 

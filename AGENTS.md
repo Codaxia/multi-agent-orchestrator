@@ -168,6 +168,7 @@ The Orchestrator detects the scenario from the user's brief and activates only t
 | **full-build** | New project from scratch | All agents, full pipeline |
 | **feature-ops** | Existing project, new feature, bug fix, refactor | orchestrator, developer, cto-reviewer, qa, with pm-discovery/security added by scope and risk |
 | **code-review** | Audit, review, security check | orchestrator, cto-reviewer, security, qa, developer |
+| **rework** | Bug reported on a completed mission, correction after delivery | orchestrator, developer, cto-reviewer, security, qa — full pipeline, no shortcuts |
 
 A single project can receive tasks of different scenarios over time.
 
@@ -175,42 +176,23 @@ A single project can receive tasks of different scenarios over time.
 
 ## Reading external tasks (feature-ops)
 
-**One external ticket = one mission.** Each ClickUp or Jira ticket becomes its own dashboard project — never group multiple tickets into a single mission.
+**One external ticket = one mission.** Each ticket from an external task manager (ClickUp, Jira, Linear, etc.) becomes its own dashboard project — never group multiple tickets into a single mission.
 
-If the user provides a ClickUp task ID or URL, use the ClickUp MCP to read it:
+If the user provides a task ID or URL from an external tool:
+1. Check the project skills file (`sprints/skills/{slug}.md`) for the specific MCP tool and read instructions for this project
+2. Read the task — it should contain: title, description, acceptance criteria, status, comments
+3. Treat the content as the task brief — apply the same PM skip/activate logic as for text briefs
 
-```
-Tool: clickup_get_task
-Input: task_id (the ID from the URL, e.g. "abc123xyz")
-```
-
-The task response contains: title, description, acceptance criteria, status, assignees, comments.
-Treat the ClickUp content as the task brief — apply the same PM skip/activate logic as for text tasks.
-
-**Then immediately create a mission for it:**
+**Then immediately create a mission:**
 ```bash
 curl -s -X POST http://localhost:3001/api/projects \
   -H "Content-Type: application/json" \
   -d '{"name": "[Ticket title]", "squadId": "feature-ops", "description": "[Ticket description]"}'
 ```
 
-Inside that mission, create Kanban tasks representing the **agent pipeline steps** — not the ticket content itself.
+Inside that mission, create Kanban tasks representing the **agent pipeline steps** (see § Pipeline contract for the required composition) — not the ticket content itself.
 
-Minimum `feature-ops` pipeline:
-- T00 Orchestrator
-- T01 Developer
-- T02 CTO Review
-- T03 QA
-- Add PM Discovery before Developer when scope or acceptance criteria are unclear
-- Add Security when risk level or user request requires it
-
-After the pipeline completes, update the ClickUp task:
-```
-Tool: clickup_update_task
-Input: task_id, status: "complete" (or the appropriate status in the user's workspace)
-```
-
-**Do not update ClickUp status mid-pipeline** — only at the very end, when QA has passed.
+After the pipeline completes, update the external task status using the tool defined in the project skills file. **Do not update mid-pipeline** — only at the very end, when QA has passed.
 
 ---
 
@@ -231,9 +213,7 @@ The dashboard is organized in three levels:
 
 **Example:**
 - User gives 3 ClickUp tickets -> create 3 missions, each with its own pipeline tasks
-- Standard `feature-ops`: T00 (Orchestrator), T01 (Developer), T02 (CTO Review), T03 (QA)
-- Add T01 PM Discovery before development when the task is vague
-- Add Security when the task touches risky surfaces or the human asks for it
+- Pipeline tasks follow the composition defined in § Pipeline contract
 
 ---
 
@@ -367,9 +347,9 @@ curl -s -X POST http://localhost:3001/api/projects/{projectId}/recap \
 | `bugOrigin` | string | Root cause of the bug (`bug_fix` only) |
 | `bugSymptom` | string | What the user experienced (`bug_fix` only) |
 | `qaSteps` | string | Description of tests performed |
-| `clickupTaskId` | string | ClickUp task ID |
-| `clickupTaskTitle` | string | ClickUp task title |
-| `clickupUrl` | string | ClickUp task URL |
+| `externalTaskId` | string | External task ID (e.g. ClickUp, Jira, Linear) |
+| `externalTaskTitle` | string | External task title |
+| `externalTaskUrl` | string | External task URL |
 | `commitHash` | string | Git commit hash |
 | `commitMessage` | string | Git commit message |
 | `commitUrl` | string | Link to commit on GitHub/GitLab |
@@ -599,7 +579,6 @@ Mandatory closure rules:
 1. Move the task to `Done`
 2. Update the task `description` via `PATCH` with a detailed Markdown log. **Append to any existing content — do not overwrite previous agents' entries.**
 
-   Required log sections per agent:
    ```markdown
    ## [Agent Name] Log
 

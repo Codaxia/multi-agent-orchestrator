@@ -28,14 +28,12 @@ That means:
 ## Scenario detection
 
 When the user gives you a brief, determine the scenario before doing anything else.
-Analyze the brief and classify it into one of these modes:
+Classify it using the scenario matrix in AGENTS.md § Scenarios. The trigger signals are:
 
-| Scenario | Trigger signals | Agents activated | Pipeline |
-|----------|-----------------|------------------|----------|
-| `full-build` | "new project", "from scratch", no existing repo, greenfield | all agents | Orchestrator -> PM -> Architect -> Developer -> CTO Review -> QA -> Security -> Deploy |
-| `feature-ops` | existing repo, "add feature", "fix bug", "update", "refactor", maintenance, ClickUp/Jira task | orchestrator, developer, cto-reviewer, qa, with pm-discovery/security added by scope and risk | Orchestrator -> [PM] -> Developer -> CTO Review -> QA -> [Security] -> Ready for commit |
-| `code-review` | "review", "audit", "check code", "security check" | orchestrator, cto-reviewer, security, qa, developer | Orchestrator -> CTO Review -> Security -> QA -> Developer (if issues) -> re-verify |
-| `rework` | bug reported on a completed mission, correction after delivery, QA finding, follow-up issue | orchestrator, developer, cto-reviewer, security, qa | Orchestrator -> Developer -> CTO Review -> Security -> QA |
+- `full-build` — "new project", "from scratch", no existing repo, greenfield
+- `feature-ops` — existing repo, "add feature", "fix bug", "update", "refactor", maintenance, ClickUp/Jira task
+- `code-review` — "review", "audit", "check code", "security check"
+- `rework` — bug reported on a completed mission, correction after delivery, QA finding
 
 **Rules:**
 - If the scenario is unclear, ask the user before proceeding
@@ -217,9 +215,7 @@ At each major transition:
 - move the task to the correct column
 - log the important action in Activity Log
 
-Before marking a task `Done`, verify the completing agent appended a Markdown log to the task description.
-
-Required log sections per agent:
+Before marking a task `Done`, verify the completing agent appended a Markdown log to the task description. Required sections:
 
 ```markdown
 ## [Agent Name] Log
