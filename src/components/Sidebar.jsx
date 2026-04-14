@@ -7,25 +7,34 @@ const NAV_LINKS = [
   { id: 'recap', label: 'Recap', icon: '📝' },
 ];
 
-// Split projects into named groups based on "GroupName — Mission" prefix.
-// Projects without " — " are left ungrouped (rendered as-is).
+// Split projects into named groups based on "App name - Mission" (hyphen or em dash).
+// Each distinct app prefix becomes its own sidebar toggle, even with a single mission.
+// Projects without a recognized separator are left ungrouped as a legacy fallback.
 function groupProjects(projects) {
-  const groupMap = {}; // groupName → [{ project, shortLabel }]
+  const groupMap = {}; // groupName -> [{ project, shortLabel }]
   const ungrouped = [];
 
+  function parseGroupedLabel(label) {
+    const normalized = String(label || '').trim();
+    const match = normalized.match(/^(.+?)\s(?:\u2014|-)\s(.+)$/);
+    if (!match) return null;
+    return { groupName: match[1].trim(), shortLabel: match[2].trim() };
+  }
+
   projects.forEach((project) => {
-    const sep = project.label.indexOf(' \u2014 ');
-    if (sep !== -1) {
-      const groupName = project.label.substring(0, sep);
-      const shortLabel = project.label.substring(sep + 3);
-      if (!groupMap[groupName]) groupMap[groupName] = [];
-      groupMap[groupName].push({ project, shortLabel });
-    } else {
+    const parsed = parseGroupedLabel(project.label);
+    if (!parsed) {
       ungrouped.push({ project, shortLabel: project.label });
+      return;
     }
+
+    const { groupName, shortLabel } = parsed;
+    if (!groupMap[groupName]) {
+      groupMap[groupName] = [];
+    }
+    groupMap[groupName].push({ project, shortLabel });
   });
 
-  // Build ordered list: groups (insertion order) then ungrouped
   const groups = Object.entries(groupMap).map(([name, items]) => ({ name, items }));
   return { groups, ungrouped };
 }

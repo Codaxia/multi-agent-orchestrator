@@ -215,6 +215,26 @@ The dashboard is organized in three levels:
 - User gives 3 ClickUp tickets -> create 3 missions, each with its own pipeline tasks
 - Pipeline tasks follow the composition defined in § Pipeline contract
 
+## Mission Naming And Sidebar Toggles
+
+The sidebar groups missions by app name. This grouping is derived from the mission label itself.
+
+**Naming contract:**
+- Format every mission label as: `App Name - Mission Name`
+- The text before the first separator (` - ` or ` — `) is the **app name**
+- The text after the separator is the **mission name**
+- Each distinct app name creates its own sidebar toggle, even if there is only one mission for that app
+- Never use a catch-all label such as "Other projects" to regroup unrelated apps
+
+**Examples:**
+- `Atuvu - Menu lateral`
+- `Atuvu - Message Offre Privee`
+- `Motivation App - Today calendar date/toggle`
+
+**Important:**
+- External ticket IDs such as `ClickUp #123` should stay in the description, recap, or external task fields by default
+- Do not put external ticket IDs in the mission label unless the human explicitly asks for them
+
 ---
 
 ## Dashboard API — http://localhost:3001
@@ -552,7 +572,7 @@ If the response contains a non-empty `humanNotes` field:
 
 Each external ticket (ClickUp, Jira, text brief) = one mission. Start by creating the project, then populate the Kanban with **agent pipeline steps** (not business requirements).
 
-1. Create the mission: `POST /api/projects` with the ticket title and description
+1. Create the mission: `POST /api/projects` with a label formatted as `App Name - Mission Name`, plus the ticket description
 2. Set the Orchestrator to `active` with a message describing the mission
 3. Create **agent pipeline tasks** in the Kanban (column `Backlog`):
    - T00 — Orchestrator: scenario + task creation + activity bootstrap

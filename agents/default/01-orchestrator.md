@@ -102,6 +102,14 @@ Navigate to: [scenario] > [project]
 
 Every mission starts with visible pipeline tasks.
 
+### Mission naming
+
+- Name each mission using `App Name - Mission Name`
+- The app name is taken from the real product/app the mission belongs to
+- The sidebar uses that app prefix to create one toggle per app
+- A new app name means a new toggle in the sidebar
+- Keep ticket IDs out of the mission label unless the human explicitly asks for them
+
 ### Minimum `feature-ops` mission
 
 - T00 - Orchestrator
