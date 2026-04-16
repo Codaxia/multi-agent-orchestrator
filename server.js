@@ -669,7 +669,7 @@ app.patch('/api/projects/:projectId/recap', async (req, res) => {
   const context = requireProject(req, res);
   if (!context) return;
 
-  const { humanNotes, reworkLog } = req.body || {};
+  const { humanNotes, reworkLog, externalTaskId, externalTaskTitle, externalTaskUrl } = req.body || {};
 
   if (humanNotes !== undefined && typeof humanNotes !== 'string') {
     return res.status(400).json({ error: 'humanNotes must be a string' });
@@ -677,8 +677,11 @@ app.patch('/api/projects/:projectId/recap', async (req, res) => {
   if (reworkLog !== undefined && !Array.isArray(reworkLog)) {
     return res.status(400).json({ error: 'reworkLog must be an array' });
   }
-  if (humanNotes === undefined && reworkLog === undefined) {
-    return res.status(400).json({ error: 'Provide humanNotes or reworkLog' });
+  const hasAnyField = [humanNotes, reworkLog, externalTaskId, externalTaskTitle, externalTaskUrl].some(
+    (v) => v !== undefined,
+  );
+  if (!hasAnyField) {
+    return res.status(400).json({ error: 'Provide at least one field: humanNotes, reworkLog, externalTaskId, externalTaskTitle, or externalTaskUrl' });
   }
 
   try {
@@ -691,6 +694,9 @@ app.patch('/api/projects/:projectId/recap', async (req, res) => {
         const current = Array.isArray(existing.reworkLog) ? existing.reworkLog : [];
         next.reworkLog = [...current, ...reworkLog];
       }
+      if (externalTaskId !== undefined) next.externalTaskId = String(externalTaskId).trim();
+      if (externalTaskTitle !== undefined) next.externalTaskTitle = String(externalTaskTitle).trim();
+      if (externalTaskUrl !== undefined) next.externalTaskUrl = String(externalTaskUrl).trim();
       writeProjectData(context.project.id, 'recap', next);
       return next;
     });
