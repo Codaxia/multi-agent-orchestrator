@@ -1910,6 +1910,162 @@ html, body, #root {
   padding: 16px 18px 20px;
 }
 
+/* ── Privacy Mode ─────────────────────────────────────────────────────────── */
+
+/* Blurred label when privacy is active — applies to both project rows and group headers */
+.squad-project-main.privacy-blur,
+.project-group-name.privacy-blur {
+  filter: blur(6px);
+  user-select: none;
+  transition: filter 0.2s;
+}
+
+/* Blocked project button — no hover, no cursor */
+.squad-project-btn.privacy-blocked {
+  pointer-events: none;
+  cursor: default;
+  opacity: 0.6;
+}
+
+/* ── Settings toggle button ───────────────────────────────────────────────── */
+.sidebar-settings-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 18px;
+  background: none;
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  color: #5f6a8a;
+  font-size: 12px;
+  cursor: pointer;
+  text-align: left;
+  transition: color 0.15s, background 0.15s;
+}
+
+.sidebar-settings-btn:hover,
+.sidebar-settings-btn.active {
+  color: #a78bfa;
+  background: rgba(167, 139, 250, 0.06);
+}
+
+.sidebar-settings-icon {
+  font-size: 14px;
+}
+
+.sidebar-settings-badge {
+  margin-left: auto;
+  font-size: 8px;
+  color: #a78bfa;
+  line-height: 1;
+}
+
+/* ── Settings Panel ───────────────────────────────────────────────────────── */
+.settings-panel {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 14px 18px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.settings-panel-header {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #5f6a8a;
+  margin-bottom: 12px;
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.settings-row-label {
+  font-size: 12px;
+  color: #aab2c8;
+}
+
+/* Toggle switch */
+.privacy-toggle {
+  position: relative;
+  width: 36px;
+  height: 20px;
+  background: #2a2a40;
+  border: 1px solid #3a3a55;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+  flex-shrink: 0;
+}
+
+.privacy-toggle--on {
+  background: #7c3aed;
+  border-color: #7c3aed;
+}
+
+.privacy-toggle-knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  background: #888;
+  border-radius: 50%;
+  transition: left 0.2s, background 0.2s;
+}
+
+.privacy-toggle--on .privacy-toggle-knob {
+  left: 18px;
+  background: #fff;
+}
+
+/* Projects list inside settings */
+.settings-projects {
+  margin-top: 4px;
+}
+
+.settings-projects-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #5f6a8a;
+  margin-bottom: 8px;
+}
+
+.settings-project-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  cursor: pointer;
+  font-size: 11.5px;
+  color: #7a8aaa;
+  transition: color 0.15s;
+}
+
+.settings-project-row:hover {
+  color: #c0c8e0;
+}
+
+.settings-project-checkbox {
+  accent-color: #7c3aed;
+  width: 13px;
+  height: 13px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.settings-project-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .header {
   min-height: 72px;
   height: 72px;
