@@ -416,6 +416,26 @@ function getPipelineProgressError(projectId, squadId, tasks, taskId, mergedTask)
       return 'Cannot complete QA before CTO Review is Done.';
     }
 
+    const QA_EVIDENCE_MARKERS = [
+      '**Screenshot:**',
+      '**Evidence:**',
+      '**DOM Check:**',
+      '**HTTP Check:**',
+      '**CLI Output:**',
+      '**Test Output:**',
+      '**Tinker Output:**',
+    ];
+    const taskDescription = String(mergedTask.description || '');
+    const hasEvidence = QA_EVIDENCE_MARKERS.some((marker) => taskDescription.includes(marker));
+    if (!hasEvidence) {
+      return (
+        'Cannot complete QA: task description must include at least one evidence marker.\n' +
+        'Accepted markers: ' +
+        QA_EVIDENCE_MARKERS.join(', ') +
+        '\nAdd the marker + actual evidence to your ## QA Run log before closing the task.'
+      );
+    }
+
     const recapError = validateFinalRecap(projectId, squadId);
     if (recapError) {
       return recapError;
