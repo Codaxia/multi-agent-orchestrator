@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { marked } from 'marked';
-import { AGENT_COLORS } from '../utils/agentColors.js';
+import { AGENT_COLORS, AGENT_GRADIENTS } from '../utils/agentColors.js';
 import { formatRelativeTime } from '../utils/time.js';
 import { sanitizeMarkedHtml } from '../utils/sanitize.js';
 
@@ -34,6 +34,7 @@ export default function AgentDetailPanel({ projectId, agent, onClose }) {
   const [mdError, setMdError] = useState(null);
 
   const agentColor = AGENT_COLORS[agent.id] ?? '#6c63ff';
+  const agentGradient = AGENT_GRADIENTS[agent.id] ?? `linear-gradient(150deg, ${agentColor} 0%, #0f172a 100%)`;
 
   // ESC key closes the panel
   const handleKeyDown = useCallback((e) => {
@@ -78,7 +79,7 @@ export default function AgentDetailPanel({ projectId, agent, onClose }) {
       aria-label={`Agent detail: ${agent.name}`}
       onClick={(e) => e.stopPropagation()}
     >
-      <div className="agent-detail-header" style={{ background: agentColor }}>
+      <div className="agent-detail-header" style={{ background: agentGradient }}>
         <div className="agent-detail-header-main">
           <span className="detail-kicker">Agent profile</span>
           <h2 className="agent-detail-name">{agent.name}</h2>
