@@ -78,7 +78,15 @@ export default function App() {
   const [selectedProjectId, setSelectedProjectId] = useState(initialSelection.projectId);
   const [currentView, setCurrentView] = useState(initialSelection.view);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    try { return localStorage.getItem('da-theme') === 'dark'; } catch { return false; }
+  });
   const { data: workspace, error, loading } = usePolling('/api/workspace', 4000);
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
+    try { localStorage.setItem('da-theme', isDarkMode ? 'dark' : 'light'); } catch {}
+  }, [isDarkMode]);
 
   const selected = useMemo(() => {
     if (!workspace) {
@@ -165,7 +173,7 @@ export default function App() {
         onClose={() => setSidebarOpen(false)}
       />
       <div className="app-main">
-        <Header title={headerTitle} status="live" onMenuClick={() => setSidebarOpen(true)} />
+        <Header title={headerTitle} status="live" onMenuClick={() => setSidebarOpen(true)} isDarkMode={isDarkMode} onThemeToggle={() => setIsDarkMode((v) => !v)} />
         {selected.project && (
           <MissionTabs currentView={currentView} onViewChange={setCurrentView} />
         )}

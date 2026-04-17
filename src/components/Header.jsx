@@ -8,7 +8,7 @@ function formatStatus(status) {
     .replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
-export default function Header({ title, status, onMenuClick }) {
+export default function Header({ title, status, onMenuClick, isDarkMode, onThemeToggle }) {
   return (
     <header className="header">
       <button
@@ -23,6 +23,14 @@ export default function Header({ title, status, onMenuClick }) {
       <h1 className="header-title">
         <span>{title}</span>
       </h1>
+      <button
+        className="header-theme-btn"
+        onClick={onThemeToggle}
+        aria-label={isDarkMode ? 'Passer en mode jour' : 'Passer en mode nuit'}
+        type="button"
+      >
+        {isDarkMode ? '☀' : '🌙'}
+      </button>
       <div className="status-indicator" role="status" aria-label={`System ${formatStatus(status)}`}>
         <span className="status-dot" aria-hidden="true" />
         {formatStatus(status)}
