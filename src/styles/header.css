@@ -1,24 +1,15 @@
 /* Phase 1 extraction: header and mission tabs */
-.header {
-  height: 56px;
-  min-height: 56px;
-  background: white;
-  border-bottom: 1px solid #e3e6ea;
-  display: flex;
-  align-items: center;
-  padding: 0 24px;
-  gap: 16px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-}
 
 .header {
-  min-height: 72px;
-  height: 72px;
-  padding: 0 30px;
-  background: rgba(255, 255, 255, 0.72);
-  backdrop-filter: blur(6px);
-  border-bottom: 1px solid rgba(15, 23, 40, 0.08);
-  box-shadow: 0 14px 40px rgba(16, 24, 40, 0.06);
+  height: 60px;
+  min-height: 60px;
+  background: rgba(255, 255, 255, 0.95);
+  border-bottom: 1px solid rgba(15, 23, 40, 0.09);
+  display: flex;
+  align-items: center;
+  padding: 0 28px;
+  gap: 14px;
+  flex-shrink: 0;
 }
 
 .header-branding {
@@ -28,13 +19,8 @@
   text-transform: uppercase;
   color: #9aa5b4;
   white-space: nowrap;
-  border-right: 1px solid #e3e6ea;
+  border-right: 1px solid rgba(15, 23, 40, 0.08);
   padding-right: 16px;
-}
-
-.header-branding {
-  color: #5d729f;
-  border-right-color: rgba(15, 23, 40, 0.08);
 }
 
 .header-title {
@@ -42,33 +28,19 @@
   font-weight: 700;
   color: #172b4d;
   flex: 1;
-}
-
-.header-title {
-  font-size: 24px;
-}
-
-.header-title span {
-  color: #6c63ff;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .header-title span {
   color: #16315c;
 }
 
-.header-squad {
-  color: #7c3aed;
-}
-
-.header-sep {
-  color: #c0c7d0;
-  font-weight: 400;
-  margin: 0 2px;
-}
-
-.header-project {
-  color: #172b4d;
-}
+.header-squad { color: #7c3aed; }
+.header-sep   { color: #c0c7d0; font-weight: 400; margin: 0 2px; }
+.header-project { color: #172b4d; }
 
 .status-indicator {
   display: flex;
@@ -76,15 +48,11 @@
   gap: 6px;
   font-size: 12px;
   color: #57687a;
-  background: #f4f5f7;
-  padding: 4px 10px;
-  border-radius: 20px;
-}
-
-.status-indicator {
   background: rgba(255, 255, 255, 0.78);
   border: 1px solid rgba(15, 23, 40, 0.06);
-  padding: 8px 12px;
+  padding: 5px 12px;
+  border-radius: 8px;
+  flex-shrink: 0;
 }
 
 .status-dot {
@@ -101,63 +69,58 @@
   background: #ef4444;
 }
 
+/* ── Mission tabs (segmented control) ──────────────────────────────────────── */
 .mission-tabs {
-  padding: 14px 24px 0;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.82) 0%, rgba(255, 255, 255, 0.45) 100%);
-  backdrop-filter: blur(6px);
+  padding: 12px 24px;
+  background: white;
   border-bottom: 1px solid rgba(15, 23, 40, 0.08);
+  flex-shrink: 0;
 }
 
 .mission-tabs-track {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 2px;
+  padding: 3px;
+  background: #f0f2f5;
+  border-radius: 8px;
   overflow-x: auto;
-  padding: 0 2px 14px;
-  scrollbar-width: thin;
+  scrollbar-width: none;
 }
+
+.mission-tabs-track::-webkit-scrollbar { display: none; }
 
 .mission-tab {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  border: 1px solid rgba(128, 141, 170, 0.18);
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.78);
-  color: #60709b;
-  padding: 10px 16px;
+  gap: 7px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #5e6d7e;
+  padding: 6px 14px;
   font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.01em;
+  font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
-  transition: transform 0.16s, box-shadow 0.16s, border-color 0.16s, background 0.16s, color 0.16s;
-  box-shadow: 0 10px 28px rgba(17, 24, 39, 0.06);
+  transition: background 0.15s, color 0.15s;
 }
 
 .mission-tab:hover {
-  transform: translateY(-1px);
-  color: #22365d;
-  border-color: rgba(108, 99, 255, 0.24);
-  box-shadow: 0 16px 30px rgba(17, 24, 39, 0.1);
+  background: rgba(15, 23, 40, 0.06);
+  color: #172b4d;
 }
 
 .mission-tab.active {
-  color: #10203f;
-  background: linear-gradient(135deg, rgba(108, 99, 255, 0.22), rgba(32, 178, 170, 0.16));
-  border-color: rgba(108, 99, 255, 0.38);
-  box-shadow: 0 18px 34px rgba(76, 92, 170, 0.16);
+  background: #172b4d;
+  color: white;
+  font-weight: 700;
 }
 
-.mission-tab-icon {
-  font-size: 15px;
-  line-height: 1;
-}
+.mission-tab-icon { font-size: 15px; line-height: 1; }
+.mission-tab-label { line-height: 1; }
 
-.mission-tab-label {
-  line-height: 1;
-}
-
+/* ── Header menu button (mobile) ────────────────────────────────────────────── */
 .header-menu-btn {
   display: none;
   width: 38px;
@@ -167,7 +130,7 @@
   background: none;
   border: none;
   cursor: pointer;
-  border-radius: 6px;
+  border-radius: 8px;
   color: #172b4d;
   font-size: 22px;
   transition: background 0.15s;
@@ -175,25 +138,27 @@
   line-height: 1;
 }
 
-.header-menu-btn:hover {
-  background: rgba(0, 0, 0, 0.06);
+.header-menu-btn:hover { background: rgba(0, 0, 0, 0.06); }
+
+/* ── Theme toggle button ────────────────────────────────────────────────────── */
+.header-theme-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px 8px;
+  border-radius: 8px;
+  font-size: 16px;
+  line-height: 1;
+  color: #5e6d7e;
+  transition: background 0.15s;
+  flex-shrink: 0;
 }
 
-@media (max-width: 760px) {
-  .mission-tabs {
-    padding: 12px 16px 0;
-  }
+.header-theme-btn:hover { background: rgba(15, 23, 40, 0.06); }
 
-  .mission-tab {
-    padding: 9px 14px;
-    border-radius: 14px;
-  }
-}
-
+/* ── Responsive ────────────────────────────────────────────────────────────── */
 @media (max-width: 640px) {
-  .header-menu-btn {
-    display: flex;
-  }
+  .header-menu-btn { display: flex; }
 
   .header {
     padding: 0 14px;
@@ -202,26 +167,10 @@
     gap: 10px;
   }
 
-  .header-branding {
-    display: none;
-  }
+  .header-branding { display: none; }
+  .header-title { font-size: 15px !important; }
 
-  .header-title {
-    font-size: 15px !important;
-  }
-
-  .mission-tabs {
-    padding: 10px 12px 0;
-  }
-
-  .mission-tabs-track {
-    gap: 8px;
-    padding-bottom: 12px;
-  }
-
-  .mission-tab {
-    padding: 9px 12px;
-    font-size: 12px;
-    gap: 8px;
-  }
+  .mission-tabs { padding: 10px 12px; }
+  .mission-tabs-track { gap: 2px; }
+  .mission-tab { padding: 6px 10px; font-size: 12px; gap: 6px; }
 }
