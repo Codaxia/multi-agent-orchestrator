@@ -61,7 +61,7 @@ html, body, #root {
   width: 34px;
   height: 34px;
   background: linear-gradient(135deg, #7c3aed 0%, #3ecfcf 100%);
-  border-radius: 9px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -182,7 +182,7 @@ html, body, #root {
   color: #57687a;
   background: #f4f5f7;
   padding: 4px 10px;
-  border-radius: 20px;
+  border-radius: 8px;
 }
 
 .status-dot {
@@ -194,51 +194,49 @@ html, body, #root {
 }
 
 .mission-tabs {
-  padding: 14px 24px 0;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.82) 0%, rgba(255, 255, 255, 0.45) 100%);
-  backdrop-filter: blur(6px);
+  padding: 12px 24px;
+  background: white;
   border-bottom: 1px solid rgba(15, 23, 40, 0.08);
 }
 
 .mission-tabs-track {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 2px;
+  padding: 3px;
+  background: #f0f2f5;
+  border-radius: 8px;
   overflow-x: auto;
-  padding: 0 2px 14px;
-  scrollbar-width: thin;
+  scrollbar-width: none;
 }
+
+.mission-tabs-track::-webkit-scrollbar { display: none; }
 
 .mission-tab {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  border: 1px solid rgba(128, 141, 170, 0.18);
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.78);
-  color: #60709b;
-  padding: 10px 16px;
+  gap: 7px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #5e6d7e;
+  padding: 6px 14px;
   font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.01em;
+  font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
-  transition: transform 0.16s, box-shadow 0.16s, border-color 0.16s, background 0.16s, color 0.16s;
-  box-shadow: 0 10px 28px rgba(17, 24, 39, 0.06);
+  transition: background 0.15s, color 0.15s;
 }
 
 .mission-tab:hover {
-  transform: translateY(-1px);
-  color: #22365d;
-  border-color: rgba(108, 99, 255, 0.24);
-  box-shadow: 0 16px 30px rgba(17, 24, 39, 0.1);
+  background: rgba(15, 23, 40, 0.06);
+  color: #172b4d;
 }
 
 .mission-tab.active {
-  color: #10203f;
-  background: linear-gradient(135deg, rgba(108, 99, 255, 0.22), rgba(32, 178, 170, 0.16));
-  border-color: rgba(108, 99, 255, 0.38);
-  box-shadow: 0 18px 34px rgba(76, 92, 170, 0.16);
+  background: #172b4d;
+  color: white;
+  font-weight: 700;
 }
 
 .mission-tab-icon {
@@ -278,7 +276,7 @@ html, body, #root {
 /* ── Agent Card ───────────────────────────────────────────────────────────── */
 .agent-card {
   background: white;
-  border-radius: 10px;
+  border-radius: 8px;
   padding: 20px;
   border: 2px solid transparent;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.07);
@@ -336,7 +334,7 @@ html, body, #root {
   font-size: 11px;
   font-weight: 600;
   padding: 3px 9px;
-  border-radius: 20px;
+  border-radius: 8px;
   letter-spacing: 0.3px;
   text-transform: uppercase;
   flex-shrink: 0;
@@ -399,7 +397,7 @@ html, body, #root {
   display: flex;
   flex-direction: column;
   background: #f4f5f7;
-  border-radius: 10px;
+  border-radius: 8px;
   max-height: 100%;
 }
 
@@ -430,7 +428,7 @@ html, body, #root {
   color: #42526e;
   font-size: 11px;
   font-weight: 700;
-  border-radius: 12px;
+  border-radius: 8px;
   padding: 1px 7px;
   min-width: 22px;
   text-align: center;
@@ -442,7 +440,7 @@ html, body, #root {
   overflow-y: auto;
   transition: background 0.15s;
   min-height: 80px;
-  border-radius: 0 0 10px 10px;
+  border-radius: 0 0 8px 8px;
 }
 
 .kanban-cards-container.is-dragging-over {
@@ -452,7 +450,7 @@ html, body, #root {
 /* ── Task Card ────────────────────────────────────────────────────────────── */
 .task-card {
   background: white;
-  border-radius: 7px;
+  border-radius: 8px;
   padding: 12px 14px;
   margin-bottom: 8px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
@@ -587,7 +585,7 @@ html, body, #root {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  border-radius: 0 10px 10px 0;
+  border-radius: 0 8px 8px 0;
   animation: panelSlideIn 0.3s ease;
   flex-shrink: 0;
 }
@@ -700,7 +698,7 @@ html, body, #root {
   background: #f0f2f5;
   color: #42526e;
   padding: 1px 6px;
-  border-radius: 10px;
+  border-radius: 8px;
   text-transform: none;
   letter-spacing: 0;
 }
@@ -836,7 +834,7 @@ html, body, #root {
   background: #1a1a2e;
   color: #a8b2d8;
   padding: 12px;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 11px;
   overflow-x: auto;
   margin: 8px 0;
@@ -919,7 +917,7 @@ html, body, #root {
   font-size: 12px;
   font-weight: 600;
   padding: 6px 12px;
-  border-radius: 5px;
+  border-radius: 8px;
   border: 1.5px solid;
   background: transparent;
   cursor: pointer;
@@ -932,7 +930,7 @@ html, body, #root {
   font-size: 12px;
   font-weight: 500;
   padding: 6px 12px;
-  border-radius: 5px;
+  border-radius: 8px;
   border: 1px solid #e3e6ea;
   background: #f4f5f7;
   color: #42526e;
@@ -995,7 +993,7 @@ html, body, #root {
   font-size: 10px;
   font-weight: 700;
   padding: 2px 8px;
-  border-radius: 20px;
+  border-radius: 8px;
   background: rgba(255, 255, 255, 0.2);
   color: white;
   text-transform: uppercase;
@@ -1112,7 +1110,7 @@ html, body, #root {
   background: #1a1a2e;
   color: #a8b2d8;
   padding: 12px;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 11px;
   overflow-x: auto;
   margin: 8px 0;
@@ -1182,7 +1180,7 @@ html, body, #root {
   font-size: 11.5px;
   font-weight: 600;
   padding: 4px 10px;
-  border-radius: 20px;
+  border-radius: 8px;
   border: 1.5px solid #e3e6ea;
   background: transparent;
   color: #42526e;
@@ -1326,7 +1324,7 @@ html, body, #root {
   background: #f8fafc;
   border: 1px solid #e2e8f0;
   border-left: 3px solid #cbd5e1;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 12.5px;
   color: #334155;
   white-space: pre-wrap;
@@ -1420,7 +1418,7 @@ html, body, #root {
   background: rgba(124, 58, 237, 0.18);
   color: #a78bfa;
   padding: 1px 7px;
-  border-radius: 10px;
+  border-radius: 8px;
   flex-shrink: 0;
 }
 
@@ -1502,7 +1500,7 @@ html, body, #root {
   margin: 10px 16px 0;
   background: none;
   border: 1.5px dashed #252540;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
   font-size: 12px;
   color: #444460;
@@ -1568,7 +1566,7 @@ html, body, #root {
   margin-bottom: 28px;
   padding: 24px;
   background: white;
-  border-radius: 12px;
+  border-radius: 8px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.07);
 }
 
@@ -1600,7 +1598,7 @@ html, body, #root {
 
 .squad-overview-section {
   background: white;
-  border-radius: 12px;
+  border-radius: 8px;
   border: 1px solid #e3e6ea;
   padding: 20px 24px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
@@ -1625,7 +1623,7 @@ html, body, #root {
   font-size: 11px;
   font-weight: 600;
   padding: 2px 8px;
-  border-radius: 10px;
+  border-radius: 8px;
   text-transform: none;
   letter-spacing: 0;
 }
@@ -1722,7 +1720,7 @@ html, body, #root {
 .sidebar-logo-icon {
   width: 40px;
   height: 40px;
-  border-radius: 12px;
+  border-radius: 8px;
   background: linear-gradient(135deg, #20b2aa 0%, #6c63ff 100%);
   box-shadow: 0 14px 30px rgba(32, 178, 170, 0.18);
 }
@@ -1747,7 +1745,7 @@ html, body, #root {
 .sidebar-link,
 .squad-header,
 .squad-project-btn {
-  border-radius: 14px;
+  border-radius: 8px;
 }
 
 .sidebar-link {
@@ -1875,7 +1873,7 @@ html, body, #root {
   font-size: 0.7rem;
   background: rgba(255, 255, 255, 0.08);
   color: #8890aa;
-  border-radius: 10px;
+  border-radius: 8px;
   padding: 1px 6px;
   flex-shrink: 0;
 }
@@ -1996,7 +1994,7 @@ html, body, #root {
   height: 20px;
   background: #2a2a40;
   border: 1px solid #3a3a55;
-  border-radius: 10px;
+  border-radius: 8px;
   cursor: pointer;
   transition: background 0.2s, border-color 0.2s;
   flex-shrink: 0;
@@ -2096,11 +2094,12 @@ html, body, #root {
 }
 
 .workspace-panel {
+  width: 100%;
   background: rgba(255, 255, 255, 0.66);
   border: 1px solid rgba(255, 255, 255, 0.72);
-  border-radius: 10px;
-  padding: 28px;
-  box-shadow: 0 20px 50px rgba(17, 24, 39, 0.08);
+  border-radius: 8px;
+  padding: 24px 28px;
+  box-shadow: 0 4px 16px rgba(17, 24, 39, 0.06);
   backdrop-filter: blur(6px);
 }
 
@@ -2190,18 +2189,18 @@ html, body, #root {
 }
 
 .agent-grid {
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 18px;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
 }
 
 .agent-card {
   position: relative;
   overflow: hidden;
-  padding: 22px 22px 18px;
+  padding: 14px 16px;
   border-radius: 8px;
   border: 1px solid rgba(15, 23, 40, 0.06);
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(246, 249, 255, 0.92));
-  box-shadow: 0 14px 34px rgba(17, 24, 39, 0.08);
+  box-shadow: 0 2px 8px rgba(17, 24, 39, 0.06);
 }
 
 .agent-card::after {
@@ -2220,29 +2219,30 @@ html, body, #root {
 .agent-card-header {
   position: relative;
   z-index: 1;
-  margin-bottom: 18px;
+  margin-bottom: 10px;
 }
 
 .agent-card-icon {
-  width: 44px;
-  height: 44px;
+  width: 32px;
+  height: 32px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 6px;
+  border-radius: 8px;
   background: rgba(15, 23, 40, 0.04);
-  font-size: 24px;
+  font-size: 16px;
 }
 
 .agent-name {
-  font-size: 24px;
-  letter-spacing: -0.02em;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0;
 }
 
 .agent-status-badge {
   font-size: 10px;
-  letter-spacing: 0.12em;
-  padding: 7px 10px;
+  letter-spacing: 0.08em;
+  padding: 3px 8px;
   border-radius: 8px;
 }
 
@@ -2250,9 +2250,9 @@ html, body, #root {
   position: relative;
   z-index: 1;
   border-top: 1px solid rgba(15, 23, 40, 0.08);
-  padding-top: 16px;
+  padding-top: 10px;
   margin-top: 0;
-  font-size: 14px;
+  font-size: 12px;
   color: #5d6e91;
 }
 
@@ -2271,7 +2271,7 @@ html, body, #root {
   min-width: 272px;
   background: linear-gradient(180deg, rgba(246, 249, 255, 0.96), rgba(238, 243, 252, 0.96));
   border: 1px solid rgba(15, 23, 40, 0.06);
-  border-radius: 10px;
+  border-radius: 8px;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
 }
 
@@ -2308,7 +2308,7 @@ html, body, #root {
 }
 
 .task-card-agent {
-  border-radius: 6px;
+  border-radius: 8px;
   padding: 4px 9px;
   background: rgba(108, 99, 255, 0.08);
   color: #5a52d8;
@@ -2344,7 +2344,7 @@ html, body, #root {
   max-height: calc(100vh - 44px);
   min-width: min(520px, calc(100vw - 44px));
   border: 1px solid rgba(255, 255, 255, 0.65);
-  border-radius: 10px;
+  border-radius: 8px;
   box-shadow: 0 32px 80px rgba(7, 12, 24, 0.28);
   background: rgba(255, 255, 255, 0.94);
   backdrop-filter: blur(4px);
@@ -2393,7 +2393,7 @@ html, body, #root {
 .panel-close-btn {
   width: 38px;
   height: 38px;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 16px;
   font-weight: 800;
 }
@@ -2471,7 +2471,7 @@ html, body, #root {
 }
 
 .agent-detail-markdown pre {
-  border-radius: 6px;
+  border-radius: 8px;
   padding: 16px;
 }
 
@@ -2484,7 +2484,7 @@ html, body, #root {
 .panel-btn-next,
 .panel-btn-close {
   min-height: 40px;
-  border-radius: 6px;
+  border-radius: 8px;
   padding: 0 14px;
 }
 
@@ -2524,7 +2524,7 @@ html, body, #root {
 
   .mission-tab {
     padding: 9px 14px;
-    border-radius: 14px;
+    border-radius: 8px;
   }
 
   .sidebar {
@@ -2558,7 +2558,7 @@ html, body, #root {
     width: auto;
     height: calc(100vh - 20px);
     max-height: calc(100vh - 20px);
-    border-radius: 10px;
+    border-radius: 8px;
   }
 
   .agent-name,
@@ -2581,7 +2581,7 @@ html, body, #root {
   background: none;
   border: none;
   cursor: pointer;
-  border-radius: 6px;
+  border-radius: 8px;
   color: #172b4d;
   font-size: 22px;
   transition: background 0.15s;
@@ -2947,7 +2947,7 @@ html, body, #root {
 /* ── Recap Card ────────────────────────────────────────────────────────────── */
 .recap-card {
   background: white;
-  border-radius: 10px;
+  border-radius: 8px;
   border: 1px solid rgba(15, 23, 40, 0.07);
   box-shadow: 0 10px 28px rgba(17, 24, 39, 0.07);
   overflow: hidden;
@@ -2993,7 +2993,7 @@ html, body, #root {
   letter-spacing: 0.06em;
   text-transform: uppercase;
   padding: 4px 10px;
-  border-radius: 6px;
+  border-radius: 8px;
   flex-shrink: 0;
 }
 
@@ -3020,7 +3020,7 @@ html, body, #root {
   font-size: 11px;
   font-weight: 600;
   padding: 3px 9px;
-  border-radius: 20px;
+  border-radius: 8px;
   border: 1px solid transparent;
   text-transform: capitalize;
   flex-shrink: 0;
@@ -3054,7 +3054,7 @@ html, body, #root {
   padding: 14px 16px;
   background: linear-gradient(135deg, rgba(108, 99, 255, 0.06), rgba(32, 178, 170, 0.04));
   border-left: 3px solid #6c63ff;
-  border-radius: 0 6px 6px 0;
+  border-radius: 0 8px 8px 0;
 }
 
 .recap-section-eyebrow {
@@ -3080,7 +3080,7 @@ html, body, #root {
   padding: 12px 14px;
   background: #fff5f5;
   border: 1px solid #fecaca;
-  border-radius: 6px;
+  border-radius: 8px;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -3121,7 +3121,7 @@ html, body, #root {
 .recap-outcome-section {
   background: #f0fdf4;
   border: 1px solid #bbf7d0;
-  border-radius: 6px;
+  border-radius: 8px;
   padding: 10px 14px;
   margin-top: 14px;
 }
@@ -3147,7 +3147,7 @@ html, body, #root {
   font-size: 11.5px;
   font-weight: 600;
   padding: 5px 11px;
-  border-radius: 6px;
+  border-radius: 8px;
   border: 1px solid #e3e6ea;
   background: #f8fafc;
   color: #344563;
@@ -3303,7 +3303,7 @@ a.recap-link-chip:hover {
   padding: 8px 12px;
   background: #fff8f0;
   border-left: 3px solid #ff8b00;
-  border-radius: 0 6px 6px 0;
+  border-radius: 0 8px 8px 0;
 }
 
 .recap-rework-issue {
@@ -3328,7 +3328,7 @@ a.recap-link-chip:hover {
   margin-top: 32px;
   padding: 20px 24px;
   border: 1.5px dashed #d0d7e2;
-  border-radius: 10px;
+  border-radius: 8px;
   background: #fafbfc;
 }
 
@@ -3358,7 +3358,7 @@ a.recap-link-chip:hover {
   color: #172b4d;
   background: #fff;
   border: 1.5px solid #dde2ea;
-  border-radius: 7px;
+  border-radius: 8px;
   resize: vertical;
   transition: border-color 0.15s;
   outline: none;
@@ -3391,7 +3391,7 @@ a.recap-link-chip:hover {
   font-size: 13px;
   font-weight: 600;
   padding: 6px 16px;
-  border-radius: 6px;
+  border-radius: 8px;
   border: 1.5px solid #6c63ff;
   background: transparent;
   color: #6c63ff;
