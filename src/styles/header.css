@@ -1,0 +1,227 @@
+/* Phase 1 extraction: header and mission tabs */
+.header {
+  height: 56px;
+  min-height: 56px;
+  background: white;
+  border-bottom: 1px solid #e3e6ea;
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  gap: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.header {
+  min-height: 72px;
+  height: 72px;
+  padding: 0 30px;
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid rgba(15, 23, 40, 0.08);
+  box-shadow: 0 14px 40px rgba(16, 24, 40, 0.06);
+}
+
+.header-branding {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: #9aa5b4;
+  white-space: nowrap;
+  border-right: 1px solid #e3e6ea;
+  padding-right: 16px;
+}
+
+.header-branding {
+  color: #5d729f;
+  border-right-color: rgba(15, 23, 40, 0.08);
+}
+
+.header-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #172b4d;
+  flex: 1;
+}
+
+.header-title {
+  font-size: 24px;
+}
+
+.header-title span {
+  color: #6c63ff;
+}
+
+.header-title span {
+  color: #16315c;
+}
+
+.header-squad {
+  color: #7c3aed;
+}
+
+.header-sep {
+  color: #c0c7d0;
+  font-weight: 400;
+  margin: 0 2px;
+}
+
+.header-project {
+  color: #172b4d;
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #57687a;
+  background: #f4f5f7;
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+
+.status-indicator {
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(15, 23, 40, 0.06);
+  padding: 8px 12px;
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #22c55e;
+  animation: statusPulse 2.5s infinite;
+}
+
+.status-indicator[aria-label*="Failed"] .status-dot,
+.status-indicator[aria-label*="Needs Attention"] .status-dot,
+.status-indicator[aria-label*="Stopped"] .status-dot {
+  background: #ef4444;
+}
+
+.mission-tabs {
+  padding: 14px 24px 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.82) 0%, rgba(255, 255, 255, 0.45) 100%);
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid rgba(15, 23, 40, 0.08);
+}
+
+.mission-tabs-track {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 0 2px 14px;
+  scrollbar-width: thin;
+}
+
+.mission-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid rgba(128, 141, 170, 0.18);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.78);
+  color: #60709b;
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: transform 0.16s, box-shadow 0.16s, border-color 0.16s, background 0.16s, color 0.16s;
+  box-shadow: 0 10px 28px rgba(17, 24, 39, 0.06);
+}
+
+.mission-tab:hover {
+  transform: translateY(-1px);
+  color: #22365d;
+  border-color: rgba(108, 99, 255, 0.24);
+  box-shadow: 0 16px 30px rgba(17, 24, 39, 0.1);
+}
+
+.mission-tab.active {
+  color: #10203f;
+  background: linear-gradient(135deg, rgba(108, 99, 255, 0.22), rgba(32, 178, 170, 0.16));
+  border-color: rgba(108, 99, 255, 0.38);
+  box-shadow: 0 18px 34px rgba(76, 92, 170, 0.16);
+}
+
+.mission-tab-icon {
+  font-size: 15px;
+  line-height: 1;
+}
+
+.mission-tab-label {
+  line-height: 1;
+}
+
+.header-menu-btn {
+  display: none;
+  width: 38px;
+  height: 38px;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  border-radius: 6px;
+  color: #172b4d;
+  font-size: 22px;
+  transition: background 0.15s;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.header-menu-btn:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+@media (max-width: 760px) {
+  .mission-tabs {
+    padding: 12px 16px 0;
+  }
+
+  .mission-tab {
+    padding: 9px 14px;
+    border-radius: 14px;
+  }
+}
+
+@media (max-width: 640px) {
+  .header-menu-btn {
+    display: flex;
+  }
+
+  .header {
+    padding: 0 14px;
+    min-height: 56px;
+    height: 56px;
+    gap: 10px;
+  }
+
+  .header-branding {
+    display: none;
+  }
+
+  .header-title {
+    font-size: 15px !important;
+  }
+
+  .mission-tabs {
+    padding: 10px 12px 0;
+  }
+
+  .mission-tabs-track {
+    gap: 8px;
+    padding-bottom: 12px;
+  }
+
+  .mission-tab {
+    padding: 9px 12px;
+    font-size: 12px;
+    gap: 8px;
+  }
+}
