@@ -1357,6 +1357,25 @@ html, body, #root {
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: #2a2a42 #0f0f1a;
+}
+
+.sidebar-squads-wrapper::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sidebar-squads-wrapper::-webkit-scrollbar-track {
+  background: #0f0f1a;
+}
+
+.sidebar-squads-wrapper::-webkit-scrollbar-thumb {
+  background: #2a2a42;
+  border-radius: 8px;
+}
+
+.sidebar-squads-wrapper::-webkit-scrollbar-thumb:hover {
+  background: #3d3d5c;
 }
 
 .sidebar-squads {
