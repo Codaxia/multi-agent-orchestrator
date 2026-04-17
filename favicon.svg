@@ -1,25 +1,42 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Codaxia">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" role="img" aria-label="Dashboard Agents">
   <defs>
-    <linearGradient id="bg" x1="8" y1="8" x2="56" y2="56" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#14213d" />
-      <stop offset="1" stop-color="#0b1328" />
-    </linearGradient>
-    <linearGradient id="accent" x1="16" y1="16" x2="48" y2="48" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#6c63ff" />
-      <stop offset="1" stop-color="#20b2aa" />
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"   stop-color="#030811"/>
+      <stop offset="100%" stop-color="#0b1430"/>
     </linearGradient>
   </defs>
 
-  <rect x="6" y="6" width="52" height="52" rx="12" fill="url(#bg)" />
+  <!-- Background -->
+  <rect width="500" height="500" fill="url(#bg)"/>
 
+  <!-- Circular arc: centre (215,280) r=130, ~240° sweep screen-clockwise -->
+  <!-- Start at 150° SVG (8 o'clock / lower-left): (102, 345)            -->
+  <!-- End   at 300° SVG (1 o'clock / upper-right): (280, 167)           -->
+  <!-- sweep-flag=0 (counterclockwise in SVG maths = clockwise on screen) -->
   <path
-    d="M43 20H26L19 27V37L26 44H43"
+    d="M 102 345 A 130 130 0 1 0 280 167"
     fill="none"
-    stroke="url(#accent)"
-    stroke-linecap="round"
-    stroke-linejoin="round"
-    stroke-width="6"
+    stroke="white"
+    stroke-width="54"
+    stroke-linecap="butt"
   />
 
-  <circle cx="44" cy="32" r="4" fill="#f8fafc" />
+  <!-- Arrowhead at upper-right end of arc, pointing ~1 o'clock -->
+  <polygon points="258,148  335,138  288,212" fill="white"/>
+
+  <!-- 4-pointed sparkle star, centre (365, 158) -->
+  <!-- vertical outer r=62, horizontal outer r=36, inner waist=6 -->
+  <polygon
+    points="
+      365,96
+      371,152
+      401,158
+      371,164
+      365,224
+      359,164
+      329,158
+      359,152
+    "
+    fill="white"
+  />
 </svg>
