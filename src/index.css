@@ -3450,12 +3450,12 @@ a.recap-link-chip:hover {
 [data-theme="dark"] body,
 [data-theme="dark"] html,
 [data-theme="dark"] #root {
-  background: #0d1117;
+  background: #111827;
   color: #e2e8f0;
 }
 
 [data-theme="dark"] .app-content {
-  background: #0d1117;
+  background: #111827;
 }
 
 [data-theme="dark"] .header {
@@ -3508,9 +3508,9 @@ a.recap-link-chip:hover {
 }
 
 [data-theme="dark"] .workspace-panel {
-  background: rgba(17, 24, 39, 0.92);
-  border-color: rgba(255, 255, 255, 0.07);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  background: rgba(24, 34, 56, 0.97);
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
 }
 
 [data-theme="dark"] .workspace-panel-eyebrow { color: #5eead4; }
@@ -3550,9 +3550,9 @@ a.recap-link-chip:hover {
 [data-theme="dark"] .recap-view-subtitle { color: #94a3b8; }
 
 [data-theme="dark"] .agent-card {
-  background: linear-gradient(180deg, rgba(30, 41, 59, 0.95), rgba(22, 32, 50, 0.95));
-  border-color: rgba(255, 255, 255, 0.07);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(180deg, rgba(36, 50, 76, 0.98), rgba(30, 42, 66, 0.98));
+  border-color: rgba(255, 255, 255, 0.09);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
 }
 
 [data-theme="dark"] .agent-card:hover {
@@ -3570,7 +3570,7 @@ a.recap-link-chip:hover {
   border-top-color: rgba(255, 255, 255, 0.07);
 }
 
-[data-theme="dark"] .agent-last-message-label { color: #4b5563; }
+[data-theme="dark"] .agent-last-message-label { color: #64748b; }
 
 [data-theme="dark"] .badge-idle { background: rgba(255,255,255,0.07); color: #94a3b8; }
 [data-theme="dark"] .badge-done { background: rgba(99,102,241,0.15); color: #818cf8; }
@@ -3578,8 +3578,8 @@ a.recap-link-chip:hover {
 [data-theme="dark"] .badge-blocked { background: rgba(239,68,68,0.15); color: #f87171; }
 
 [data-theme="dark"] .kanban-column {
-  background: linear-gradient(180deg, rgba(22, 32, 50, 0.95), rgba(17, 25, 42, 0.95));
-  border-color: rgba(255, 255, 255, 0.07);
+  background: linear-gradient(180deg, rgba(28, 40, 64, 0.98), rgba(23, 34, 56, 0.98));
+  border-color: rgba(255, 255, 255, 0.08);
 }
 
 [data-theme="dark"] .kanban-column-header {
@@ -3593,9 +3593,9 @@ a.recap-link-chip:hover {
 }
 
 [data-theme="dark"] .task-card {
-  background: rgba(17, 24, 39, 0.9);
-  border-color: rgba(255, 255, 255, 0.08);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+  background: rgba(34, 46, 72, 0.97);
+  border-color: rgba(255, 255, 255, 0.09);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
 }
 
 [data-theme="dark"] .task-card:hover {
@@ -3617,18 +3617,53 @@ a.recap-link-chip:hover {
 }
 
 [data-theme="dark"] .recap-card {
-  background: rgba(17, 24, 39, 0.92);
-  border-color: rgba(255, 255, 255, 0.07);
+  background: rgba(24, 34, 56, 0.97);
+  border-color: rgba(255, 255, 255, 0.08);
 }
 
 [data-theme="dark"] .recap-card-header {
-  background: rgba(30, 41, 59, 0.7);
-  border-bottom-color: rgba(255, 255, 255, 0.06);
+  background: rgba(32, 44, 68, 0.85);
+  border-bottom-color: rgba(255, 255, 255, 0.07);
 }
+
+[data-theme="dark"] .recap-card-header:hover { background: rgba(38, 52, 78, 0.9); }
+
+[data-theme="dark"] .recap-card-body { border-top-color: rgba(255, 255, 255, 0.06); }
+
+[data-theme="dark"] .recap-summary-box {
+  background: rgba(108, 99, 255, 0.14);
+  border-left-color: #818cf8;
+}
+
+[data-theme="dark"] .recap-section-eyebrow { color: #818cf8; }
+
+[data-theme="dark"] .recap-summary-text { color: #e2e8f0; }
+
+[data-theme="dark"] .recap-section-label { color: #64748b; }
+
+[data-theme="dark"] .recap-section-text { color: #cbd5e1; }
+
+[data-theme="dark"] .recap-qa-text { color: #94a3b8; }
+
+[data-theme="dark"] .recap-outcome-section {
+  background: rgba(34, 197, 94, 0.1);
+  border-color: rgba(34, 197, 94, 0.22);
+}
+
+[data-theme="dark"] .recap-outcome-section .recap-section-label { color: #4ade80; }
+
+[data-theme="dark"] .recap-bug-block {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.22);
+}
+
+[data-theme="dark"] .recap-links-row { border-top-color: rgba(255, 255, 255, 0.06); }
 
 [data-theme="dark"] .recap-section-body { color: #cbd5e1; }
 
 [data-theme="dark"] .recap-view-header { color: #e2e8f0; }
+
+[data-theme="dark"] .activity-ts { color: #64748b; }
 
 [data-theme="dark"] .human-notes-section {
   background: rgba(17, 24, 39, 0.6);
