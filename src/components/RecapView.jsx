@@ -1,4 +1,3 @@
-import { useRef, useState } from 'react';
 import { marked } from 'marked';
 import { usePolling } from '../hooks/usePolling.js';
 import { AGENT_COLORS } from '../utils/agentColors.js';
@@ -62,14 +61,11 @@ function RecapCard({ recap }) {
       </div>
 
       <div className="recap-card-body">
-
-        {/* Summary */}
         <div className="recap-summary-box">
           <div className="recap-section-eyebrow">Summary</div>
           <p className="recap-summary-text">{recap.summary}</p>
         </div>
 
-        {/* Bug-specific: symptom + origin */}
         {recap.type === 'bug_fix' && (recap.bugSymptom || recap.bugOrigin) && (
           <div className="recap-bug-block">
             {recap.bugSymptom && (
@@ -87,7 +83,6 @@ function RecapCard({ recap }) {
           </div>
         )}
 
-        {/* Why */}
         {recap.why && (
           <div className="recap-section">
             <div className="recap-section-label">{labels.why}</div>
@@ -95,7 +90,6 @@ function RecapCard({ recap }) {
           </div>
         )}
 
-        {/* How */}
         {recap.how && (
           <div className="recap-section">
             <div className="recap-section-label">{labels.how}</div>
@@ -103,7 +97,6 @@ function RecapCard({ recap }) {
           </div>
         )}
 
-        {/* Outcome */}
         {recap.outcome && (
           <div className="recap-section recap-outcome-section">
             <div className="recap-section-label recap-label-green">✅ Outcome</div>
@@ -111,7 +104,6 @@ function RecapCard({ recap }) {
           </div>
         )}
 
-        {/* QA Steps */}
         {recap.qaSteps && (
           <div className="recap-section">
             <div className="recap-section-label">🧪 QA Tests</div>
@@ -119,7 +111,6 @@ function RecapCard({ recap }) {
           </div>
         )}
 
-        {/* Staging test guide */}
         {recap.stagingTestGuide && (
           <div className="recap-section recap-staging-guide-section">
             <div className="recap-section-label recap-label-teal">🧪 How to test on staging</div>
@@ -130,7 +121,6 @@ function RecapCard({ recap }) {
           </div>
         )}
 
-        {/* Rework log */}
         {recap.reworkLog?.length > 0 && (
           <div className="recap-section">
             <div className="recap-section-label recap-label-orange">🔁 Rework history</div>
@@ -150,7 +140,6 @@ function RecapCard({ recap }) {
           </div>
         )}
 
-        {/* Links */}
         {hasLinks && (
           <div className="recap-links-row">
             {recap.clickupUrl ? (
@@ -216,57 +205,6 @@ function RecapCard({ recap }) {
   );
 }
 
-function HumanNotesSection({ projectId, initialNotes }) {
-  const [notes, setNotes] = useState(initialNotes);
-  const [saveStatus, setSaveStatus] = useState('idle'); // 'idle' | 'saving' | 'saved' | 'error'
-  const timerRef = useRef(null);
-
-  async function handleSave() {
-    setSaveStatus('saving');
-    clearTimeout(timerRef.current);
-    try {
-      const res = await fetch(`/api/projects/${projectId}/recap`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ humanNotes: notes }),
-      });
-      if (!res.ok) throw new Error();
-      setSaveStatus('saved');
-      timerRef.current = setTimeout(() => setSaveStatus('idle'), 2500);
-    } catch {
-      setSaveStatus('error');
-    }
-  }
-
-  return (
-    <div className="human-notes-section">
-      <div className="human-notes-label">Human QA Notes</div>
-      <p className="human-notes-hint">
-        Write your feedback here — the agent reads this at the start of the next session.
-      </p>
-      <textarea
-        className="human-notes-textarea"
-        value={notes}
-        onChange={(e) => { setNotes(e.target.value); setSaveStatus('idle'); }}
-        placeholder="- The modal doesn't close on iOS&#10;- Title overflows on mobile&#10;- ..."
-        rows={5}
-      />
-      <div className="human-notes-footer">
-        {saveStatus === 'saved' && <span className="human-notes-status human-notes-saved">✓ Saved</span>}
-        {saveStatus === 'error' && <span className="human-notes-status human-notes-error">Save failed — check the server</span>}
-        {saveStatus === 'idle' && <span />}
-        <button
-          className="human-notes-save-btn"
-          onClick={handleSave}
-          disabled={saveStatus === 'saving'}
-        >
-          {saveStatus === 'saving' ? 'Saving…' : 'Save'}
-        </button>
-      </div>
-    </div>
-  );
-}
-
 export default function RecapView({ projectId }) {
   const { data, error, loading } = usePolling(`/api/projects/${projectId}/recap`, 5000);
   const recap = data && typeof data === 'object' && !Array.isArray(data) ? data : null;
@@ -301,14 +239,6 @@ export default function RecapView({ projectId }) {
       )}
 
       {recap && <RecapCard recap={recap} />}
-
-      {!loading && (
-        <HumanNotesSection
-          key={projectId}
-          projectId={projectId}
-          initialNotes={recap?.humanNotes ?? ''}
-        />
-      )}
     </div>
   );
 }

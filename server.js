@@ -112,7 +112,6 @@ async function ensurePipelineContext(context) {
   });
 }
 
-// Workspace routes
 app.get('/api/workspace', (req, res) => {
   try {
     res.json(getWorkspacePayload());
@@ -147,7 +146,6 @@ app.post('/api/projects', async (req, res) => {
   }
 });
 
-// Project routes
 app.get('/api/projects/:projectId/agents', (req, res) => {
   const context = requireProject(req, res);
   if (!context) {
@@ -268,14 +266,12 @@ app.get('/api/projects/:projectId/tasks/:id', (req, res) => {
   }
 });
 
-// Normalize acceptanceCriteria: accepts string[] OR {id,text,done}[]
 function normalizeAcceptanceCriteria(raw) {
   if (!Array.isArray(raw)) return [];
   return raw.map((item, i) => {
     if (typeof item === 'string') {
       return { id: `ac-${Date.now()}-${i}`, text: item, done: false };
     }
-    // Already an object — ensure required fields exist
     return {
       id: item.id ?? `ac-${Date.now()}-${i}`,
       text: item.text ?? item.label ?? String(item),
@@ -284,7 +280,6 @@ function normalizeAcceptanceCriteria(raw) {
   });
 }
 
-// Normalize subTasks: accepts {title,completed}[] OR {id,text,status}[]
 function normalizeSubTasks(raw) {
   if (!Array.isArray(raw)) return [];
   return raw.map((item, i) => {
@@ -462,7 +457,6 @@ function updateTask(projectId, squadId, taskId, updates) {
 
   const mergedTask = { ...data.tasks[index], ...normalized, id: taskId };
 
-  // Block moving to Done if any acceptance criteria are unchecked.
   if (mergedTask.column === 'Done' && Array.isArray(mergedTask.acceptanceCriteria)) {
     const unchecked = mergedTask.acceptanceCriteria.filter((ac) => !ac.done);
     if (unchecked.length > 0) {
@@ -621,7 +615,6 @@ app.post('/api/projects/:projectId/activity', async (req, res) => {
   }
 });
 
-// Recap routes — one recap per mission
 app.get('/api/projects/:projectId/recap', (req, res) => {
   const context = requireProject(req, res);
   if (!context) return;
@@ -669,28 +662,23 @@ app.patch('/api/projects/:projectId/recap', async (req, res) => {
   const context = requireProject(req, res);
   if (!context) return;
 
-  const { humanNotes, reworkLog, externalTaskId, externalTaskTitle, externalTaskUrl } = req.body || {};
+  const { reworkLog, externalTaskId, externalTaskTitle, externalTaskUrl } = req.body || {};
 
-  if (humanNotes !== undefined && typeof humanNotes !== 'string') {
-    return res.status(400).json({ error: 'humanNotes must be a string' });
-  }
   if (reworkLog !== undefined && !Array.isArray(reworkLog)) {
     return res.status(400).json({ error: 'reworkLog must be an array' });
   }
-  const hasAnyField = [humanNotes, reworkLog, externalTaskId, externalTaskTitle, externalTaskUrl].some(
+  const hasAnyField = [reworkLog, externalTaskId, externalTaskTitle, externalTaskUrl].some(
     (v) => v !== undefined,
   );
   if (!hasAnyField) {
-    return res.status(400).json({ error: 'Provide at least one field: humanNotes, reworkLog, externalTaskId, externalTaskTitle, or externalTaskUrl' });
+    return res.status(400).json({ error: 'Provide at least one field: reworkLog, externalTaskId, externalTaskTitle, or externalTaskUrl' });
   }
 
   try {
     const updated = await withProjectLock(context.project.id, async () => {
       const existing = readProjectData(context.project.id, 'recap') ?? {};
       const next = { ...existing };
-      if (humanNotes !== undefined) next.humanNotes = humanNotes.trim();
       if (reworkLog !== undefined) {
-        // Merge — append new entries, don't overwrite previous ones
         const current = Array.isArray(existing.reworkLog) ? existing.reworkLog : [];
         next.reworkLog = [...current, ...reworkLog];
       }
@@ -715,7 +703,6 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
-// eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
   const status = err.status || err.statusCode || 500;
   const message = status < 500 ? err.message : 'Internal server error';
