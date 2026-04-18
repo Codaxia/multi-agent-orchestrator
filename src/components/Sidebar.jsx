@@ -140,7 +140,7 @@ export default function Sidebar({
   return (
     <aside className={`sidebar${isOpen ? ' sidebar-open' : ''}`}>
       <div className="sidebar-logo">
-        <img src="/favicon.svg" alt="Dashboard Agents" className="sidebar-logo-icon" />
+        <img src="/logo.svg" alt="Dashboard Agents" className="sidebar-logo-icon" />
         <div className="sidebar-logo-info">
           <span className="sidebar-logo-text">Dashboard Agents</span>
           <span className="sidebar-logo-sub">AI pipeline supervision</span>
