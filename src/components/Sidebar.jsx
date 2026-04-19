@@ -1,52 +1,29 @@
 import { useState, useEffect } from 'react';
+import Icon from './Icon.jsx';
 
-// Split projects into named groups based on "App name - Mission" (hyphen or em dash).
-// Each distinct app prefix becomes its own sidebar toggle, even with a single mission.
-// Projects without a recognized separator are left ungrouped as a legacy fallback.
-function groupProjects(projects) {
-  const groupMap = {};
-  const ungrouped = [];
+const SCENARIO_ICONS = {
+  'full-build': 'cpu',
+  'feature-ops': 'kanban',
+  'code-review': 'activity',
+  'rework': 'file',
+};
 
-  function parseGroupedLabel(label) {
-    const normalized = String(label || '').trim();
-    const match = normalized.match(/^(.+?)\s(?:\u2014|-)\s(.+)$/);
-    if (!match) return null;
-    return { groupName: match[1].trim(), shortLabel: match[2].trim() };
-  }
-
-  projects.forEach((project) => {
-    const parsed = parseGroupedLabel(project.label);
-    if (!parsed) {
-      ungrouped.push({ project, shortLabel: project.label });
-      return;
-    }
-
-    const { groupName, shortLabel } = parsed;
-    if (!groupMap[groupName]) {
-      groupMap[groupName] = [];
-    }
-    groupMap[groupName].push({ project, shortLabel });
-  });
-
-  const groups = Object.entries(groupMap).map(([name, items]) => ({ name, items }));
-  return { groups, ungrouped };
+function parseGroupedLabel(label) {
+  const normalized = String(label || '').trim();
+  const match = normalized.match(/^(.+?)\s(?:\u2014|-)\s(.+)$/);
+  if (!match) return null;
+  return { groupName: match[1].trim(), shortLabel: match[2].trim() };
 }
 
 function loadPrivacyMode() {
-  try {
-    return localStorage.getItem('da-privacy-mode') === 'true';
-  } catch {
-    return false;
-  }
+  try { return localStorage.getItem('da-privacy-mode') === 'true'; } catch { return false; }
 }
 
 function loadPrivateGroups() {
   try {
     const raw = localStorage.getItem('da-private-groups');
     return raw ? new Set(JSON.parse(raw)) : new Set();
-  } catch {
-    return new Set();
-  }
+  } catch { return new Set(); }
 }
 
 export default function Sidebar({
@@ -58,249 +35,226 @@ export default function Sidebar({
   isOpen,
   onClose,
 }) {
-  const [collapsedSquads, setCollapsedSquads] = useState({});
   const [collapsedGroups, setCollapsedGroups] = useState({});
   const [showSettings, setShowSettings] = useState(false);
   const [privacyMode, setPrivacyMode] = useState(loadPrivacyMode);
   const [privateGroups, setPrivateGroups] = useState(loadPrivateGroups);
+  const [query, setQuery] = useState('');
 
   useEffect(() => {
-    try {
-      localStorage.setItem('da-privacy-mode', String(privacyMode));
-    } catch {}
+    try { localStorage.setItem('da-privacy-mode', String(privacyMode)); } catch {}
   }, [privacyMode]);
 
   useEffect(() => {
-    try {
-      localStorage.setItem('da-private-groups', JSON.stringify([...privateGroups]));
-    } catch {}
+    try { localStorage.setItem('da-private-groups', JSON.stringify([...privateGroups])); } catch {}
   }, [privateGroups]);
 
-  function toggleSquad(event, squadId) {
-    event.stopPropagation();
-    setCollapsedSquads((prev) => ({ ...prev, [squadId]: !prev[squadId] }));
+  function toggleGroup(key) {
+    setCollapsedGroups((p) => ({ ...p, [key]: !p[key] }));
   }
-
-  function toggleGroup(event, key) {
-    event.stopPropagation();
-    setCollapsedGroups((prev) => ({ ...prev, [key]: !prev[key] }));
-  }
-
-  function handleSquadClick(squadId) {
-    onSquadClick(squadId);
-    onClose?.();
-  }
-
-  function handleProjectClick(projectId, squadId) {
-    onProjectClick(projectId, squadId);
-    onClose?.();
-  }
-
-  function togglePrivateGroup(groupName) {
+  function togglePrivateGroup(name) {
     setPrivateGroups((prev) => {
       const next = new Set(prev);
-      if (next.has(groupName)) {
-        next.delete(groupName);
-      } else {
-        next.add(groupName);
-      }
+      next.has(name) ? next.delete(name) : next.add(name);
       return next;
     });
   }
 
-  // Collect distinct group names across all squads (preserving order of first appearance)
+  function handleSquadClick(id) { onSquadClick(id); onClose?.(); }
+  function handleProjectClick(pid, sid) { onProjectClick(pid, sid); onClose?.(); }
+
   const allGroupNames = (() => {
     const seen = new Set();
     const result = [];
     squads.forEach((s) => {
       (s.projects || []).forEach((p) => {
-        const label = String(p.label || '').trim();
-        const match = label.match(/^(.+?)\s(?:\u2014|-)\s(.+)$/);
-        if (match) {
-          const gName = match[1].trim();
-          if (!seen.has(gName)) { seen.add(gName); result.push(gName); }
+        const parsed = parseGroupedLabel(p.label);
+        if (parsed && !seen.has(parsed.groupName)) {
+          seen.add(parsed.groupName);
+          result.push(parsed.groupName);
         }
       });
     });
     return result;
   })();
 
-  function getGroupName(label) {
-    const normalized = String(label || '').trim();
-    const match = normalized.match(/^(.+?)\s(?:\u2014|-)\s(.+)$/);
-    return match ? match[1].trim() : null;
+  function isBlocked(label) {
+    if (!privacyMode) return false;
+    const parsed = parseGroupedLabel(label);
+    return parsed !== null && privateGroups.has(parsed.groupName);
   }
 
-  function isBlocked(projectLabel) {
-    if (!privacyMode) return false;
-    const groupName = getGroupName(projectLabel);
-    return groupName !== null && privateGroups.has(groupName);
+  function matchesQuery(text) {
+    if (!query) return true;
+    return String(text).toLowerCase().includes(query.toLowerCase());
   }
 
   return (
     <aside className={`sidebar${isOpen ? ' sidebar-open' : ''}`}>
-      <div className="sidebar-logo">
-        <img src="/logo.svg" alt="Dashboard Agents" className="sidebar-logo-icon" />
-        <div className="sidebar-logo-info">
-          <span className="sidebar-logo-text">Dashboard Agents</span>
-          <span className="sidebar-logo-sub">AI pipeline supervision</span>
+      <div className="sidebar-brand">
+        <div className="brand-mark">D</div>
+        <div>
+          <div className="brand-name">Dashboard Agents</div>
+          <div className="brand-sub">AI pipeline supervision</div>
         </div>
       </div>
 
-      <div className="sidebar-squads-wrapper">
-        <div className="sidebar-section-label">SCENARIOS</div>
+      <div className="sidebar-search">
+        <input
+          className="search-input"
+          placeholder="Search"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+        />
+      </div>
 
-        <nav className="sidebar-squads">
+      <div className="sb-body">
+        <div className="sb-section">
+          <div className="sb-section-label">Scenarios</div>
           {squads.map((squad) => {
-            const isCollapsed = !!collapsedSquads[squad.id];
-            const isSquadActive = selectedSquadId === squad.id;
-            const { groups, ungrouped } = groupProjects(squad.projects || []);
+            const isActive = selectedSquadId === squad.id;
+            return (
+              <button
+                key={squad.id}
+                className={`nav-item${isActive ? ' is-active' : ''}`}
+                onClick={() => handleSquadClick(squad.id)}
+              >
+                <span className="nav-icon">
+                  <Icon name={SCENARIO_ICONS[squad.id] || 'cpu'} size={14} />
+                </span>
+                <span className="nav-label">{squad.label}</span>
+                <span className="nav-count">{squad.projects?.length ?? 0}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="sb-section">
+          <div className="sb-section-label">Projects</div>
+          {squads.filter((s) => !selectedSquadId || s.id === selectedSquadId).map((squad) => {
+            const projects = squad.projects || [];
+            const grouped = {};
+            const ungrouped = [];
+            projects.forEach((p) => {
+              const parsed = parseGroupedLabel(p.label);
+              if (parsed) {
+                (grouped[parsed.groupName] = grouped[parsed.groupName] || []).push({ project: p, shortLabel: parsed.shortLabel });
+              } else {
+                ungrouped.push({ project: p, shortLabel: p.label });
+              }
+            });
 
             return (
-              <div key={squad.id} className="squad-group">
-                <button
-                  className={`squad-header${isSquadActive ? ' active' : ''}`}
-                  onClick={() => handleSquadClick(squad.id)}
-                >
-                  <span className="squad-icon">{squad.icon}</span>
-                  <span className="squad-label">{squad.label}</span>
-                  <span className="squad-badge">{squad.agents?.length ?? 0}</span>
-                  <span
-                    className="squad-chevron"
-                    onClick={(event) => toggleSquad(event, squad.id)}
-                    role="button"
-                    aria-label={isCollapsed ? 'Developper' : 'Reduire'}
-                  >
-                    {isCollapsed ? '▶' : '▼'}
-                  </span>
-                </button>
-
-                {!isCollapsed && (
-                  <div className="squad-projects">
-                    {groups.map(({ name, items }) => {
-                      const groupKey = `${squad.id}::${name}`;
-                      const isGroupCollapsed = !!collapsedGroups[groupKey];
-                      const groupHasActive = items.some(
-                        ({ project }) => selectedProject?.id === project.id,
-                      );
-
-                      const groupBlocked = privacyMode && privateGroups.has(name);
-                      return (
-                        <div key={groupKey} className="project-group">
+              <div key={squad.id}>
+                {Object.entries(grouped).map(([name, items]) => {
+                  const key = `${squad.id}::${name}`;
+                  const isCollapsed = !!collapsedGroups[key];
+                  const groupBlocked = privacyMode && privateGroups.has(name);
+                  const visibleItems = items.filter(({ shortLabel, project }) =>
+                    matchesQuery(shortLabel) || matchesQuery(project.label)
+                  );
+                  if (query && visibleItems.length === 0) return null;
+                  return (
+                    <div key={key}>
+                      <button
+                        className={`group-header${isCollapsed ? ' is-collapsed' : ''}`}
+                        onClick={() => toggleGroup(key)}
+                        aria-expanded={!isCollapsed}
+                      >
+                        <span className={groupBlocked ? 'privacy-blur' : ''}>{name}</span>
+                        <span className="group-count">{visibleItems.length}</span>
+                        <span className={`group-caret${isCollapsed ? ' collapsed' : ''}`} aria-hidden="true">
+                          <Icon name="chevronDown" size={12} />
+                        </span>
+                      </button>
+                      {!isCollapsed && visibleItems.map(({ project, shortLabel }) => {
+                        const isActive = selectedProject?.id === project.id;
+                        const blocked = isBlocked(project.label);
+                        return (
                           <button
-                            className={`project-group-header${groupHasActive ? ' has-active' : ''}`}
-                            onClick={(event) => toggleGroup(event, groupKey)}
+                            key={project.id}
+                            className={`project-item${isActive ? ' is-active' : ''}${blocked ? ' privacy-blocked' : ''}`}
+                            onClick={blocked ? undefined : () => handleProjectClick(project.id, squad.id)}
+                            tabIndex={blocked ? -1 : undefined}
                           >
-                            <span className="project-group-icon">📂</span>
-                            <span className={`project-group-name${groupBlocked ? ' privacy-blur' : ''}`}>{name}</span>
-                            <span className="project-group-count">{items.length}</span>
-                            <span className="project-group-chevron">
-                              {isGroupCollapsed ? '▶' : '▼'}
-                            </span>
+                            <span className={`project-dot ${project.status || 'idle'}`} />
+                            <span className={`project-label${blocked ? ' privacy-blur' : ''}`}>{shortLabel}</span>
                           </button>
-
-                          {!isGroupCollapsed && (
-                            <div className="project-group-items">
-                              {items.map(({ project, shortLabel }) => {
-                                const isProjectActive = selectedProject?.id === project.id;
-                                const blocked = isBlocked(project.label);
-                                return (
-                                  <button
-                                    key={project.id}
-                                    className={`squad-project-btn squad-project-btn--nested${isProjectActive ? ' active' : ''}${blocked ? ' privacy-blocked' : ''}`}
-                                    onClick={blocked ? undefined : () => handleProjectClick(project.id, squad.id)}
-                                    tabIndex={blocked ? -1 : undefined}
-                                  >
-                                    {isProjectActive && <span className="squad-project-dot" />}
-                                    <span className="squad-project-icon">📁</span>
-                                    <span className={`squad-project-main${blocked ? ' privacy-blur' : ''}`}>
-                                      <span>{shortLabel}</span>
-                                    </span>
-                                  </button>
-                                );
-                              })}
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-
-                    {ungrouped.map(({ project, shortLabel }) => {
-                      const isProjectActive = selectedProject?.id === project.id;
-                      const blocked = isBlocked(project.label);
-                      return (
-                        <button
-                          key={project.id}
-                          className={`squad-project-btn${isProjectActive ? ' active' : ''}${blocked ? ' privacy-blocked' : ''}`}
-                          onClick={blocked ? undefined : () => handleProjectClick(project.id, squad.id)}
-                          tabIndex={blocked ? -1 : undefined}
-                        >
-                          {isProjectActive && <span className="squad-project-dot" />}
-                          <span className="squad-project-icon">📁</span>
-                          <span className={`squad-project-main${blocked ? ' privacy-blur' : ''}`}>
-                            <span>{shortLabel}</span>
-                          </span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
+                        );
+                      })}
+                    </div>
+                  );
+                })}
+                {ungrouped
+                  .filter(({ shortLabel }) => matchesQuery(shortLabel))
+                  .map(({ project, shortLabel }) => {
+                    const isActive = selectedProject?.id === project.id;
+                    const blocked = isBlocked(project.label);
+                    return (
+                      <button
+                        key={project.id}
+                        className={`project-item${isActive ? ' is-active' : ''}${blocked ? ' privacy-blocked' : ''}`}
+                        onClick={blocked ? undefined : () => handleProjectClick(project.id, squad.id)}
+                        tabIndex={blocked ? -1 : undefined}
+                        style={{ paddingLeft: 30 }}
+                      >
+                        <span className={`project-dot ${project.status || 'idle'}`} />
+                        <span className={`project-label${blocked ? ' privacy-blur' : ''}`}>{shortLabel}</span>
+                      </button>
+                    );
+                  })}
               </div>
             );
           })}
-        </nav>
+        </div>
       </div>
 
-      {/* Settings Panel */}
-      {showSettings && (
-        <div className="settings-panel">
-          <div className="settings-panel-header">Settings</div>
-
-          <div className="settings-row">
-            <span className="settings-row-label">Privacy Mode</span>
-            <button
-              className={`privacy-toggle${privacyMode ? ' privacy-toggle--on' : ''}`}
-              onClick={() => setPrivacyMode((m) => !m)}
-              aria-pressed={privacyMode}
-            >
-              <span className="privacy-toggle-knob" />
-            </button>
-          </div>
-
-          {allGroupNames.length > 0 && (
-            <div className="settings-projects">
-              <div className="settings-projects-label">Private groups</div>
-              {allGroupNames.map((groupName) => (
-                <label key={groupName} className="settings-project-row">
-                  <input
-                    type="checkbox"
-                    checked={privateGroups.has(groupName)}
-                    onChange={() => togglePrivateGroup(groupName)}
-                    className="settings-project-checkbox"
-                  />
-                  <span className="settings-project-name">{groupName}</span>
-                </label>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Settings toggle button */}
-      <button
-        className={`sidebar-settings-btn${showSettings ? ' active' : ''}`}
-        onClick={() => setShowSettings((s) => !s)}
-        aria-expanded={showSettings}
-      >
-        <span className="sidebar-settings-icon">⚙</span>
-        <span>Settings</span>
-        {privacyMode && <span className="sidebar-settings-badge">●</span>}
-      </button>
-
       <div className="sidebar-footer">
-        Dashboard Agents v1.0
-        <br />
-        AI pipeline supervision
+        {showSettings && (
+          <div className="settings-panel">
+            <div className="settings-panel-header">Settings</div>
+            <div className="settings-row">
+              <span className="settings-row-label">Privacy mode</span>
+              <button
+                type="button"
+                className={`privacy-toggle${privacyMode ? ' privacy-toggle--on' : ''}`}
+                onClick={() => setPrivacyMode((m) => !m)}
+                aria-pressed={privacyMode}
+              >
+                <span className="privacy-toggle-knob" />
+              </button>
+            </div>
+            {allGroupNames.length > 0 && (
+              <div className="settings-projects">
+                <div className="settings-projects-label">Private groups</div>
+                {allGroupNames.map((name) => (
+                  <label key={name} className="settings-project-row">
+                    <input
+                      type="checkbox"
+                      className="settings-project-checkbox"
+                      checked={privateGroups.has(name)}
+                      onChange={() => togglePrivateGroup(name)}
+                    />
+                    <span>{name}</span>
+                  </label>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+        <div className="user-avatar">DA</div>
+        <div className="user-meta">
+          <div>Dashboard Agents</div>
+          <div className="user-sub">v1.0</div>
+        </div>
+        <button
+          className="icon-btn"
+          title="Settings"
+          onClick={() => setShowSettings((s) => !s)}
+          aria-expanded={showSettings}
+        >
+          <Icon name="settings" size={14} />
+        </button>
       </div>
     </aside>
   );

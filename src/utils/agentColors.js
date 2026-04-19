@@ -1,43 +1,80 @@
-// Agent colors by pipeline id
-export const AGENT_COLORS = {
-  'orchestrator': '#0d9488',
-  'pm-discovery': '#7c3aed',
-  'architect': '#2563eb',
-  'developer': '#16a34a',
-  'cto-reviewer': '#ea580c',
-  'qa': '#dc2626',
-  'security': '#374151',
-  'deploy': '#1e3a8a',
-  'estimation': '#b45309',
+// Hue-based agent palette: shared chroma + lightness, only hue varies.
+// All UI colors derive from AGENT_HUES via agentColor(hue).
+export const AGENT_HUES = {
+  'orchestrator': 172,
+  'pm-discovery': 268,
+  'architect': 220,
+  'developer': 145,
+  'cto-reviewer': 28,
+  'qa': 0,
+  'security': 340,
+  'deploy': 240,
+  'estimation': 38,
 };
 
-// Gradient versions of agent colors for detail panel headers
-export const AGENT_GRADIENTS = {
-  'orchestrator':  'linear-gradient(150deg, #0f9e92 0%, #054f4b 100%)',
-  'pm-discovery':  'linear-gradient(150deg, #8b47f5 0%, #3b1280 100%)',
-  'architect':     'linear-gradient(150deg, #3b82f6 0%, #1e3a8a 100%)',
-  'developer':     'linear-gradient(150deg, #22c55e 0%, #064e24 100%)',
-  'cto-reviewer':  'linear-gradient(150deg, #f97316 0%, #7c2d12 100%)',
-  'qa':            'linear-gradient(150deg, #f87171 0%, #7f1d1d 100%)',
-  'security':      'linear-gradient(150deg, #6b7280 0%, #111827 100%)',
-  'deploy':        'linear-gradient(150deg, #3b82f6 0%, #0c1a50 100%)',
-  'estimation':    'linear-gradient(150deg, #f59e0b 0%, #6b2d00 100%)',
+export const AGENT_MONOS = {
+  'orchestrator': 'OR',
+  'pm-discovery': 'PM',
+  'architect': 'AR',
+  'developer': 'DV',
+  'cto-reviewer': 'CR',
+  'qa': 'QA',
+  'security': 'SE',
+  'deploy': 'DP',
+  'estimation': 'ES',
 };
 
-// Agent colors keyed by display name (used in activity logs)
-export const ACTIVITY_AGENT_COLORS = {
-  'Orchestrator': '#0d9488',
-  'PM Discovery': '#7c3aed',
-  'Architect': '#2563eb',
-  'Developer': '#16a34a',
-  'CTO Reviewer': '#ea580c',
-  'QA': '#dc2626',
-  'Security Reviewer': '#374151',
-  'Deploy': '#1e3a8a',
-  'Estimation': '#b45309',
+// Canonical pipeline order (left-to-right in the pipeline flow visualization).
+// Note: 'estimation' is defined above (color/mono/name) so the todo-list-app
+// historical project still renders its card correctly, but it's excluded from
+// the active pipeline since estimation is skipped in the current workflow.
+export const AGENT_ORDER = [
+  'orchestrator',
+  'pm-discovery',
+  'architect',
+  'developer',
+  'cto-reviewer',
+  'qa',
+  'security',
+  'deploy',
+];
+
+export const SCENARIO_MONOS = {
+  'full-build': 'FB',
+  'feature-ops': 'FO',
+  'code-review': 'CR',
+  'rework': 'RW',
 };
 
-// Agent display names by id
+export function agentColor(hue) {
+  return `oklch(72% 0.13 ${hue})`;
+}
+
+export function agentColorById(id) {
+  const hue = AGENT_HUES[id];
+  return hue != null ? agentColor(hue) : 'var(--fg-3)';
+}
+
+export function agentMono(id) {
+  if (AGENT_MONOS[id]) return AGENT_MONOS[id];
+  // Fallback: first two letters of id, uppercased.
+  return String(id || '').slice(0, 2).toUpperCase();
+}
+
+// ---- Back-compat exports (consumed by AgentDetailPanel, TaskDetailPanel, RecapView) ----
+// These fall back to the oklch hue system internally so visuals stay consistent.
+
+export const AGENT_COLORS = Object.fromEntries(
+  Object.entries(AGENT_HUES).map(([id, hue]) => [id, agentColor(hue)])
+);
+
+export const AGENT_GRADIENTS = Object.fromEntries(
+  Object.entries(AGENT_HUES).map(([id, hue]) => [
+    id,
+    `linear-gradient(150deg, oklch(70% 0.14 ${hue}) 0%, oklch(32% 0.08 ${hue}) 100%)`,
+  ])
+);
+
 export const AGENT_DISPLAY_NAMES = {
   'orchestrator': 'Orchestrator',
   'pm-discovery': 'PM Discovery',
@@ -49,3 +86,11 @@ export const AGENT_DISPLAY_NAMES = {
   'deploy': 'Deploy',
   'estimation': 'Estimation',
 };
+
+// Keyed by display name (used in activity logs where the server sends the human name).
+export const ACTIVITY_AGENT_COLORS = Object.fromEntries(
+  Object.entries(AGENT_DISPLAY_NAMES).map(([id, name]) => [name, agentColor(AGENT_HUES[id])])
+);
+
+// A few legacy aliases that appeared in historical activity payloads.
+ACTIVITY_AGENT_COLORS['Security Reviewer'] = agentColor(AGENT_HUES.security);

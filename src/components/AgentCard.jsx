@@ -1,48 +1,42 @@
-const AGENT_ICONS = {
-  orchestrator: '🎯',
-  'pm-discovery': '📋',
-  architect: '🏗️',
-  developer: '💻',
-  'cto-reviewer': '🔍',
-  qa: '🧪',
-  security: '🔒',
-  deploy: '🚀',
-  estimation: '⏱️',
-};
-
-const STATUS_LABELS = {
-  active: 'Active',
-  done: 'Done',
-  idle: 'Idle',
-  blocked: 'Blocked',
-};
+import { agentColorById, agentMono, AGENT_DISPLAY_NAMES } from '../utils/agentColors.js';
+import { formatRelativeTime } from '../utils/time.js';
 
 export default function AgentCard({ agent, isSelected, onAgentClick }) {
-  const { id, name, status, lastMessage } = agent;
-  const icon = AGENT_ICONS[id] ?? '🤖';
-  const statusClass = `status-${status}`;
-  const badgeClass = `agent-status-badge badge-${status}`;
-
+  const { id, name, status, lastMessage, role, duration, updatedAt } = agent;
+  const color = agentColorById(id);
+  const mono = agentMono(id);
+  const displayName = name || AGENT_DISPLAY_NAMES[id] || id;
+  const footer = updatedAt ? formatRelativeTime(updatedAt) : duration;
   return (
-    <article
-      className={`agent-card ${statusClass}${isSelected ? ' agent-card-selected' : ''}`}
-      aria-label={`${name} — ${status}`}
+    <button
+      type="button"
+      className="agent-card"
       onClick={(e) => { e.stopPropagation(); onAgentClick?.(); }}
-      role="button"
-      tabIndex={0}
-      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.stopPropagation(); onAgentClick?.(); } }}
-      style={{ cursor: 'pointer' }}
+      aria-pressed={isSelected || undefined}
     >
-      <div className="agent-card-header">
-        <span className="agent-card-icon" aria-hidden="true">{icon}</span>
-        <span className="agent-name">{name}</span>
-        <span className={badgeClass}>{STATUS_LABELS[status] ?? status}</span>
+      <div className="ac-row">
+        <div
+          className="ac-avatar"
+          style={{
+            background: `color-mix(in oklch, ${color} 16%, var(--bg-inset))`,
+            color,
+          }}
+        >
+          {mono}
+        </div>
+        <div className="ac-info">
+          <div className="ac-name">{displayName}</div>
+          {role && <div className="ac-role">{role}</div>}
+        </div>
+        <span className={`status-chip ${status || 'idle'}`}>{status || 'idle'}</span>
       </div>
-
-      <div className="agent-last-message">
-        <div className="agent-last-message-label">Last action</div>
-        {lastMessage}
-      </div>
-    </article>
+      {lastMessage && <div className="ac-message">{lastMessage}</div>}
+      {footer && (
+        <div className="ac-foot">
+          <span>Last action</span>
+          <span className="ac-dur">{footer}</span>
+        </div>
+      )}
+    </button>
   );
 }

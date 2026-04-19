@@ -1,4 +1,1 @@
-@import './globals.css';
-@import './layout.css';
-@import './header.css';
-@import './sidebar.css';
+/* Legacy styles removed — all design rules now live in src/index.css */

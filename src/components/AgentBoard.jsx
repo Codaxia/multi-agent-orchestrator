@@ -2,6 +2,7 @@ import { useState } from 'react';
 import AgentCard from './AgentCard.jsx';
 import AgentDetailPanel from './AgentDetailPanel.jsx';
 import { usePolling } from '../hooks/usePolling.js';
+import { AGENT_ORDER, AGENT_DISPLAY_NAMES, agentMono } from '../utils/agentColors.js';
 
 export default function AgentBoard({ project }) {
   const { data, error, loading } = usePolling(`/api/projects/${project.id}/agents`, 2500);
@@ -19,53 +20,101 @@ export default function AgentBoard({ project }) {
   if (error) {
     return (
       <div className="state-container">
-        <span className="state-error" role="alert">
-          Failed to load agents: {error}
-        </span>
+        <span className="state-error" role="alert">Failed to load agents: {error}</span>
       </div>
     );
   }
 
-  const agents = data?.agents ?? [];
-  const activeCount = agents.filter((agent) => agent.status === 'active').length;
-  const doneCount = agents.filter((agent) => agent.status === 'done').length;
-  const blockedCount = agents.filter((agent) => agent.status === 'blocked').length;
-  const selectedAgent = agents.find((agent) => agent.id === selectedAgentId) ?? null;
+  const allAgents = data?.agents ?? [];
+  const activeIds = new Set(AGENT_ORDER);
+  const agents = allAgents.filter((a) => activeIds.has(a.id));
+  const agentById = Object.fromEntries(agents.map((a) => [a.id, a]));
+  const activeCount = agents.filter((a) => a.status === 'active').length;
+  const doneCount = agents.filter((a) => a.status === 'done').length;
+  const blockedCount = agents.filter((a) => a.status === 'blocked').length;
+  const selectedAgent = agents.find((a) => a.id === selectedAgentId) ?? null;
+
+  const pipelineAgents = AGENT_ORDER.map((id) => {
+    const a = agentById[id];
+    return {
+      id,
+      name: a?.name || AGENT_DISPLAY_NAMES[id] || id,
+      status: a?.status || 'idle',
+      mono: agentMono(id),
+    };
+  });
+
+  const connectors = pipelineAgents.map((a, i) => {
+    const next = pipelineAgents[i + 1];
+    if (!next) return null;
+    if (a.status === 'done' && next.status === 'active') return 'flowing';
+    if (a.status === 'done' && next.status === 'done') return 'done';
+    return 'idle';
+  });
 
   return (
-    <div className="agent-board-wrapper">
-      <section className="workspace-panel" aria-label="Agent Pipeline Monitor">
-        <div className="workspace-panel-head">
-          <div>
-            <p className="workspace-panel-eyebrow">Live pipeline view</p>
-            <h2 className="agent-board-title">Agent Pipeline Monitor</h2>
-            <p className="agent-board-subtitle">
-              Pilotage depuis le chat, suivi visuel des handoffs et des statuts de pipeline.
-            </p>
-          </div>
-          <div className="workspace-stats">
-            <span className="workspace-stat-pill is-done">{doneCount}/{agents.length} done</span>
-            <span className="workspace-stat-pill is-active">{activeCount} active</span>
-            <span className="workspace-stat-pill is-blocked">{blockedCount} blocked</span>
-            <span className="workspace-stat-pill">Synced from chat</span>
+    <>
+      <div className="view-head">
+        <div>
+          <div className="view-title">Pipeline</div>
+          <div className="view-subtitle">
+            {agents.length} agents · {doneCount} done · {activeCount} active{blockedCount > 0 ? ` · ${blockedCount} blocked` : ''}
           </div>
         </div>
+        <div className="stats-row">
+          <div className="stat-tile">
+            <div className="stat-value active">{activeCount}</div>
+            <div className="stat-label">Active</div>
+          </div>
+          <div className="stat-tile">
+            <div className="stat-value done">{doneCount}</div>
+            <div className="stat-label">Done</div>
+          </div>
+          <div className="stat-tile">
+            <div className="stat-value blocked">{blockedCount}</div>
+            <div className="stat-label">Blocked</div>
+          </div>
+        </div>
+      </div>
 
-        <div className="agent-grid">
-          {agents.map((agent) => (
-            <AgentCard
-              key={agent.id}
-              agent={agent}
-              isSelected={agent.id === selectedAgentId}
-              onAgentClick={() => setSelectedAgentId(agent.id)}
-            />
+      <div className="pipeline-card">
+        <div className="pipeline-head">
+          <div>
+            <div className="pipeline-head-title">Current flow</div>
+            <div className="pipeline-head-sub">Live pipeline state · synced from chat</div>
+          </div>
+        </div>
+        <div className="pipeline-track">
+          {pipelineAgents.map((a, i) => (
+            <button
+              key={a.id}
+              type="button"
+              className={`pipe-node ${a.status}`}
+              onClick={() => agentById[a.id] && setSelectedAgentId(a.id)}
+              disabled={!agentById[a.id]}
+            >
+              {connectors[i] && <span className={`pipe-connector ${connectors[i]}`} />}
+              <div className="pipe-avatar">{a.mono}</div>
+              <div className="pipe-name">{a.name}</div>
+              <div className="pipe-status">{a.status}</div>
+            </button>
           ))}
         </div>
-      </section>
+      </div>
+
+      <div className="agent-grid">
+        {agents.map((agent) => (
+          <AgentCard
+            key={agent.id}
+            agent={agent}
+            isSelected={agent.id === selectedAgentId}
+            onAgentClick={() => setSelectedAgentId(agent.id)}
+          />
+        ))}
+      </div>
 
       {selectedAgent && (
         <div className="detail-overlay" onClick={() => setSelectedAgentId(null)} role="presentation">
-          <div className="detail-overlay-backdrop" />
           <AgentDetailPanel
             projectId={project.id}
             agent={selectedAgent}
@@ -73,6 +122,6 @@ export default function AgentBoard({ project }) {
           />
         </div>
       )}
-    </div>
+    </>
   );
 }

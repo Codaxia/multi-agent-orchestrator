@@ -5,14 +5,13 @@ import { formatRelativeTime } from '../utils/time.js';
 
 const ALL_AGENTS = Object.keys(ACTIVITY_AGENT_COLORS);
 
-const TYPE_CONFIG = {
-  command:  { label: 'CMD',      icon: '$',  cls: 'type-command'  },
-  test:     { label: 'TEST',     icon: '✓',  cls: 'type-test'     },
-  file:     { label: 'FILE',     icon: '▤',  cls: 'type-file'     },
-  error:    { label: 'ERROR',    icon: '✗',  cls: 'type-error'    },
-  decision: { label: 'DECISION', icon: '◆',  cls: 'type-decision' },
-  info:     { label: 'INFO',     icon: 'i',  cls: 'type-info'     },
-};
+function monogramOf(name) {
+  const s = String(name || '').trim();
+  if (!s) return '';
+  const parts = s.split(/\s+/).filter(Boolean);
+  if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+  return s.slice(0, 2).toUpperCase();
+}
 
 export default function ActivityLog({ projectId }) {
   const { data, error, loading } = usePolling(`/api/projects/${projectId}/activity`, 5000);
@@ -20,11 +19,12 @@ export default function ActivityLog({ projectId }) {
   const [expandedIds, setExpandedIds] = useState(new Set());
 
   const entries = Array.isArray(data) ? data : [];
-  const presentAgents = ALL_AGENTS.filter((agent) => entries.some((e) => e.agent === agent));
+  const counts = entries.reduce((acc, e) => { acc[e.agent] = (acc[e.agent] || 0) + 1; return acc; }, {});
+  const presentAgents = ALL_AGENTS.filter((a) => counts[a]);
   const filtered = activeFilter ? entries.filter((e) => e.agent === activeFilter) : entries;
   const sorted = [...filtered].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
-  function toggleExpand(id) {
+  function toggle(id) {
     setExpandedIds((prev) => {
       const next = new Set(prev);
       next.has(id) ? next.delete(id) : next.add(id);
@@ -50,95 +50,95 @@ export default function ActivityLog({ projectId }) {
   }
 
   return (
-    <section aria-label="Pipeline Activity Log">
-      <div className="activity-log-header-row">
+    <>
+      <div className="view-head">
         <div>
-          <h2 className="activity-log-title">Activity Log</h2>
-          <p className="activity-log-subtitle">
-            {entries.length} événements · Historique complet de la pipeline
-          </p>
+          <div className="view-title">Activity</div>
+          <div className="view-subtitle">
+            {entries.length} events · live stream
+          </div>
         </div>
       </div>
 
-      <div className="activity-filter-chips" role="group" aria-label="Filtrer par agent">
-        <button
-          className={`filter-chip${!activeFilter ? ' active' : ''}`}
-          onClick={() => setActiveFilter(null)}
-        >
-          Tous
-        </button>
-        {presentAgents.map((agent) => {
-          const color = ACTIVITY_AGENT_COLORS[agent];
-          const isActive = activeFilter === agent;
-          return (
-            <button
-              key={agent}
-              className={`filter-chip${isActive ? ' active' : ''}`}
-              style={isActive ? { background: color, borderColor: color, color: 'white' } : { borderColor: color, color: color }}
-              onClick={() => setActiveFilter(isActive ? null : agent)}
-            >
-              {agent}
-            </button>
-          );
-        })}
-      </div>
-
-      <div className="activity-log-timeline">
-        {sorted.length === 0 ? (
-          <p className="activity-log-empty">Aucun événement pour ce filtre.</p>
-        ) : (
-          sorted.map((entry) => {
-            const color = ACTIVITY_AGENT_COLORS[entry.agent] ?? '#6c63ff';
-            const typeConfig = entry.type ? TYPE_CONFIG[entry.type] : null;
-            const isExpanded = expandedIds.has(entry.id);
-            const hasDetail = !!entry.detail;
-
+      <div className="activity-wrap">
+        <div>
+          <div className="filter-group-label">Agents</div>
+          <button
+            className={`filter-chip${!activeFilter ? ' is-active' : ''}`}
+            onClick={() => setActiveFilter(null)}
+          >
+            <span className="filter-chip-dot" style={{ background: 'var(--fg-3)' }} />
+            All activity
+            <span className="count">{entries.length}</span>
+          </button>
+          {presentAgents.map((agent) => {
+            const color = ACTIVITY_AGENT_COLORS[agent];
+            const isActive = activeFilter === agent;
             return (
-              <div key={entry.id} className="activity-log-entry">
-                <div className="activity-log-avatar" style={{ background: color }}>
-                  {entry.agent.charAt(0)}
-                </div>
-                <div className="activity-log-content">
-                  <div className="activity-log-meta">
-                    <span className="activity-log-agent" style={{ color }}>{entry.agent}</span>
-                    {typeConfig && (
-                      <span className={`activity-type-badge ${typeConfig.cls}`}>
-                        <span className="activity-type-icon">{typeConfig.icon}</span>
-                        {typeConfig.label}
-                      </span>
-                    )}
-                    <span
-                      className="activity-log-time"
-                      title={new Date(entry.timestamp).toLocaleString()}
-                    >
-                      {formatRelativeTime(entry.timestamp)}
-                    </span>
-                  </div>
-
-                  <span className="activity-log-action">{entry.action}</span>
-
-                  {hasDetail && (
-                    <button
-                      className="activity-toggle-btn"
-                      onClick={() => toggleExpand(entry.id)}
-                      aria-expanded={isExpanded}
-                    >
-                      <span className="activity-toggle-chevron">{isExpanded ? '▲' : '▼'}</span>
-                      {isExpanded ? 'Réduire' : 'Voir détails'}
-                    </button>
-                  )}
-
-                  {hasDetail && isExpanded && (
-                    <pre className={`activity-detail${entry.type === 'command' || entry.type === 'test' ? ' is-code' : ''}`}>
-                      {entry.detail}
-                    </pre>
-                  )}
-                </div>
-              </div>
+              <button
+                key={agent}
+                className={`filter-chip${isActive ? ' is-active' : ''}`}
+                onClick={() => setActiveFilter(isActive ? null : agent)}
+              >
+                <span className="filter-chip-dot" style={{ background: color }} />
+                {agent}
+                <span className="count">{counts[agent]}</span>
+              </button>
             );
-          })
-        )}
+          })}
+        </div>
+
+        <div className="activity-card">
+          {sorted.length === 0 ? (
+            <div style={{ padding: '32px', color: 'var(--fg-4)', textAlign: 'center' }}>
+              No events match this filter.
+            </div>
+          ) : (
+            sorted.map((entry) => {
+              const color = ACTIVITY_AGENT_COLORS[entry.agent] ?? 'var(--fg-3)';
+              const isExpanded = expandedIds.has(entry.id);
+              const hasDetail = !!entry.detail;
+              const type = entry.type || 'info';
+              return (
+                <div key={entry.id} className="activity-entry">
+                  <div className="activity-ts" title={new Date(entry.timestamp).toLocaleString()}>
+                    {formatRelativeTime(entry.timestamp)}
+                  </div>
+                  <div
+                    className="activity-av"
+                    style={{
+                      background: `color-mix(in oklch, ${color} 16%, var(--bg-inset))`,
+                      color,
+                    }}
+                  >
+                    {monogramOf(entry.agent)}
+                  </div>
+                  <div className="activity-body">
+                    <div className="activity-meta">
+                      <span className="activity-agent-name">{entry.agent}</span>
+                      <span className={`type-badge type-${type}`}>{type}</span>
+                    </div>
+                    <div className="activity-action">{entry.action}</div>
+                    {hasDetail && !isExpanded && (
+                      <button className="activity-toggle" onClick={() => toggle(entry.id)}>
+                        Show details
+                      </button>
+                    )}
+                    {hasDetail && isExpanded && (
+                      <>
+                        <div className="activity-detail">{entry.detail}</div>
+                        <button className="activity-toggle" onClick={() => toggle(entry.id)}>
+                          Hide
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
       </div>
-    </section>
+    </>
   );
 }

@@ -19,50 +19,30 @@ const DEFAULT_SELECTION = {
 };
 
 function normalizeStoredSelection(parsed) {
-  if (!parsed || typeof parsed !== 'object') {
-    return DEFAULT_SELECTION;
-  }
-
+  if (!parsed || typeof parsed !== 'object') return DEFAULT_SELECTION;
   const next = {
     squadId: typeof parsed.squadId === 'string' ? parsed.squadId : DEFAULT_SELECTION.squadId,
     projectId: parsed.projectId ?? DEFAULT_SELECTION.projectId,
     view: VALID_VIEWS.has(parsed.view) ? parsed.view : DEFAULT_SELECTION.view,
   };
-
-  if (next.squadId === 'support-ops') {
-    next.squadId = 'feature-ops';
-  }
-
-  if (next.projectId === 'sample') {
-    next.projectId = null;
-  }
-
+  if (next.squadId === 'support-ops') next.squadId = 'feature-ops';
+  if (next.projectId === 'sample') next.projectId = null;
   return next;
 }
 
 function readStoredSelection() {
-  if (typeof window === 'undefined') {
-    return DEFAULT_SELECTION;
-  }
-
+  if (typeof window === 'undefined') return DEFAULT_SELECTION;
   try {
     const storageKeys = [DASHBOARD_SELECTION_KEY, ...LEGACY_SELECTION_KEYS];
-
     for (const key of storageKeys) {
       const raw = window.localStorage.getItem(key);
-      if (!raw) {
-        continue;
-      }
-
+      if (!raw) continue;
       const normalized = normalizeStoredSelection(JSON.parse(raw));
-      LEGACY_SELECTION_KEYS.forEach((legacyKey) => window.localStorage.removeItem(legacyKey));
+      LEGACY_SELECTION_KEYS.forEach((k) => window.localStorage.removeItem(k));
       return normalized;
     }
-  } catch {
-    // Ignore invalid persisted state and fall back to the default landing page.
-  }
-
-  LEGACY_SELECTION_KEYS.forEach((legacyKey) => window.localStorage.removeItem(legacyKey));
+  } catch {}
+  LEGACY_SELECTION_KEYS.forEach((k) => window.localStorage.removeItem(k));
   return DEFAULT_SELECTION;
 }
 
@@ -89,15 +69,9 @@ export default function App() {
   }, [isDarkMode]);
 
   const selected = useMemo(() => {
-    if (!workspace) {
-      return { squad: null, project: null };
-    }
-
+    if (!workspace) return { squad: null, project: null };
     let current = findProject(workspace, selectedSquadId, selectedProjectId);
-    if (current.squad && (selectedProjectId === null || current.project)) {
-      return current;
-    }
-
+    if (current.squad && (selectedProjectId === null || current.project)) return current;
     const fallbackSquad = workspace.squads?.[0] ?? null;
     const fallbackProject = fallbackSquad?.projects?.[0] ?? null;
     return {
@@ -107,32 +81,19 @@ export default function App() {
   }, [workspace, selectedProjectId, selectedSquadId]);
 
   useEffect(() => {
-    if (!workspace || !selected.squad) {
-      return;
-    }
-
-    if (selected.squad.id !== selectedSquadId) {
-      setSelectedSquadId(selected.squad.id);
-    }
-
+    if (!workspace || !selected.squad) return;
+    if (selected.squad.id !== selectedSquadId) setSelectedSquadId(selected.squad.id);
     if ((selected.project?.id ?? null) !== (selectedProjectId ?? null) && selectedProjectId !== null) {
       setSelectedProjectId(selected.project?.id ?? null);
     }
   }, [selected, selectedProjectId, selectedSquadId, workspace]);
 
   useEffect(() => {
-    if (typeof window === 'undefined') {
-      return;
-    }
-
-    LEGACY_SELECTION_KEYS.forEach((legacyKey) => window.localStorage.removeItem(legacyKey));
+    if (typeof window === 'undefined') return;
+    LEGACY_SELECTION_KEYS.forEach((k) => window.localStorage.removeItem(k));
     window.localStorage.setItem(
       DASHBOARD_SELECTION_KEY,
-      JSON.stringify({
-        squadId: selectedSquadId,
-        projectId: selectedProjectId,
-        view: currentView,
-      }),
+      JSON.stringify({ squadId: selectedSquadId, projectId: selectedProjectId, view: currentView }),
     );
   }, [selectedProjectId, selectedSquadId, currentView]);
 
@@ -150,12 +111,12 @@ export default function App() {
     setCurrentView('kanban');
   }
 
-  const headerTitle = selected.project
-    ? `${selected.squad?.label} / ${selected.project.label}`
-    : selected.squad?.label ?? 'Dashboard';
+  const breadcrumbParts = [];
+  if (selected.squad) breadcrumbParts.push(selected.squad.label);
+  if (selected.project) breadcrumbParts.push(selected.project.label);
 
   return (
-    <div className="app-layout">
+    <div className="app">
       {sidebarOpen && (
         <div
           className="sidebar-mobile-backdrop"
@@ -172,12 +133,18 @@ export default function App() {
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
       />
-      <div className="app-main">
-        <Header title={headerTitle} status="live" onMenuClick={() => setSidebarOpen(true)} isDarkMode={isDarkMode} onThemeToggle={() => setIsDarkMode((v) => !v)} />
+      <div className="main">
+        <Header
+          breadcrumbParts={breadcrumbParts}
+          status={error ? 'error' : 'live'}
+          onMenuClick={() => setSidebarOpen(true)}
+          isDarkMode={isDarkMode}
+          onThemeToggle={() => setIsDarkMode((v) => !v)}
+        />
         {selected.project && (
           <MissionTabs currentView={currentView} onViewChange={setCurrentView} />
         )}
-        <main className={`app-content${selected.project ? ' with-mission-tabs' : ''}`}>
+        <main className="content">
           {loading && !workspace && (
             <div className="state-container">
               <div className="state-spinner" role="status" aria-label="Loading workspace" />
@@ -194,39 +161,37 @@ export default function App() {
           )}
 
           {workspace && !selected.squad && (
-            <div className="squad-welcome">
-              <span className="squad-welcome-icon">🤖</span>
+            <div className="welcome-hero">
+              <div className="welcome-hero-title">Welcome to Dashboard Agents</div>
               <p>Select a scenario to get started.</p>
             </div>
           )}
 
           {workspace && selected.squad && !selected.project && (
-            <SquadOverview squad={selected.squad} />
+            <div className="view-wrap view-enter">
+              <SquadOverview squad={selected.squad} />
+            </div>
           )}
 
           {selected.project && currentView === 'agents' && (
-            <AgentBoard
-              key={selected.project.id}
-              project={selected.project}
-            />
+            <div className="view-wrap view-enter">
+              <AgentBoard key={selected.project.id} project={selected.project} />
+            </div>
           )}
           {selected.project && currentView === 'kanban' && (
-            <TaskKanban
-              key={selected.project.id}
-              projectId={selected.project.id}
-            />
+            <div className="view-wrap view-enter">
+              <TaskKanban key={selected.project.id} projectId={selected.project.id} />
+            </div>
           )}
           {selected.project && currentView === 'activity' && (
-            <ActivityLog
-              key={selected.project.id}
-              projectId={selected.project.id}
-            />
+            <div className="view-wrap view-enter">
+              <ActivityLog key={selected.project.id} projectId={selected.project.id} />
+            </div>
           )}
           {selected.project && currentView === 'recap' && (
-            <RecapView
-              key={selected.project.id}
-              projectId={selected.project.id}
-            />
+            <div className="view-wrap view-enter">
+              <RecapView key={selected.project.id} projectId={selected.project.id} />
+            </div>
           )}
         </main>
       </div>

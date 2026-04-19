@@ -1,30 +1,33 @@
+import Icon from './Icon.jsx';
+
 const MISSION_LINKS = [
-  { id: 'agents', label: 'Agent Pipeline', icon: '🤖' },
-  { id: 'kanban', label: 'Task Kanban', icon: '📋' },
-  { id: 'activity', label: 'Activity Log', icon: '📊' },
-  { id: 'recap', label: 'Recap', icon: '📝' },
+  { id: 'agents', label: 'Agents', icon: 'cpu' },
+  { id: 'kanban', label: 'Tasks', icon: 'kanban' },
+  { id: 'activity', label: 'Activity', icon: 'activity' },
+  { id: 'recap', label: 'Recap', icon: 'file' },
 ];
 
 export default function MissionTabs({ currentView, onViewChange }) {
   return (
-    <nav className="mission-tabs" aria-label="Mission views">
-      <div className="mission-tabs-track">
+    <div className="tabs-bar" aria-label="Mission views">
+      <div className="segmented" role="tablist">
         {MISSION_LINKS.map((link) => {
           const isActive = currentView === link.id;
           return (
             <button
               key={link.id}
               type="button"
-              className={`mission-tab${isActive ? ' active' : ''}`}
+              role="tab"
+              aria-selected={isActive}
+              className={`seg-tab${isActive ? ' is-active' : ''}`}
               onClick={() => onViewChange(link.id)}
-              aria-current={isActive ? 'page' : undefined}
             >
-              <span className="mission-tab-icon" aria-hidden="true">{link.icon}</span>
-              <span className="mission-tab-label">{link.label}</span>
+              <Icon name={link.icon} size={13} />
+              {link.label}
             </button>
           );
         })}
       </div>
-    </nav>
+    </div>
   );
 }

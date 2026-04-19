@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { marked } from 'marked';
-import { AGENT_COLORS, AGENT_GRADIENTS } from '../utils/agentColors.js';
+import { agentColorById, agentMono } from '../utils/agentColors.js';
 import { formatRelativeTime } from '../utils/time.js';
 import { sanitizeMarkedHtml } from '../utils/sanitize.js';
+import Icon from './Icon.jsx';
 
 const STATUS_LABELS = {
   active: 'Active',
@@ -11,21 +12,6 @@ const STATUS_LABELS = {
   blocked: 'Blocked',
 };
 
-function CloseIcon() {
-  return (
-    <svg viewBox="0 0 20 20" aria-hidden="true" className="panel-close-icon">
-      <path
-        d="M5 5L15 15M15 5L5 15"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.9"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
-
-// Configure marked for safe rendering
 marked.setOptions({ breaks: true });
 
 export default function AgentDetailPanel({ projectId, agent, onClose }) {
@@ -33,10 +19,10 @@ export default function AgentDetailPanel({ projectId, agent, onClose }) {
   const [mdLoading, setMdLoading] = useState(true);
   const [mdError, setMdError] = useState(null);
 
-  const agentColor = AGENT_COLORS[agent.id] ?? '#6c63ff';
-  const agentGradient = AGENT_GRADIENTS[agent.id] ?? `linear-gradient(150deg, ${agentColor} 0%, #0f172a 100%)`;
+  const color = agentColorById(agent.id);
+  const mono = agentMono(agent.id);
+  const status = agent.status || 'idle';
 
-  // ESC key closes the panel
   const handleKeyDown = useCallback((e) => {
     if (e.key === 'Escape') onClose();
   }, [onClose]);
@@ -46,7 +32,6 @@ export default function AgentDetailPanel({ projectId, agent, onClose }) {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [handleKeyDown]);
 
-  // Fetch the agent definition markdown
   useEffect(() => {
     setMdLoading(true);
     setMdError(null);
@@ -79,60 +64,74 @@ export default function AgentDetailPanel({ projectId, agent, onClose }) {
       aria-label={`Agent detail: ${agent.name}`}
       onClick={(e) => e.stopPropagation()}
     >
-      <div className="agent-detail-header" style={{ background: agentGradient }}>
-        <div className="agent-detail-header-main">
-          <span className="detail-kicker">Agent profile</span>
-          <h2 className="agent-detail-name">{agent.name}</h2>
-          {agent.role && <p className="agent-detail-role">{agent.role}</p>}
-          <span className="agent-detail-status-badge">
-            {STATUS_LABELS[agent.status] ?? agent.status}
-          </span>
+      <div
+        className="panel-header panel-header-tinted"
+        style={{
+          background: `linear-gradient(135deg, color-mix(in oklch, ${color} 14%, var(--bg-panel)) 0%, var(--bg-panel) 70%)`,
+          borderBottomColor: `color-mix(in oklch, ${color} 18%, var(--border-soft))`,
+        }}
+      >
+        <div
+          className="panel-avatar"
+          style={{
+            background: `color-mix(in oklch, ${color} 22%, var(--bg-panel))`,
+            color,
+            boxShadow: `0 1px 0 color-mix(in oklch, ${color} 30%, transparent) inset`,
+          }}
+        >
+          {mono}
         </div>
+        <div className="panel-header-main">
+          <span className="panel-kicker" style={{ color }}>Agent</span>
+          <h2 className="panel-title">{agent.name}</h2>
+          {agent.role && <p className="panel-subtitle">{agent.role}</p>}
+        </div>
+        <span className={`status-chip ${status}`} style={{ marginRight: 8 }}>
+          {STATUS_LABELS[status] ?? status}
+        </span>
         <button
-          className="panel-close-btn agent-detail-close-btn"
+          className="panel-close"
           onClick={onClose}
           aria-label="Close details"
         >
-          <CloseIcon />
+          <Icon name="close" size={16} />
         </button>
       </div>
 
-      {/* Scrollable markdown body */}
-      <div className="panel-body agent-detail-body">
+      <div className="panel-body">
         {mdLoading && (
-          <div className="agent-detail-loading">
+          <div className="state-container" style={{ padding: '32px 0' }}>
             <div className="state-spinner" role="status" aria-label="Loading definition" />
-            <span>Chargement de la definition...</span>
+            <span>Chargement de la définition…</span>
           </div>
         )}
         {mdError && (
-          <div className="agent-detail-error" role="alert">
-            <p>Impossible de charger la définition de l'agent.</p>
-            <p className="agent-detail-error-detail">{mdError}</p>
+          <div className="state-container" role="alert" style={{ padding: '24px 0' }}>
+            <span className="state-error">Impossible de charger la définition de l'agent.</span>
+            <span style={{ color: 'var(--fg-4)', fontSize: 12 }}>{mdError}</span>
           </div>
         )}
         {markdownContent && (
           <div
             className="agent-detail-markdown"
-            // Content comes exclusively from whitelisted .md files on the user's machine
             dangerouslySetInnerHTML={{ __html: markdownContent }}
           />
         )}
       </div>
 
-      {/* Footer */}
-      <div className="panel-footer">
-        <div className="agent-detail-last-action">
-          <span className="agent-detail-last-action-label">Dernière action</span>
-          <span>{agent.lastMessage}</span>
-          {agent.updatedAt && (
-            <span className="panel-activity-time" style={{ marginLeft: 6 }}>
-              · {formatRelativeTime(agent.updatedAt)}
-            </span>
-          )}
+      {agent.lastMessage && (
+        <div className="panel-footer panel-footer-message">
+          <div className="panel-footer-label">Dernière action</div>
+          <div className="panel-footer-text">
+            {agent.lastMessage}
+            {agent.updatedAt && (
+              <span className="panel-footer-time">
+                · {formatRelativeTime(agent.updatedAt)}
+              </span>
+            )}
+          </div>
         </div>
-        <button className="panel-btn-close" onClick={onClose}>Fermer</button>
-      </div>
+      )}
     </aside>
   );
 }
