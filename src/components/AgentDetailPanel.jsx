@@ -8,8 +8,9 @@ import Icon from './Icon.jsx';
 const STATUS_LABELS = {
   active: 'Active',
   done: 'Done',
-  idle: 'Idle',
+  idle: 'Pending',
   blocked: 'Blocked',
+  skipped: 'Skipped',
 };
 
 marked.setOptions({ breaks: true });

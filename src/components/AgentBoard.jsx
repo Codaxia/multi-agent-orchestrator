@@ -96,7 +96,7 @@ export default function AgentBoard({ project }) {
               {connectors[i] && <span className={`pipe-connector ${connectors[i]}`} />}
               <div className="pipe-avatar">{a.mono}</div>
               <div className="pipe-name">{a.name}</div>
-              <div className="pipe-status">{a.status}</div>
+              <div className="pipe-status">{a.status === 'idle' ? 'Pending' : a.status}</div>
             </button>
           ))}
         </div>

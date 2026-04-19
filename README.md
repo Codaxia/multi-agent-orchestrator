@@ -68,18 +68,28 @@ A single project can receive tasks of different scenarios over time. The same pr
 
 8 active roles, defined in `agents/default/`:
 
-| Agent | Role | When it intervenes |
-|-------|------|---------------------|
-| **Orchestrator** | Pipeline coordination | Always — detects scenario and manages flow |
-| **PM Discovery** | Scoping, user stories | At the start of a full-build project |
-| **Architect** | Architecture & technical breakdown | After discovery |
-| **Developer** | Full-stack implementation | Code phase |
-| **CTO Reviewer** | Code review & mentoring | After each implementation |
-| **QA** | Testing & validation | Before release |
-| **Security** | OWASP audit | On sensitive projects |
-| **Deploy** | Deployment & release | End of pipeline |
+| Agent | Mono | Role | When it intervenes |
+|-------|------|------|---------------------|
+| **Orchestrator** | OR | Pipeline coordination | Always — detects scenario and manages flow |
+| **PM Discovery** | PM | Scoping, user stories | At the start of a full-build or unclear scope |
+| **Architect** | AR | Architecture & technical breakdown | After discovery |
+| **Developer** | DV | Full-stack implementation | Code phase |
+| **CTO Reviewer** | CR | Code review & mentoring | After each implementation |
+| **QA** | QA | Testing & validation | Before release |
+| **Security** | SE | OWASP audit | On sensitive projects |
+| **Deploy** | DP | Deployment & release | End of pipeline |
 
-> `09-estimation.md` exists in `agents/default/` but is inactive — it is not part of any scenario pipeline. Deployment is handled manually via SSH; effort estimation is done inline by the Orchestrator when needed.
+> `09-estimation.md` exists in `agents/default/` but is **inactive** — not part of any scenario pipeline. Effort estimation is done inline by the Orchestrator when needed.
+
+### Agent statuses
+
+| Status | Meaning |
+|--------|---------|
+| **Active** | Currently running — the AI is acting as this agent right now |
+| **Done** | Completed its work for this mission |
+| **Pending** | Not yet started — waiting for upstream agents to finish |
+| **Blocked** | Waiting on external input or a human decision |
+| **Skipped** | Not required for this scenario (e.g. Architect in feature-ops) |
 
 ---
 
@@ -197,16 +207,20 @@ and session management. Flag any OWASP Top 10 vulnerabilities.
 The interface is organized around **scenarios** (Full Build, Feature Ops, Code Review) and **projects** grouped under each scenario.
 
 ### Sidebar
+
 - **Scenarios** — click a scenario to filter the project list to that scenario only
 - **Projects** — grouped by client/codebase (e.g. "Atuvu", "Dashboard Agents"); click a project to open its mission view
+- **Dark mode** — toggle via the moon/sun icon in the header (persisted in localStorage)
+- **Privacy mode** — in sidebar settings (gear icon), blur project names for screen sharing
 
 ### Mission views (4 tabs)
+
 | Tab | Content |
 |-----|---------|
 | **Agents** | Pipeline visualization + agent cards (status, last action) |
 | **Tasks** | Kanban board: Backlog → In Progress → In Review → QA → Done |
 | **Activity** | Chronological event log, filterable by agent |
-| **Recap** | Mission summary published by QA at close — with staging test guide |
+| **Recap** | Mission summary with why/how/outcome sections and a step-by-step staging test guide |
 
 ---
 

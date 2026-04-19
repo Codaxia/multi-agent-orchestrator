@@ -28,7 +28,7 @@ export default function AgentCard({ agent, isSelected, onAgentClick }) {
           <div className="ac-name">{displayName}</div>
           {role && <div className="ac-role">{role}</div>}
         </div>
-        <span className={`status-chip ${status || 'idle'}`}>{status || 'idle'}</span>
+        <span className={`status-chip ${status || 'idle'}`}>{status === 'idle' || !status ? 'Pending' : status}</span>
       </div>
       {lastMessage && <div className="ac-message">{lastMessage}</div>}
       {footer && (
