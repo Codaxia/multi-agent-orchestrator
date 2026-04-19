@@ -151,12 +151,18 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 
 .sb-body { flex: 1; overflow-y: auto; padding-bottom: 12px; min-height: 0; }
 .sb-section { padding: 10px 0 4px; }
+/* Séparation visuelle entre Scenarios et Projects */
+.sb-section + .sb-section {
+  border-top: 1px solid var(--border-soft);
+  margin-top: 6px;
+  padding-top: 14px;
+}
 .sb-section-label {
   padding: 0 20px 6px;
-  font-size: 11px;
+  font-size: 10.5px;
   color: var(--fg-4);
   font-weight: 600;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
@@ -220,23 +226,28 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .group-header {
   display: flex; align-items: center; gap: 8px;
   width: calc(100% - 16px);
-  margin: 6px 8px 2px;
-  padding: 6px 10px;
-  font-size: 11px;
-  color: var(--fg-4);
+  margin: 8px 8px 2px;
+  padding: 4px 10px;
+  font-size: 11.5px;
+  color: var(--fg-2);
   font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  letter-spacing: 0;
+  text-transform: none;
   text-align: left;
   border-radius: var(--r-sm);
 }
 .group-header > span:first-child { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
-.group-header:hover { background: var(--bg-hover); color: var(--fg-3); }
+.group-header:hover { background: var(--bg-hover); color: var(--fg); }
 .group-count {
   font-size: 10.5px;
   color: var(--fg-4);
   font-weight: 500;
   font-variant-numeric: tabular-nums;
+  background: var(--bg-inset);
+  border-radius: 10px;
+  padding: 0 5px;
+  min-width: 16px;
+  text-align: center;
 }
 .group-caret {
   display: inline-flex;
@@ -534,7 +545,9 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   color: var(--s-block);
   border-color: color-mix(in oklch, var(--s-block) 30%, transparent);
 }
-.pipe-node.idle .pipe-avatar { opacity: 0.45; }
+.pipe-node.idle .pipe-avatar    { opacity: 0.45; }
+.pipe-node.skipped .pipe-avatar { opacity: 0.25; }
+.pipe-node.skipped .pipe-status { text-decoration: line-through; opacity: 0.5; }
 
 .pipe-name { font-size: 12px; color: var(--fg-2); text-align: center; font-weight: 500; }
 .pipe-status { font-size: 11px; color: var(--fg-4); text-transform: capitalize; }
@@ -599,6 +612,8 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .status-chip.blocked { background: color-mix(in oklch, var(--s-block) 12%, transparent); color: var(--s-block); }
 .status-chip.done    { background: color-mix(in oklch, var(--s-done) 12%, transparent); color: var(--s-done); }
 .status-chip.idle    { color: var(--fg-4); }
+.status-chip.skipped { color: var(--fg-4); opacity: 0.55; }
+.status-chip.skipped::before { display: none; }
 
 .ac-message {
   font-size: 13px;
