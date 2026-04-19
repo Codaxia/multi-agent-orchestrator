@@ -39,8 +39,9 @@ This dashboard is a **control panel** for supervising AI agents working through 
 ┌─────────────────────────────────────────────────────┐
 │  DASHBOARD (browser)                                │
 │  - Agents: who is doing what, in real-time          │
-│  - Kanban: Backlog → In Progress → Review → Done    │
+│  - Tasks: Backlog → In Progress → Review → QA → Done│
 │  - Activity: full history of everything that happened│
+│  - Recap: mission summary published at close        │
 └─────────────────────────────────────────────────────┘
 ```
 
@@ -54,10 +55,10 @@ The Orchestrator detects the type of work from your brief and activates only the
 
 | Scenario | When | Pipeline |
 |----------|------|----------|
-| **full-build** | New project from scratch | Orchestrator -> PM -> Architect -> Developer -> Review -> QA -> Security -> Deploy |
-| **feature-ops** | Existing project, new feature, bug fix | Orchestrator -> Developer -> CTO Review -> QA |
-| **code-review** | Audit, review, security check | Orchestrator -> CTO Review -> Security -> QA |
-| **rework** | Bug reported on a completed mission | Orchestrator -> Developer -> CTO Review -> Security -> QA (full pipeline, no shortcuts) |
+| **full-build** | New project from scratch | Orchestrator → PM → Architect → Developer → CTO Review → QA → Security → Deploy |
+| **feature-ops** | Existing project, new feature, bug fix | Orchestrator → Developer → CTO Review → QA |
+| **code-review** | Audit, review, security check | Orchestrator → CTO Review → Security → QA |
+| **rework** | Bug reported on a completed mission | Orchestrator → Developer → CTO Review → Security → QA (full pipeline, no shortcuts) |
 
 A single project can receive tasks of different scenarios over time. The same project that started as a full-build can later receive feature-ops or code-review tasks.
 
@@ -65,7 +66,7 @@ A single project can receive tasks of different scenarios over time. The same pr
 
 ## The agents
 
-9 specialized roles, defined in `agents/default/`:
+8 active roles, defined in `agents/default/`:
 
 | Agent | Role | When it intervenes |
 |-------|------|---------------------|
@@ -77,7 +78,8 @@ A single project can receive tasks of different scenarios over time. The same pr
 | **QA** | Testing & validation | Before release |
 | **Security** | OWASP audit | On sensitive projects |
 | **Deploy** | Deployment & release | End of pipeline |
-| **Estimation** | Effort & complexity | On demand |
+
+> `09-estimation.md` exists in `agents/default/` but is inactive — it is not part of any scenario pipeline. Deployment is handled manually via SSH; effort estimation is done inline by the Orchestrator when needed.
 
 ---
 
@@ -160,7 +162,7 @@ Login and register already work. Add TOTP verification
 to enable/disable 2FA.
 ```
 
-**What happens:** Orchestrator detects `feature-ops` -> creates the visible pipeline cards -> Developer implements -> CTO reviews -> QA validates. PM Discovery is inserted only when the scope is unclear, and Security is added only when the risk requires it.
+**What happens:** Orchestrator detects `feature-ops` → creates the visible pipeline cards → Developer implements → CTO reviews → QA validates. PM Discovery is inserted only when the scope is unclear, and Security is added only when the risk requires it.
 
 ---
 
@@ -186,7 +188,25 @@ Focus on authentication flows, API endpoints, input validation,
 and session management. Flag any OWASP Top 10 vulnerabilities.
 ```
 
-**What happens:** Orchestrator detects `code-review` -> creates the visible review pipeline -> CTO reviews code quality -> Security audits for vulnerabilities -> QA validates the reviewed scope or any fixes.
+**What happens:** Orchestrator detects `code-review` → creates the visible review pipeline → CTO reviews code quality → Security audits for vulnerabilities → QA validates the reviewed scope or any fixes.
+
+---
+
+## The dashboard UI
+
+The interface is organized around **scenarios** (Full Build, Feature Ops, Code Review) and **projects** grouped under each scenario.
+
+### Sidebar
+- **Scenarios** — click a scenario to filter the project list to that scenario only
+- **Projects** — grouped by client/codebase (e.g. "Atuvu", "Dashboard Agents"); click a project to open its mission view
+
+### Mission views (4 tabs)
+| Tab | Content |
+|-----|---------|
+| **Agents** | Pipeline visualization + agent cards (status, last action) |
+| **Tasks** | Kanban board: Backlog → In Progress → In Review → QA → Done |
+| **Activity** | Chronological event log, filterable by agent |
+| **Recap** | Mission summary published by QA at close — with staging test guide |
 
 ---
 
@@ -202,16 +222,16 @@ and session management. Flag any OWASP Top 10 vulnerabilities.
 ## Project structure
 
 ```
-agents/default/          ← 9 agent definitions (markdown)
+agents/default/          ← 8 active agent definitions + 1 archived (estimation)
 data/
   seeds/                 ← Demo data (versioned)
   runtime/               ← Live local state (git-ignored)
 src/
-  components/            ← React components (Board, Kanban, Activity...)
-  hooks/                 ← Real-time polling
-  utils/                 ← Agent colors, time formatting
+  components/            ← React components (AgentBoard, TaskKanban, ActivityLog, RecapView...)
+  hooks/                 ← usePolling (real-time data)
+  utils/                 ← Agent colors (oklch palette), time formatting, sanitization
 lib/
-  dashboard-data.js      ← Backend data logic
+  dashboard-data.js      ← Backend data logic (workspace, projects, tasks, agents)
 server.js                ← Express API
 AGENTS.md                ← Work protocol for AI assistants
 PROMPT-BOOTSTRAP.md      ← Startup prompt to paste into any AI assistant
@@ -260,4 +280,4 @@ No. The `AGENTS.md` file and the bootstrap prompt are LLM-agnostic. Any AI assis
 Nothing beyond your existing AI subscription. No additional API, no cloud server. Everything runs locally.
 
 **Q: Can I use this for my own project?**
-Yes. Create a new project in the dashboard or customize the agents in `agents/default/`. The dashboard supports multiple projects simultaneously.
+Yes. Create a new project in the dashboard or customize the agents in `agents/default/`. The dashboard supports multiple projects and scenarios simultaneously.
